@@ -1,7 +1,10 @@
 # direct helper
-direct helperは、directに便利な機能を追加するためのユーザースクリプトです。
+direct helperは、ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプトです。
 
 ## 機能
+### マルチビューのレスポンシブ化
+選択状態に応じてマルチビューのカラム数を動的に変更します。
+
 ### メッセージ監視  
 メッセージを監視してコンソールに出力します。
 
@@ -32,7 +35,7 @@ directの環境設定画面から、各種設定を変更できます。
 日付フォーマットには、以下のパターン文字を使用可能です。  
 パターン文字はJavaの[DateTimeFormatter](https://docs.oracle.com/javase/jp/8/docs/api/java/time/format/DateTimeFormatter.html#patterns)に基いています。
 
-|文字|内容|2016-01-01 01:01:01|2016-12-31 23:59:59|
+|文字|内容|例：2016-01-01 01:01:01|例：2016-12-31 23:59:59|
 |:-----|:-------------------|:---|:---|
 |`yyyy`|年（4桁）|2016|2016|
 |`yy`|年（2桁）|16|16|
@@ -91,3 +94,7 @@ directの環境設定画面から、各種設定を変更できます。
 
 ### メッセージ監視
 MutationObserverによってDOMの変更を監視することで、新着メッセージを取得しています。
+
+## コンタクト
+* [GitHub](https://github.com/munierujp/direct_helper)
+* [Twitter](http://twitter.com/munieru_jp)

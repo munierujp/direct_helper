@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.1
+// @version      1.2
 // @description  directに便利な機能を追加します。
 // @author       Munieru
 // @match       https://*.direct4b.com/home*
@@ -116,6 +116,7 @@
 
     /** 設定デフォルト値 */
     const SETTINGS_DEFAULT_VALUES = {
+        show_message_count: true,
         custom_log_message_header:  "<time> [<talkName>] <userName>",
         custom_log_start_observe_messages: "<time> メッセージの監視を開始します。",
         custom_log_start_observe_talk: "<time> [<talkName>]の監視を開始します。",
@@ -135,8 +136,23 @@
     /** 設定画面説明 */
     const SETTING_DESCRIPTION = "以下はdirect helperの設定です。設定変更後はページをリロードしてください。";
 
+    /** メッセージ入力設定項目データ */
+    const SETTING_SECTION_INPUT_MESSAGE_DATA = {
+        key: "input-message-settings",
+        title: "メッセージ入力",
+        description: "メッセージ入力欄の動作を変更します。",
+        inputKeyDatas: {
+            show_message_count: {
+                type: FormTypes.CHECKBOX,
+                key: "show_message_count",
+                name: "入力文字数の表示",
+                description: "入力文字数をカウントダウン形式で表示します。"
+            }
+        }
+    };
+    
     /** マルチビュー設定項目データ */
-    const SETTING_SECTION_MULTI_VIEW = {
+    const SETTING_SECTION_MULTI_VIEW_DATA = {
         key: "multi-view-settings",
         title: "マルチビュー",
         description: "マルチビューの動作を変更します。",
@@ -244,13 +260,15 @@
 
     /** 設定項目データリスト */
     const SETTING_SECTION_DATAS = [
-        SETTING_SECTION_MULTI_VIEW,
+        SETTING_SECTION_INPUT_MESSAGE_DATA,
+        SETTING_SECTION_MULTI_VIEW_DATA,
         SETTING_SECTION_WATCH_MESSAGE_DATA,
         SETTING_SECTION_LOG_DATA
     ];
 
     /** 機能 */
     const SETTINGS_KEY_FUNCTIONS = {
+        show_message_count: showMessageCount,
         responsive_multi_view: makeMultiViewResponsive,
         watch_message: watchMessage
     };
@@ -298,7 +316,7 @@
         settingPage.appendChild(hr);
 
         //説明
-        const description = createElement(ElementTypes.DIV, SETTING_DESCRIPTION);
+        const description = createElementWithHTML(ElementTypes.DIV, SETTING_DESCRIPTION);
         settingPage.appendChild(description);
 
         //設定項目
@@ -421,7 +439,7 @@
                 form.appendChild(inputArea);
 
                 if(inputData.description !== undefined){
-                    const annotation = createElement(ElementTypes.DIV, inputData.description);
+                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description);
                     setAttribute(annotation, AttributeTypes.CLASS, "annotation");
                     form.appendChild(annotation);
                 }
@@ -440,7 +458,7 @@
                 checkboxArea.appendChild(label);
 
                 if(inputData.description !== undefined){
-                    const annotation = createElement(ElementTypes.DIV, inputData.description);
+                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description);
                     setAttribute(annotation, AttributeTypes.CLASS, "annotation");
                     checkboxArea.appendChild(annotation);
                 }
@@ -458,21 +476,21 @@
     * @return {HTMLElement} 項目要素
     */
     function createSettingSection(settingSectionData, inputKeyForms){
-        const header = createElement(ElementTypes.DIV, settingSectionData.title);
+        const header = createElementWithHTML(ElementTypes.DIV, settingSectionData.title);
         setAttribute(header, AttributeTypes.CLASS, "c-section__heading");
 
         let description;
         if(settingSectionData.description !== undefined){
-            description = createElement(ElementTypes.DIV, settingSectionData.description);
+            description = createElementWithHTML(ElementTypes.DIV, settingSectionData.description);
             setAttribute(description, AttributeTypes.CLASS, "form-group");
         }
 
-        const button = createElement(ElementTypes.BUTTON, "変更");
+        const button = createElementWithHTML(ElementTypes.BUTTON, "変更");
         setAttribute(button, AttributeTypes.TYPE, "button");
         setAttribute(button, AttributeTypes.CLASS, "btn btn-primary btn-fix");
         button.disabled = true;
 
-        const message = createElement(ElementTypes.SPAN, "変更しました。");
+        const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。");
         setAttribute(message, AttributeTypes.CLASS, "success");
         setDisplay(message, DisplayTypes.NONE);
 
@@ -512,6 +530,27 @@
         return true;
     }
 
+    /**
+    * メッセージの文字数を表示します。
+    */
+    function showMessageCount(){
+        const sendForms = document.querySelectorAll(".form-send");
+        sendForms.forEach(sendForm => {
+            const textArea = sendForm.querySelector('.form-send-text');
+            const maxLength = textArea.maxLength;
+
+            //カウンターを作成
+            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength);
+            setStyle(counter, "margin-right", "8px");
+            const sendButtonArea = sendForm.querySelector('.form-send-button-group');
+            sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
+
+            //文字が入力されたらカウンターの値を更新
+            const onInputText = () => counter.innerHTML = maxLength - textArea.value.length;
+            addEventListener(textArea, EventTypes.INPUT, onInputText);
+        });
+    }
+    
     /**
     * マルチビューをレスポンシブ化します。
     */
@@ -937,28 +976,46 @@
     * ノードの深い複製を返します。
     * @param {Node} node ノード
     * @return {Node} ノードの深い複製
-    * @throws {Error} エラー
     */
     function deepCloneNode(node){
         return node.cloneNode(true);
     }
 
     /**
-    * HTML要素を作成します。内部HTMLがあれば設定します。
+    * 内部テキストを持ったHTML要素を作成します。
     * @param {ElementType} type 要素種別
-    * @param {String} [innerHTML] 内部HTML
+    * @param {String} text テキスト
+    * @return {HTMLElement} HTML要素
+    */
+    function createElementWithText(type, text){
+        const div = createElement(type);
+        div.textContent = text;
+        return div;
+    }
+
+    /**
+    * 内部HTMLを持ったHTML要素を作成します。
+    * @param {ElementType} type 要素種別
+    * @param {String} html HTML
+    * @return {HTMLElement} HTML要素
+    */
+    function createElementWithHTML(type, html){
+        const div = createElement(type);
+        div.innerHTML = html;
+        return div;
+    }
+
+    /**
+    * HTML要素を作成します。
+    * @param {ElementType} type 要素種別
     * @return {HTMLElement} HTML要素
     * @throws {Error} エラー
     */
-    function createElement(type, innerHTML){
+    function createElement(type){
         if(!(type instanceof ElementType)){
             throw new Error("type is not instance of ElementType");
         }
-        const div = document.createElement(type.value);
-        if(innerHTML !== undefined){
-            div.innerHTML = innerHTML;
-        }
-        return div;
+        return document.createElement(type.value);
     }
 
     /**

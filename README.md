@@ -1,4 +1,6 @@
 # direct helper
+![サンプル画像](sample.png)
+
 direct helperは、ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプトです。
 
 ## 機能

@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.2
+// @version      1.3
 // @description  directに便利な機能を追加します。
 // @author       Munieru
 // @match       https://*.direct4b.com/home*
 // @grant        none
 // ==/UserScript==
 
-(function() {
+(function(){
     'use strict';
 
     /** value保持クラス */
@@ -18,21 +18,12 @@
         }
     }
 
-    /** 属性種別クラス */
-    class AttributeType extends HasValue{}
-    /** 属性種別 */
-    const AttributeTypes = {
-        CLASS: new AttributeType("class"),
-        ID: new AttributeType("id"),
-        NAME: new AttributeType("name"),
-        TYPE: new AttributeType("type")
-    };
-
     /** ディスプレイ種別クラス */
     class DisplayType extends HasValue{}
     /** ディスプレイ種別 */
     const DisplayTypes = {
         BLOCK: new DisplayType("block"),
+        FLEX: new DisplayType("flex"),
         INLINE: new DisplayType("inline"),
         NONE: new DisplayType("none")
     };
@@ -44,6 +35,7 @@
         BUTTON: new ElementType("button"),
         DIV: new ElementType("div"),
         HR: new ElementType("hr"),
+        IMG: new ElementType("img"),
         INPUT: new ElementType("input"),
         LABEL: new ElementType("label"),
         SPAN: new ElementType("span")
@@ -96,7 +88,6 @@
 
     /** enumリスト */
     const ENUMS = [
-        AttributeTypes,
         DisplayTypes,
         ElementTypes,
         EventTypes,
@@ -116,17 +107,18 @@
 
     /** 設定デフォルト値 */
     const SETTINGS_DEFAULT_VALUES = {
-        show_message_count: true,
         custom_log_message_header:  "<time> [<talkName>] <userName>",
         custom_log_start_observe_messages: "<time> メッセージの監視を開始します。",
         custom_log_start_observe_talk: "<time> [<talkName>]の監視を開始します。",
         date_format: "yyyy/M/d(e) HH:mm:ss",
         default_observe_talk_ids: [],
+        expand_user_icon: true,
         log_file: "[ファイル]",
         log_image: "[画像]",
         log_label: "",
         log_stamp: "[スタンプ]",
         responsive_multi_view: true,
+        show_message_count: true,
         show_past_message: false,
         user_name_system: "システム",
         watch_default_observe_talk: true,
@@ -135,6 +127,21 @@
 
     /** 設定画面説明 */
     const SETTING_DESCRIPTION = "以下はdirect helperの設定です。設定変更後はページをリロードしてください。";
+
+    /** ユーザーダイアログ設定項目データ */
+    const SETTING_SECTION_USER_DIALOG_DATA = {
+        key: "user-dialog-settings",
+        title: "ユーザーダイアログ",
+        description: "ユーザーダイアログの動作を変更します。",
+        inputKeyDatas: {
+            expand_user_icon: {
+                type: FormTypes.CHECKBOX,
+                key: "expand_user_icon",
+                name: "ユーザーアイコンの拡大",
+                description: "ユーザーアイコンをクリックで拡大表示します。"
+            }
+        }
+    };
 
     /** メッセージ入力設定項目データ */
     const SETTING_SECTION_INPUT_MESSAGE_DATA = {
@@ -150,7 +157,7 @@
             }
         }
     };
-    
+
     /** マルチビュー設定項目データ */
     const SETTING_SECTION_MULTI_VIEW_DATA = {
         key: "multi-view-settings",
@@ -260,6 +267,7 @@
 
     /** 設定項目データリスト */
     const SETTING_SECTION_DATAS = [
+        SETTING_SECTION_USER_DIALOG_DATA,
         SETTING_SECTION_INPUT_MESSAGE_DATA,
         SETTING_SECTION_MULTI_VIEW_DATA,
         SETTING_SECTION_WATCH_MESSAGE_DATA,
@@ -268,6 +276,7 @@
 
     /** 機能 */
     const SETTINGS_KEY_FUNCTIONS = {
+        expand_user_icon: makeUserIconExpandable,
         show_message_count: showMessageCount,
         responsive_multi_view: makeMultiViewResponsive,
         watch_message: watchMessage
@@ -283,11 +292,7 @@
     const settings = getSettings();
 
     //各種機能の実行
-    for(const key in SETTINGS_KEY_FUNCTIONS){
-        if(settings[key] === true){
-            SETTINGS_KEY_FUNCTIONS[key]();
-        }
-    }
+    Object.keys(SETTINGS_KEY_FUNCTIONS).filter(key => settings[key]　 === true).forEach(key => SETTINGS_KEY_FUNCTIONS[key]());
 
     /**
     * 設定を初期化します。
@@ -296,11 +301,7 @@
         const settings = getSettings();
 
         //未設定項目にデフォルト値を設定
-        for(const key in SETTINGS_DEFAULT_VALUES) {
-            if(settings[key] === undefined){
-                settings[key] = SETTINGS_DEFAULT_VALUES[key];
-            }
-        }
+        Object.keys(SETTINGS_DEFAULT_VALUES).filter(key => settings[key] === undefined).forEach(key => settings[key] = SETTINGS_DEFAULT_VALUES[key]);
 
         setSettings(settings);
     }
@@ -354,9 +355,10 @@
             return input;
         });
 
-        //値が変更されたらボタンをクリック可能化
         const button = section.querySelector('.btn');
         const message = section.querySelector('.success');
+        
+        //値変更時にボタンをクリック可能化
         const onChangeValue = () => {
             const inputKeyInputValues = convertObjectValue(inputKeyInputs, (key, input) => {
                 const inputData = inputKeyDatas[key];
@@ -371,8 +373,8 @@
             button.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
             setDisplay(message, DisplayTypes.NONE);
         };
-        for(const key in inputKeyInputs){
-            const input = inputKeyInputs[key];
+
+        forEach(inputKeyInputs, (key, input) => {
             const inputData = inputKeyDatas[key];
             switch(inputData.type){
                 case FormTypes.TEXT:
@@ -383,12 +385,11 @@
                     addEventListener(input, EventTypes.CLICK, onChangeValue);
                     break;
             }
-        }
+        });
 
-        //ボタンがクリックされたらローカルストレージの値を更新
-        const onClickButton = () => {
-            for(const key in inputKeyInputs){
-                const input = inputKeyInputs[key];
+        //ボタンクリック時にローカルストレージの値を更新
+        addEventListener(button, EventTypes.CLICK, () => {
+            forEach(inputKeyInputs, (key, input) => {
                 const inputData = inputKeyDatas[key];
                 switch(inputData.type){
                     case FormTypes.TEXT:
@@ -401,13 +402,12 @@
                         settings[key] = input.checked;
                         break;
                 }
-            }
+            });
 
             setSettings(settings);
             button.disabled = true;
             setDisplay(message, DisplayTypes.INLINE);
-        };
-        addEventListener(button, EventTypes.CLICK, onClickButton);
+        });
     }
 
     /**
@@ -416,50 +416,57 @@
     * @return {HTMLElement} インプットフォーム要素
     */
     function createSettingInputFormElement(inputData){
-        const form = createElement(ElementTypes.DIV);
-        setAttribute(form, AttributeTypes.CLASS, "form-group");
+        const form = createElement(ElementTypes.DIV, {
+            class: "form-group"
+        });
         const label = createElement(ElementTypes.LABEL);
 
         switch(inputData.type){
             case FormTypes.TEXT:
             case FormTypes.TEXT_ARRAY:
-                setAttribute(label, AttributeTypes.CLASS, "control-label");
+                setAttribute(label, "class", "control-label");
                 label.innerText = inputData.name;
 
-                const input = createElement(ElementTypes.INPUT);
-                setAttribute(input, AttributeTypes.ID, HTML_ID_PREFIX + inputData.key);
-                setAttribute(input, AttributeTypes.CLASS, "form-control");
-                setAttribute(input, AttributeTypes.NAME, "status");
+                const input = createElement(ElementTypes.INPUT, {
+                    id: HTML_ID_PREFIX + inputData.key,
+                    class: "form-control",
+                    name: "status"
+                });
 
-                const inputArea = createElement(ElementTypes.DIV);
-                setAttribute(inputArea, AttributeTypes.CLASS, "controls");
+                const inputArea = createElement(ElementTypes.DIV, {
+                    class: "controls"
+                });
                 inputArea.appendChild(input);
 
                 form.appendChild(label);
                 form.appendChild(inputArea);
 
                 if(inputData.description !== undefined){
-                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description);
-                    setAttribute(annotation, AttributeTypes.CLASS, "annotation");
+                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description, {
+                        class: "annotation"
+                    });
                     form.appendChild(annotation);
                 }
                 break;
             case FormTypes.CHECKBOX:
-                const checkbox = createElement(ElementTypes.INPUT);
-                setAttribute(checkbox, AttributeTypes.ID, HTML_ID_PREFIX + inputData.key);
-                setAttribute(checkbox, AttributeTypes.TYPE, "checkbox");
+                const checkbox = createElement(ElementTypes.INPUT, {
+                    id: HTML_ID_PREFIX + inputData.key,
+                    type: "checkbox"
+                });
 
                 const labelText = document.createTextNode(inputData.name);
                 label.appendChild(checkbox);
                 label.appendChild(labelText);
 
-                const checkboxArea = createElement(ElementTypes.DIV);
-                setAttribute(checkboxArea, AttributeTypes.CLASS, "checkbox");
+                const checkboxArea = createElement(ElementTypes.DIV, {
+                    class: "checkbox"
+                });
                 checkboxArea.appendChild(label);
 
                 if(inputData.description !== undefined){
-                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description);
-                    setAttribute(annotation, AttributeTypes.CLASS, "annotation");
+                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description, {
+                        class: "annotation"
+                    });
                     checkboxArea.appendChild(annotation);
                 }
 
@@ -476,31 +483,36 @@
     * @return {HTMLElement} 項目要素
     */
     function createSettingSection(settingSectionData, inputKeyForms){
-        const header = createElementWithHTML(ElementTypes.DIV, settingSectionData.title);
-        setAttribute(header, AttributeTypes.CLASS, "c-section__heading");
+        const header = createElementWithHTML(ElementTypes.DIV, settingSectionData.title, {
+            class: "c-section__heading"
+        });
 
         let description;
         if(settingSectionData.description !== undefined){
-            description = createElementWithHTML(ElementTypes.DIV, settingSectionData.description);
-            setAttribute(description, AttributeTypes.CLASS, "form-group");
+            description = createElementWithHTML(ElementTypes.DIV, settingSectionData.description, {
+                class: "form-group"
+            });
         }
 
-        const button = createElementWithHTML(ElementTypes.BUTTON, "変更");
-        setAttribute(button, AttributeTypes.TYPE, "button");
-        setAttribute(button, AttributeTypes.CLASS, "btn btn-primary btn-fix");
+        const button = createElementWithHTML(ElementTypes.BUTTON, "変更", {
+            type: "button",
+            class: "btn btn-primary btn-fix"
+        });
         button.disabled = true;
 
-        const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。");
-        setAttribute(message, AttributeTypes.CLASS, "success");
+        const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。", {
+            class: "success"
+        });
         setDisplay(message, DisplayTypes.NONE);
 
         const buttonArea = createElement(ElementTypes.DIV);
         buttonArea.appendChild(button);
         buttonArea.appendChild(message);
 
-        const section = createElement(ElementTypes.DIV);
-        setAttribute(section, AttributeTypes.CLASS, "c-section");
-        setAttribute(section, AttributeTypes.ID, HTML_ID_PREFIX + settingSectionData.key);
+        const section = createElement(ElementTypes.DIV, {
+            class: "c-section",
+            id: HTML_ID_PREFIX + settingSectionData.key
+        });
         section.appendChild(header);
 
         if(description !== undefined){
@@ -527,7 +539,65 @@
                 return false;
             }
         }
-        return true;
+        return true; 
+    }
+
+    /**
+    * ユーザーアイコンを拡大します。
+    */
+    function makeUserIconExpandable(){
+        const CUSTOM_MODAL_Z = 9999;
+
+        const userDialog = document.getElementById("user-dialog-basic-profile");
+        const icon = userDialog.querySelector('.prof-icon-large');
+        setStyle(icon, "cursor",  "zoom-in");
+        const image = icon.querySelector('img');
+
+        //アイコンクリック時に拡大
+        addEventListener(icon, EventTypes.CLICK, () => {
+            const backgroundImage = image.style["background-image"];
+            const url = backgroundImage.match(/url\("(.+)"\)/)[1];
+
+            //モーダルで背景を暗くする
+            const modal = document.querySelector('.modal-backdrop');
+            const modalZ = modal.style["z-index"];
+            setStyle(modal, "z-index", CUSTOM_MODAL_Z);
+
+            //拡大画像エリアを作成
+            const expandedImageAreaAttributes = {
+                id: HTML_ID_PREFIX + "expanded-user-icon"
+            };
+            const expandedImageArea = createElement(ElementTypes.DIV, expandedImageAreaAttributes);
+            setStyles(expandedImageArea, {
+                "position": "fixed",
+                "top": 0,
+                "left": 0,
+                "width": "100%",
+                "height": "100%",
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "z-index": CUSTOM_MODAL_Z + 1,
+                "cursor": "zoom-out	"
+            });
+
+            //拡大画像を作成
+            const expandedImage = createElement(ElementTypes.IMG, {
+                src: url
+            });
+            setStyles(expandedImage, {
+                "max-width": "100%",
+                "max-height": "100%"
+            });
+            expandedImageArea.appendChild(expandedImage);
+
+            //拡大画像エリアクリック時に削除
+            addEventListener(expandedImageArea, EventTypes.CLICK, () => {
+                document.body.removeChild(expandedImageArea);
+                setStyle(modal, "z-index", modalZ);
+            });
+            document.body.appendChild(expandedImageArea);
+        });
     }
 
     /**
@@ -545,12 +615,11 @@
             const sendButtonArea = sendForm.querySelector('.form-send-button-group');
             sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
 
-            //文字が入力されたらカウンターの値を更新
-            const onInputText = () => counter.innerHTML = maxLength - textArea.value.length;
-            addEventListener(textArea, EventTypes.INPUT, onInputText);
+            //文字入力時にカウンターの値を更新
+            addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
         });
     }
-    
+
     /**
     * マルチビューをレスポンシブ化します。
     */
@@ -559,22 +628,9 @@
         const talkPanes = multiPanes.querySelectorAll('.talk-pane');
         talkPanes.forEach(talkPane => {
             const talkPaneObserver = new MutationObserver(mutations => {
-                mutations.forEach(mutation => {
-                    //class属性の変更でなければ次へ
-                    if(mutation.attributeName != "class"){
-                        return;
-                    }
-
-                    const activeTalkPanes = [];
-                    const inactiveTalkPanes = [];
-                    talkPanes.forEach(talkPane => {
-                        const talkIsActive = talkPane.classList.contains("has-send-form");
-                        if(talkIsActive){
-                            activeTalkPanes.push(talkPane);
-                        }else{
-                            inactiveTalkPanes.push(talkPane);
-                        }
-                    });
+                mutations.filter(mutation => mutation.attributeName == "class").forEach(mutation => {
+                    const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
+                    const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
 
                     //アクティブペインを外側から表示
                     activeTalkPanes.forEach(talkPane => {
@@ -584,7 +640,7 @@
                         const timelineHeader = talkPane.querySelector('.timeline-header');
                         const timelineFotter = talkPane.querySelector('.timeline-footer');
                         const timelineBodyHeight = talkPane.clientHeight - timelineHeader.clientHeight - timelineFotter.clientHeight;
-                        setHeight(timelinebody, timelineBodyHeight);
+                        setStyle(timelinebody, "height", timelineBodyHeight + "px");
                         timelinebody.scrollTop = timelinebody.scrollHeight;
                     });
 
@@ -635,22 +691,16 @@
                 });
 
                 //既読デフォルト監視トークを監視対象に追加
-                const length = readDefaultObserveTalkIds.length;
-                for(let i = 0; i < length; i++) {
-                    const talkId = readDefaultObserveTalkIds[i];
+                readDefaultObserveTalkIds.filter(talkId => !existsInArray(observedTalkIdList, talkId)).forEach((talkId, index) => {
                     const talk = document.getElementById(talkId);
-                    const talkIsObserved = existsInArray(observedTalkIdList, talkId);
+                    talk.click();
 
-                    if(!talkIsObserved){
+                    //最後の場合はトークを閉じるために2回クリック
+                    const isLastTalk = index == readDefaultObserveTalkIds.length -1;
+                    if(isLastTalk){
                         talk.click();
-
-                        //最後の場合はトークを閉じるために2回クリック
-                        const isLastTalk = i == length -1;
-                        if(isLastTalk){
-                            talk.click();
-                        }
                     }
-                }
+                });
             }
 
             //トークデータマップの更新
@@ -693,12 +743,7 @@
                     const talkObserver = new MutationObserver(mutations => {
                         mutations.forEach(mutation => {
                             const nodes = mutation.addedNodes;
-                            nodes.forEach(node => {
-                                //メッセージではなければ次へ
-                                if(node.className != "msg"){
-                                    return;
-                                }
-
+                            Array.from(nodes).filter(node => node.className == "msg").forEach(node => {
                                 const message = {
                                     talkId: talkId,
                                     talkName: talkName
@@ -830,6 +875,16 @@
         }
     }
 
+
+    /**
+    * オブジェクトをキーと値でループ処理します。
+    * @param {Object} object オブジェクト
+    * @param {Function} processer 処理関数：(key, value) => {...}
+    */
+    function forEach(object, processer){
+        Object.keys(object).forEach(key => processer(key, object[key]));
+    }
+
     /**
     * オブジェクトの値を変換して新しいオブジェクトを作成します。
     * @param {Object} object オブジェクト
@@ -838,10 +893,7 @@
     */
     function convertObjectValue(object, converter){
         const converted = {};
-        for(const key in object){
-            const value = object[key];
-            converted[key] = converter(key, value);
-        }
+        forEach(object, (key, value) => converted[key] = converter(key, value));
         return converted;
     }
 
@@ -862,9 +914,7 @@
     */
     function replace(source, replacers) {
         let replaced = source;
-        for(const replacer of replacers) {
-            replaced = replaced.replace(replacer[0], replacer[1]);
-        }
+        replacers.forEach(replacer => replaced = replaced.replace(replacer[0], replacer[1]));
         return replaced;
     }
 
@@ -984,57 +1034,68 @@
     /**
     * 内部テキストを持ったHTML要素を作成します。
     * @param {ElementType} type 要素種別
+    * @param {Object} [attributes] 属性
     * @param {String} text テキスト
     * @return {HTMLElement} HTML要素
     */
-    function createElementWithText(type, text){
-        const div = createElement(type);
-        div.textContent = text;
-        return div;
+    function createElementWithText(type, text, attributes){
+        const element = createElement(type, attributes);
+        element.textContent = text;
+        return element;
     }
 
     /**
     * 内部HTMLを持ったHTML要素を作成します。
     * @param {ElementType} type 要素種別
+    * @param {Object} [attributes] 属性
     * @param {String} html HTML
     * @return {HTMLElement} HTML要素
     */
-    function createElementWithHTML(type, html){
-        const div = createElement(type);
-        div.innerHTML = html;
-        return div;
+    function createElementWithHTML(type, html, attributes){
+        const element = createElement(type, attributes);
+        element.innerHTML = html;
+        return element;
     }
 
     /**
     * HTML要素を作成します。
     * @param {ElementType} type 要素種別
+    * @param {Object} [attributes] 属性
     * @return {HTMLElement} HTML要素
     * @throws {Error} エラー
     */
-    function createElement(type){
+    function createElement(type, attributes){
         if(!(type instanceof ElementType)){
             throw new Error("type is not instance of ElementType");
         }
-        return document.createElement(type.value);
-    }
-
-    /**
-    * HTML要素の属性を設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {AttributeType} type 属性種別
-    * @param {String} value 値
-    * @throws {Error} エラー
-    */
-    function setAttribute(element, type, value){
-        if(!(type instanceof AttributeType)){
-            throw new Error("type is not instance of AttributeType");
+        const element = document.createElement(type.value);
+        if(attributes !== undefined){
+            setAttributes(element, attributes);
         }
-        element.setAttribute(type.value, value);
+        return element;
     }
 
+    /**
+    * HTML要素に属性を設定します。
+    * @param {HTMLElement} element HTML要素
+    * @param {Object} attributes 属性
+    */
+    function setAttributes(element, attributes){
+        forEach(attributes, (name,　value) =>  setAttribute(element, name, value));
+    }
 
     /**
-    * HTML要素のディスプレイ属性を設定します。
+    * HTML要素に属性を設定します。
+    * @param {HTMLElement} element HTML要素
+    * @param {String} name 属性名
+    * @param {String} value 値
+    */
+    function setAttribute(element, name, value){
+        element.setAttribute(name, value);
+    }
+
+    /**
+    * HTML要素にディスプレイ属性を設定します。
     * @param {HTMLElement} element HTML要素
     * @param {DisplayType} type ディスプレイ種別
     * @throws {Error} エラー
@@ -1047,16 +1108,16 @@
     }
 
     /**
-    * HTML要素の高さを設定します。
+    * HTML要素にスタイルを設定します。
     * @param {HTMLElement} element HTML要素
-    * @param {Number} height 高さ（px）
+    * @param {Object} styles スタイル
     */
-    function setHeight(element, height){
-        setStyle(element, "height", height + "px");
+    function setStyles(element, styles){
+        forEach(styles, (name,　value) => setStyle(element, name, value));
     }
 
     /**
-    * HTML要素のスタイルを設定します。
+    * HTML要素にスタイルを設定します。
     * @param {HTMLElement} element HTML要素
     * @param {String} name 属性名
     * @param {String} value 値

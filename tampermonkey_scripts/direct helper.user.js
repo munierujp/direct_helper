@@ -393,6 +393,28 @@
         }
     }
 
+    /** トーク */
+    class Talk{
+        /**
+        * @param {String} id トークID
+        * @param {String} name トーク名
+        */
+        constructor(id, name){
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    /** メッセージ */
+    class Message{
+        /**
+        * @param {Talk} talk トーク
+        */
+        constructor(talk){
+            this.talk = talk;
+        }
+    }
+
     /** 値保持クラス */
     class HasValue{
         /**
@@ -446,11 +468,26 @@
     class MessageType extends HasValue{}
     /** メッセージ種別 */
     const MessageTypes = {
-        FILE: new MessageType("msg-text-contained-thumb"),
-        IMAGE: new MessageType("thumb-cover"),
-        STAMP: new MessageType("stamp"),
-        STAMP_AND_TEXT: new MessageType("stamp-with-text"),
-        TEXT: new MessageType("msg-text")
+        FILE: new MessageType("msg-type-file"),
+        FILE_AND_TEXT: new MessageType("msg-type-textMultipleFile"),
+        STAMP: new MessageType("msg-type-stamp"),
+        TEXT: new MessageType("msg-type-text")
+    };
+
+    /** ファイル種別クラス */
+    class FileType extends HasValue{}
+    /** ファイル種別 */
+    const FileTypes = {
+        IMAGE: new FileType("msg-thumb-cover"),
+        OTHER: new FileType()
+    };
+
+    /** スタンプ種別クラス */
+    class StampType extends HasValue{}
+    /** スタンプ種別 */
+    const StampTypes = {
+        NO_TEXT: new StampType("no-text"),
+        WITH_TEXT: new StampType("stamp-with-text-body")
     };
 
     /** 監視モードクラス */
@@ -475,9 +512,11 @@
         DisplayTypes,
         ElementTypes,
         EventTypes,
+        FileTypes,
         FormTypes,
         MessageTypes,
         ObserveModes,
+        StampTypes,
         UserTypes
     ];
     //enumを深く凍結
@@ -544,7 +583,7 @@
     const WATCH_MESSAGE_SETTING_DATA = {
         key: "message-watching-settings",
         title: "メッセージ監視",
-        description: "メッセージを監視してコンソールに出力します。",
+        description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
         inputKeyDatas: {
             watch_message: {
                 type: FormTypes.CHECKBOX,
@@ -1036,193 +1075,263 @@
         });
     }
 
-
     /**
     * メッセージの監視機能を実行します。
     */
     function doWatchMessage(){
-        const observedTalkIdList = [];
-        const talkDataMap = {};
+        const talkIdTalk = {};
+        const observingTalkIds = [];
 
+        //トーク一覧に子ノード追加時、トーク関連処理を実行
         const talks = document.getElementById("talks");
-        const talksObserver = new MutationObserver(mutations => {
+        observeNode(talks, ObserveModes.CHILD_LIST, mutations => {
             //デフォルト監視対象を監視対象に追加
             if(settings.watch_default_observe_talk === true){
                 //既読デフォルト監視トークIDリストの作成
-                const readDefaultObserveTalkIds = settings.default_observe_talk_ids.filter(talkId => {
+                const readTalkIds = settings.default_observe_talk_ids.filter(talkId => {
                     const talk = document.getElementById(talkId);
-                    const badge = talk.querySelector('.corner-badge');
-                    return badge === null;
+                    return Optional.ofAbsentable(talk.querySelector('.corner-badge')).isAbsent();
                 });
 
                 //既読デフォルト監視トークを監視対象に追加
-                readDefaultObserveTalkIds.filter(talkId => !existsInArray(observedTalkIdList, talkId)).forEach((talkId, index) => {
+                readTalkIds.filter(talkId => !observingTalkIds.includes(talkId)).forEach((talkId, index) => {
                     const talk = document.getElementById(talkId);
+                    //監視対象に追加するためにクリック
                     talk.click();
+                    observingTalkIds.push(talkId);
 
                     //最後の場合はトークを閉じるために2回クリック
-                    const isLastTalk = index == readDefaultObserveTalkIds.length -1;
-                    if(isLastTalk){
+                    if(index == readTalkIds.length -1){
                         talk.click();
                     }
                 });
             }
 
-            //トークデータマップの更新
+            //トーク情報の更新
             mutations.forEach(mutation => {
-                const nodes = mutation.addedNodes;
-                nodes.forEach(node => {
-                    const talk = node;
-                    const talkId = talk.id;
-                    const talkName = talk.querySelector('.talk-name-part').textContent;
-                    const talkIsRead =  talk.querySelector('.corner-badge') === null;
-                    const talkData = {
-                        isRead: talkIsRead,
-                        talkId: talkId,
-                        talkName: talkName
-                    };
-                    talkDataMap[talkId] = talkData;
+                const talkItems = mutation.addedNodes;
+                talkItems.forEach(talkItem => {
+                    const talkId = talkItem.id;
+                    const talkName = talkItem.querySelector('.talk-name-part').textContent;
+                    const talk = new Talk(talkId, talkName);
+                    const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
+                    talk.isRead = talkIsRead;
+                    talkIdTalk[talkId] = talk;
                 });
             });
         });
 
-        //トーク一覧監視開始
-        observe(talksObserver, talks, ObserveModes.CHILD_LIST);
+        //トークの追加を監視
+        observeAddingTalk(talkIdTalk);
+    }
 
-        const messages = document.getElementById("messages");
-        const messagesObserver = new MutationObserver(mutations => {
+    /**
+    * トークの追加を監視します。
+    * @param {Object} talkIdTalk
+    */
+    function observeAddingTalk(talkIdTalk){
+        //メッセージ監視開始ログを表示
         const observeStartDate = new Date();
+        const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
+            [/<time>/g, formatDate(observeStartDate, settings.date_format)]
+        ]);
+        console.info(settings.log_label, observeStartMessage);
 
+        //メッセージエリアに子ノード追加時、トーク関連処理を実行
+        const messagesArea = document.getElementById("messages");
+        observeNode(messagesArea, ObserveModes.CHILD_LIST, mutations => {
             mutations.forEach(mutation => {
-                const nodes = mutation.addedNodes;
-                nodes.forEach(node => {
-                    const talkId = node.id.replace("msgs", "talk");
-                    const talkName = talkDataMap[talkId].talkName;
+                const talkAreas = mutation.addedNodes;
+                talkAreas.forEach(talkArea => {
+                    //トークを生成
+                    const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
+                    const talk = talkIdTalk[talkId];
 
-                    //監視トークIDリストに追加
-                    observedTalkIdList.push(talkId);
+                    //メッセージの追加を監視
+                    observeAddingMessage(talkArea, talk);
+                });
+            });
+        });
+    }
 
-                    //トークの監視
-                    //メッセージが投稿されると、.real-msgs下に子ノードが追加される
-                    const talk = node.querySelector('.real-msgs');
-                    const talkObserver = new MutationObserver(mutations => {
+    /**
+    * メッセージの追加を監視します。
+    * @param {Node} talkArea トークエリア
+    * @param {Talk} talk トーク
+    */
+    function observeAddingMessage(talkArea, talk){
+        //トーク監視開始ログを表示
+        const observeStartDate = new Date();
+        const observeStartMessage = replace(settings.custom_log_start_observe_talk, [
+            [/<talkId>/g, talk.id],
+            [/<time>/g, formatDate(observeStartDate, settings.date_format)],
+            [/<talkName>/g, talk.name]
+        ]);
+        console.info(settings.log_label, observeStartMessage);
+
+        //リアルメッセージエリアに子ノード追加時、メッセージ関連処理を実行
+        const realMessageArea = talkArea.querySelector('.real-msgs');
+        observeNode(realMessageArea, ObserveModes.CHILD_LIST, mutations => {
             mutations.forEach(mutation => {
-                            const nodes = mutation.addedNodes;
-                            Array.from(nodes).filter(node => node.className == "msg").forEach(node => {
-                                const message = {
-                                    talkId: talkId,
-                                    talkName: talkName
-                                };
+                Array.from(mutation.addedNodes).filter(node => node.className == "msg").forEach(messageArea => {
+                    //メッセージを生成
+                    const message = createMessage(messageArea, talk);
 
-                                const createdTimestamp = Number(node.getAttribute("data-created-at"));
-                                const createdDate = new Date(Number(node.getAttribute("data-created-at")));
-                                message.time = createdDate;
+                    //メッセージをコンソールに出力
+                    if(message.time > observeStartDate || settings.show_past_message === true){
+                        logMessage(message);
+                    }
+                });
+            });
+        });
+    }
 
-                                //過去メッセージ非表示設定時、過去メッセージであれば次へ
-                                if(settings.show_past_message === false && message.time < observeStartDate){
-                                    return;
+    /**
+    * メッセージを作成します。
+    * @param {Node} messageArea メッセージエリア
+    * @parma {Talk} talk トーク
+    * @return {Message} メッセージ
+    */
+    function createMessage(messageArea, talk){
+        const messageAreaChild = messageArea.querySelector('div:first-child');
+        const messageBodyArea = messageAreaChild.querySelector('.msg-body');
+        const messageType = getMessageType(messageBodyArea.classList);
+
+        const message = new Message(talk);
+        message.time = getMessageTime(messageArea);
+        message.userName = getMessageUserName(messageAreaChild);
+        message.body = getMessageBody(messageBodyArea, messageType);
+
+        if(messageType == MessageTypes.STAMP){
+            message.stamp = getMessageStamp(messageBodyArea);
         }
 
-                                const messageArea = node.querySelector('div:first-child');
-                                const userType = messageArea.className;
-                                const messageBody = messageArea.querySelector('.msg-body');
-                                const messageTypes = messageBody.querySelector('div').classList;
-                                const messageTypeMain = messageTypes[0];
+        return message;
+    }
 
-                                //ユーザー名
-                                switch(userType){
+    /**
+    * メッセージの投稿日時を取得します。
+    * @param {Node} messageArea メッセージエリア
+    * @return {Date} メッセージの投稿日時
+    */
+    function getMessageTime(messageArea){
+        const createdTimestamp = Number(messageArea.getAttribute("data-created-at"));
+        return new Date(createdTimestamp);
+    }
+
+    /**
+    * メッセージのユーザー名を取得します。
+    * @param {Node} messageAreaChild メッセージエリア子要素
+    * @return {String} メッセージのユーザー名
+    */
+    function getMessageUserName(messageAreaChild){
+        const userTypeValue = messageAreaChild.className;
+        switch(userTypeValue){
             case UserTypes.SYSTEM.value:
-                                        message.userName = settings.user_name_system;
-                                        break;
+                return settings.user_name_system;
             case UserTypes.ME.value:
                 const myUserName = document.getElementById("current-username");
-                                        message.userName = removeBlank(myUserName.textContent);
-                                        break;
+                return removeBlank(myUserName.textContent);
             case UserTypes.OTHERS.value:
-                                        const userName = messageArea.querySelector('.username');
-                                        message.userName = removeBlank(userName.textContent);
-                                        break;
+                const otherUserName = messageAreaChild.querySelector('.username');
+                return removeBlank(otherUserName.textContent);
+        }
+    }
+
+    /**
+    * メッセージの本文を取得します。
+    * @param {Node} messageBodyArea メッセージ本文エリア
+    * @param {MessageType} messageType メッセージ種別
+    * @return {String} メッセージの本文
+    */
+    function getMessageBody(messageBodyArea, messageType){
+        if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
+            const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
+            const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
+            if(messageType == MessageTypes.FILE){
+                return prefix;
+            }else{
+                const text = messageBodyArea.querySelector('.msg-thumbs-text');
+                return prefix + text.textContent;
+            }
+        }else if(messageType == MessageTypes.STAMP){
+            const stampType = getStampType(messageBodyArea.classList);
+            if(stampType == StampTypes.NO_TEXT){
+                return settings.log_stamp;
+            }
         }
 
-                                //ヘッダー
-                                const headerReplacers = [
-                                    [/<talkId>/g, message.talkId],
-                                    [/<time>/g, formatDate(message.time, settings.date_format)],
-                                    [/<talkName>/g, message.talkName],
-                                    [/<userName>/g, message.userName]
-                                ];
-                                const header = replace(settings.custom_log_message_header, headerReplacers);
-
-                                //本文
-                                if(messageTypes.length == 1){
-                                    switch(messageTypeMain){
-                                        case MessageTypes.TEXT.value:
-                                        case MessageTypes.STAMP_AND_TEXT.value:
-                                            //本文テキストのみを取得するためにコピーしたノードからメッセージメニューを削除
-                                            const messageText = deepCloneNode(messageBody.querySelector('.msg-text'));
+        //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
+        const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
         const messageMenu = messageText.querySelector('.msg-menu-container');
-                                            if(messageMenu !== null){
-                                                messageText.removeChild(messageMenu);
+        Optional.ofAbsentable(messageMenu).ifPresent(m => messageText.removeChild(m));
+        return messageText.textContent;
     }
 
-                                            message.body = messageText.textContent;
-                                            break;
-                                        case MessageTypes.STAMP.value:
-                                            message.body = settings.log_stamp;
-                                            break;
-    }
-                                }else{
-                                    const messageTypeSub = messageTypes[1];
-                                    switch(messageTypeSub){
-                                        case MessageTypes.FILE.value:
-                                            const fileIsImage = messageBody.querySelector('.msg-thumb').classList.contains(MessageTypes.IMAGE.value);
-                                            const prefix = fileIsImage ? settings.log_image : settings.log_file;
-                                            const thumbnailText = messageBody.querySelector('.msg-thumbs-text');
-                                            const text = thumbnailText !== null ? thumbnailText.textContent : "";
-                                            message.body = prefix + text;
-                                            break;
-    }
+    /**
+    * メッセージ種別を取得します。
+    * メッセージ種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {MessageType} メッセージ種別
+    */
+    function getMessageType(classList){
+        const messageTypes = Object.values(MessageTypes).filter(messageType => classList.contains(messageType.value));
+        return messageTypes.length == 1 ? messageTypes[0] : undefined;
     }
 
-                                //スタンプ
-                                switch(messageTypeMain){
-                                    case MessageTypes.STAMP.value:
-                                    case MessageTypes.STAMP_AND_TEXT.value:
-                                        message.stamp = messageBody.querySelector('img');
-                                        break;
+    /**
+    * ファイル種別を取得します。
+    * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {FileType} ファイル種別
+    */
+    function getFileType(classList){
+        const fileTypes = Object.values(FileTypes).filter(fileType => classList.contains(fileType.value));
+        return fileTypes.length == 1 ? fileTypes[0] : undefined;
     }
 
-                                //メッセージをコンソールに出力
-                                console.group(header);
-                                if(message.stamp !== undefined){
-                                    console.log(settings.log_label, message.body, message.stamp);
-                                }else{
-                                    console.log(settings.log_label, message.body);
+    /**
+    * スタンプ種別を取得します。
+    * スタンプ種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {StampType} スタンプ種別
+    */
+    function getStampType(classList){
+        const stampTypes = Object.values(StampTypes).filter(stampType => classList.contains(stampType.value));
+        return stampTypes.length == 1 ? stampTypes[0] : undefined;
+    }
+
+    /**
+    * メッセージのスタンプを取得します。
+    * @param {Node} messageBodyArea メッセージ本文エリア
+    * @return {Node} メッセージのスタンプ
+    */
+    function getMessageStamp(messageBodyArea){
+        return messageBodyArea.querySelector('img');
+    }
+
+    /**
+    * メッセージをコンソールに出力します。
+    * @param {Message} message メッセージ
+    * @throws {Error} messageの型がMessageではない場合
+    */
+    function logMessage(message){
+        if(!(message instanceof Message)){
+            throw new Error("message is not instance of Message");
         }
-                                console.groupEnd();
-                            });
-                        });
-                    });
 
-                    //メッセージ監視開始
-                    const talkReplacers = [
-                        [/<talkId>/g, talkId],
-                        [/<time>/g, formatDate(observeStartDate, settings.date_format)],
-                        [/<talkName>/g, talkName]
-                    ];
-                    console.info(settings.log_label, replace(settings.custom_log_start_observe_talk, talkReplacers));
-                    observe(talkObserver, talk, ObserveModes.CHILD_LIST);
-                });
-            });
-        });
+        const header = replace(settings.custom_log_message_header, [
+            [/<talkId>/g, message.talk.id],
+            [/<time>/g, formatDate(message.time, settings.date_format)],
+            [/<talkName>/g, message.talk.name],
+            [/<userName>/g, message.userName]
+        ]);
 
-        //メッセージエリア監視開始
-        const observeStartDate = new Date();
-        const messagseReplacers = [
-            [/<time>/g, formatDate(observeStartDate, settings.date_format)]
-        ];
-        console.info(settings.log_label, replace(settings.custom_log_start_observe_messages, messagseReplacers));
-        observe(messagesObserver, messages, ObserveModes.CHILD_LIST);
+        console.group(header);
+        Optional.ofAbsentable(message.stamp)
+            .ifPresent(stamp => console.log(settings.log_label, message.body, stamp))
+            .ifAbsent(() => console.log(settings.log_label, message.body));
+        console.groupEnd();
     }
 
     /**
@@ -1327,16 +1436,6 @@
     */
     function stringToArray(string){
         return string !== "" ? string.split(",") : [];
-    }
-
-    /**
-    * 配列内に値が存在するかどうかを判定します。
-    * @param {Object[]} array 配列
-    * @param {Object} value 値
-    * @return {Boolean} 配列内に値が存在すればtrue、しなければfalse
-    */
-    function existsInArray(array, value){
-        return array.indexOf(value) >= 0;
     }
 
     /**

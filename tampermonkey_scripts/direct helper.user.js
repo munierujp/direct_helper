@@ -392,7 +392,7 @@
             return this.value !== null && this.value !== undefined;
         }
     }
-    
+
     /** 値保持クラス */
     class HasValue{
         /**
@@ -798,52 +798,47 @@
     * @return {HTMLElement} 入力フォーム要素
     */
     function createSettingInputFormElement(inputData){
-        const form = createElement(ElementTypes.DIV, {
+        const inputForm = createElement(ElementTypes.DIV, {
             class: "form-group"
         });
-        const label = createElement(ElementTypes.LABEL);
 
         switch(inputData.type){
             case FormTypes.TEXT:
             case FormTypes.TEXT_ARRAY:
-                setAttribute(label, "class", "control-label");
-                label.innerText = inputData.name;
-
+                const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+                    class: "control-label"
+                });
+                inputForm.appendChild(inputLabel);
+                const inputArea = createElement(ElementTypes.DIV, {
+                    class: "controls"
+                });
                 const input = createElement(ElementTypes.INPUT, {
                     id: HTML_ID_PREFIX + inputData.key,
                     class: "form-control",
                     name: "status"
                 });
-
-                const inputArea = createElement(ElementTypes.DIV, {
-                    class: "controls"
-                });
                 inputArea.appendChild(input);
-
-                form.appendChild(label);
-                form.appendChild(inputArea);
-
+                inputForm.appendChild(inputArea);
                 Optional.ofAbsentable(inputData.description).ifPresent(description => {
                     const annotation = createElementWithHTML(ElementTypes.DIV, description, {
                         class: "annotation"
                     });
-                    form.appendChild(annotation);
+                    inputForm.appendChild(annotation);
                 });
                 break;
             case FormTypes.CHECKBOX:
+                const checkboxArea = createElement(ElementTypes.DIV, {
+                    class: "checkbox"
+                });
+                const checkboxLabel = createElement(ElementTypes.LABEL);
                 const checkbox = createElement(ElementTypes.INPUT, {
                     id: HTML_ID_PREFIX + inputData.key,
                     type: "checkbox"
                 });
-
+                checkboxLabel.appendChild(checkbox);
                 const labelText = document.createTextNode(inputData.name);
-                label.appendChild(checkbox);
-                label.appendChild(labelText);
-
-                const checkboxArea = createElement(ElementTypes.DIV, {
-                    class: "checkbox"
-                });
-                checkboxArea.appendChild(label);
+                checkboxLabel.appendChild(labelText);
+                checkboxArea.appendChild(checkboxLabel);
 
                 Optional.ofAbsentable(inputData.description).ifPresent(description => {
                     const annotation = createElementWithHTML(ElementTypes.DIV, description, {
@@ -852,10 +847,10 @@
                     checkboxArea.appendChild(annotation);
                 });
 
-                form.appendChild(checkboxArea);
+                inputForm.appendChild(checkboxArea);
                 break;
         }
-        return form;
+        return inputForm;
     }
 
     /**
@@ -935,11 +930,9 @@
             setStyle(modal, "z-index", CUSTOM_MODAL_Z);
 
             //拡大画像エリアを作成
-            const expandedImageAreaAttributes = {
+            const expandedImageArea = createElement(ElementTypes.DIV, {
                 id: HTML_ID_PREFIX + "expanded-user-icon"
-            };
-            const expandedImageArea = createElement(ElementTypes.DIV, expandedImageAreaAttributes);
-            setStyles(expandedImageArea, {
+            },{
                 "position": "fixed",
                 "top": 0,
                 "left": 0,
@@ -955,8 +948,7 @@
             //拡大画像を作成
             const expandedImage = createElement(ElementTypes.IMG, {
                 src: url
-            });
-            setStyles(expandedImage, {
+            }, {
                 "max-width": "100%",
                 "max-height": "100%"
             });
@@ -1027,14 +1019,17 @@
     * 入力文字数の表示機能を実行します。
     */
     function doShowMessageCount(){
-        const sendForms = document.querySelectorAll(".form-send");
+        const sendForms = document.querySelectorAll('.form-send');
         sendForms.forEach(sendForm => {
             const textArea = sendForm.querySelector('.form-send-text');
             const maxLength = textArea.maxLength;
 
             //カウンターを作成
-            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength);
-            setStyle(counter, "margin-right", "8px");
+            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength, {
+                id: HTML_ID_PREFIX + "message-count"
+            }, {
+                "margin-right": "8px"
+            });
             const sendButtonArea = sendForm.querySelector('.form-send-button-group');
             sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
 
@@ -1231,7 +1226,6 @@
         observe(messagesObserver, messages, ObserveModes.CHILD_LIST);
     }
 
-
     /**
     * オブジェクトを深く凍結します。
     * @param {Object} object オブジェクト
@@ -1284,7 +1278,7 @@
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const seconds = date.getSeconds();
-        const replacers = [
+        return replace(pattern, [
             [/yyyy/g, year],
             [/yy/g, year % 100],
             [/MM/g, zeroPadding(month, 2)],
@@ -1298,8 +1292,7 @@
             [/m/g, minutes],
             [/ss/g, zeroPadding(seconds, 2)],
             [/s/g, seconds]
-        ];
-        return replace(pattern, replacers);
+        ]);
     }
 
     /**
@@ -1335,16 +1328,6 @@
     */
     function stringToArray(string){
         return string !== "" ? string.split(",") : [];
-    }
-
-    /**
-    * 配列とカンマ区切りの文字列が等しいかどうかを判定します。
-    * @param {String[]} array 配列
-    * @param {String} string カンマ区切りの文字列
-    * @return {Boolean} 配列とカンマ区切りの文字列が等しければtrue、等しくなければfalse
-    */
-    function equalsArrayToString(array, string){
-        return arrayToString(array) == string;
     }
 
     /**

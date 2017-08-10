@@ -105,31 +105,11 @@
     /** ローカルストレージ設定キー */
     const LOCAL_STORAGE_SETTINGS_KEY = "direct_helper_settings";
 
-    /** 設定デフォルト値 */
-    const SETTINGS_DEFAULT_VALUES = {
-        custom_log_message_header:  "<time> [<talkName>] <userName>",
-        custom_log_start_observe_messages: "<time> メッセージの監視を開始します。",
-        custom_log_start_observe_talk: "<time> [<talkName>]の監視を開始します。",
-        date_format: "yyyy/M/d(e) HH:mm:ss",
-        default_observe_talk_ids: [],
-        expand_user_icon: true,
-        log_file: "[ファイル]",
-        log_image: "[画像]",
-        log_label: "",
-        log_stamp: "[スタンプ]",
-        responsive_multi_view: true,
-        show_message_count: true,
-        show_past_message: false,
-        user_name_system: "システム",
-        watch_default_observe_talk: true,
-        watch_message: true,
-    };
-
     /** 設定画面説明 */
     const SETTING_DESCRIPTION = "以下はdirect helperの設定です。設定変更後はページをリロードしてください。";
 
-    /** ユーザーダイアログ設定項目データ */
-    const SETTING_SECTION_USER_DIALOG_DATA = {
+    /** ユーザーダイアログ設定データ */
+    const USER_DIALOG_SETTING_DATA = {
         key: "user-dialog-settings",
         title: "ユーザーダイアログ",
         description: "ユーザーダイアログの動作を変更します。",
@@ -138,13 +118,14 @@
                 type: FormTypes.CHECKBOX,
                 key: "expand_user_icon",
                 name: "ユーザーアイコンの拡大",
+                default: true,
                 description: "ユーザーアイコンをクリックで拡大表示します。"
             }
         }
     };
 
-    /** メッセージ入力設定項目データ */
-    const SETTING_SECTION_INPUT_MESSAGE_DATA = {
+    /** メッセージ入力設定データ */
+    const INPUT_MESSAGE_SETTING_DATA = {
         key: "input-message-settings",
         title: "メッセージ入力",
         description: "メッセージ入力欄の動作を変更します。",
@@ -153,13 +134,14 @@
                 type: FormTypes.CHECKBOX,
                 key: "show_message_count",
                 name: "入力文字数の表示",
+            	default: true,
                 description: "入力文字数をカウントダウン形式で表示します。"
             }
         }
     };
 
-    /** マルチビュー設定項目データ */
-    const SETTING_SECTION_MULTI_VIEW_DATA = {
+    /** マルチビュー設定データ */
+    const MULTI_VIEW_SETTING_DATA = {
         key: "multi-view-settings",
         title: "マルチビュー",
         description: "マルチビューの動作を変更します。",
@@ -168,13 +150,14 @@
                 type: FormTypes.CHECKBOX,
                 key: "responsive_multi_view",
                 name: "マルチビューのレスポンシブ化",
+                default: true,
                 description: "選択状態に応じてマルチビューのカラム数を動的に変更します。"
             }
         }
     };
 
     /** メッセージ監視設定項目データ */
-    const SETTING_SECTION_WATCH_MESSAGE_DATA = {
+    const WATCH_MESSAGE_SETTING_DATA = {
         key: "message-watching-settings",
         title: "メッセージ監視",
         description: "メッセージを監視してコンソールに出力します。",
@@ -183,31 +166,35 @@
                 type: FormTypes.CHECKBOX,
                 key: "watch_message",
                 name: "メッセージの監視",
+            	default: true,
                 description: "メッセージを監視してコンソールに出力します。"
             },
             show_past_message: {
                 type: FormTypes.CHECKBOX,
                 key: "show_past_message",
                 name: "過去メッセージの表示",
+            	default: false,
                 description: "監視開始以前のメッセージを表示します。"
             },
             watch_default_observe_talk: {
                 type: FormTypes.CHECKBOX,
                 key: "watch_default_observe_talk",
                 name: "デフォルト監視対象の自動監視",
+            	default: true,
                 description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。"
             },
             default_observe_talk_ids: {
                 type: FormTypes.TEXT_ARRAY,
                 key: "default_observe_talk_ids",
                 name: "デフォルト監視トークID",
+            	default: [],
                 description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。'
             }
         }
     };
 
-    /** ログ設定項目データ */
-    const SETTING_SECTION_LOG_DATA = {
+    /** ログ設定データ */
+    const LOG_SETTING_DATA = {
         key: "log-settings",
         title: "ログ",
         description: "ログの表示形式をカスタマイズします。",
@@ -216,62 +203,71 @@
                 type: FormTypes.TEXT,
                 key: "log_label",
                 name: "ログラベル",
+                default: "",
                 description: "コンソールでのフィルター用の文字列です。"
             },
             user_name_system: {
                 type: FormTypes.TEXT,
                 key: "user_name_system",
+                default: "システム",
                 name: "システムユーザー名"
             },
             log_stamp: {
                 type: FormTypes.TEXT,
                 key: "log_stamp",
+                default: "[スタンプ]",
                 name: "スタンプログ"
             },
             log_image: {
                 type: FormTypes.TEXT,
                 key: "log_image",
+                default: "[画像]",
                 name: "画像ログ"
             },
             log_file: {
                 type: FormTypes.TEXT,
                 key: "log_file",
+                default: "[ファイル]",
                 name: "ファイルログ"
             },
             date_format: {
                 type: FormTypes.TEXT,
                 key: "date_format",
                 name: "日付フォーマット",
+                default: "yyyy/M/d(e) HH:mm:ss",
                 description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss"
             },
             custom_log_start_observe_messages: {
                 type: FormTypes.TEXT,
                 key: "custom_log_start_observe_messages",
                 name: "カスタムログ：メッセージ監視開始文",
+                default: "<time> メッセージの監視を開始します。",
                 description: "&lt;time&gt;:監視開始日時"
             },
             custom_log_start_observe_talk: {
                 type: FormTypes.TEXT,
                 key: "custom_log_start_observe_talk",
                 name: "カスタムログ：トーク監視開始文",
+                default: "<time> [<talkName>]の監視を開始します。",
                 description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時"
             },
             custom_log_message_header: {
                 type: FormTypes.TEXT,
                 key: "custom_log_message_header",
                 name: "カスタムログ：メッセージヘッダー",
+                default: "<time> [<talkName>] <userName>",
                 description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名"
             }
         }
     };
 
-    /** 設定項目データリスト */
-    const SETTING_SECTION_DATAS = [
-        SETTING_SECTION_USER_DIALOG_DATA,
-        SETTING_SECTION_INPUT_MESSAGE_DATA,
-        SETTING_SECTION_MULTI_VIEW_DATA,
-        SETTING_SECTION_WATCH_MESSAGE_DATA,
-        SETTING_SECTION_LOG_DATA
+    /** 設定データリスト（描画順） */
+    const SETTING_DATAS = [
+        USER_DIALOG_SETTING_DATA,
+        INPUT_MESSAGE_SETTING_DATA,
+        MULTI_VIEW_SETTING_DATA,
+        WATCH_MESSAGE_SETTING_DATA,
+        LOG_SETTING_DATA
     ];
 
     /** 機能 */
@@ -301,7 +297,12 @@
         const settings = getSettings();
 
         //未設定項目にデフォルト値を設定
-        Object.keys(SETTINGS_DEFAULT_VALUES).filter(key => settings[key] === undefined).forEach(key => settings[key] = SETTINGS_DEFAULT_VALUES[key]);
+        SETTING_DATAS.forEach(settingData => {
+        	const inputKeyDatas = settingData.inputKeyDatas;
+            Object.keys(inputKeyDatas)
+                .filter(key => settings[key] === undefined)
+                .forEach(key => settings[key] = inputKeyDatas[key].default);
+        });
 
         setSettings(settings);
     }
@@ -321,22 +322,22 @@
         settingPage.appendChild(description);
 
         //設定項目
-        SETTING_SECTION_DATAS.forEach(settingSectionData => drawSettingSection(settingPage, settingSectionData));
+        SETTING_DATAS.forEach(settiongData => drawSettingSection(settingPage, settiongData));
     }
 
     /**
     * 設定画面に設定項目を描画します。
     * @param {HTMLElement} settingPage 設定画面
-    * @param {Object} settingSectionData 設定項目データ
+    * @param {Object} settiongData 設定データ
     */
-    function drawSettingSection(settingPage, settingSectionData){
-        const inputKeyDatas = settingSectionData.inputKeyDatas;
+    function drawSettingSection(settingPage, settiongData){
+        const inputKeyDatas = settiongData.inputKeyDatas;
         const settings = getSettings();
 
         //インプットフォーム要素の作成
         const inputKeyForms = convertObjectValue(inputKeyDatas, (key, data) => createSettingInputFormElement(data));
         const inputForms = Object.values(inputKeyForms);
-        const section = createSettingSection(settingSectionData, inputForms);
+        const section = createSettingSection(settiongData, inputForms);
         settingPage.appendChild(section);
 
         //フォームの初期値にローカルストレージの値を設定
@@ -357,7 +358,7 @@
 
         const button = section.querySelector('.btn');
         const message = section.querySelector('.success');
-        
+
         //値変更時にボタンをクリック可能化
         const onChangeValue = () => {
             const inputKeyInputValues = convertObjectValue(inputKeyInputs, (key, input) => {
@@ -478,18 +479,18 @@
 
     /**
     * 設定画面の項目要素を作成します。
-    * @param {Object} settingSectionData 設定項目データ
+    * @param {Object} settiongData 設定データ
     * @param {Object} inputKeyForms
     * @return {HTMLElement} 項目要素
     */
-    function createSettingSection(settingSectionData, inputKeyForms){
-        const header = createElementWithHTML(ElementTypes.DIV, settingSectionData.title, {
+    function createSettingSection(settiongData, inputKeyForms){
+        const header = createElementWithHTML(ElementTypes.DIV, settiongData.title, {
             class: "c-section__heading"
         });
 
         let description;
-        if(settingSectionData.description !== undefined){
-            description = createElementWithHTML(ElementTypes.DIV, settingSectionData.description, {
+        if(settiongData.description !== undefined){
+            description = createElementWithHTML(ElementTypes.DIV, settiongData.description, {
                 class: "form-group"
             });
         }
@@ -511,7 +512,7 @@
 
         const section = createElement(ElementTypes.DIV, {
             class: "c-section",
-            id: HTML_ID_PREFIX + settingSectionData.key
+            id: HTML_ID_PREFIX + settiongData.key
         });
         section.appendChild(header);
 
@@ -539,7 +540,7 @@
                 return false;
             }
         }
-        return true; 
+        return true;
     }
 
     /**

@@ -183,7 +183,217 @@
         }
     }
 
-    /** value保持クラス */
+    /** イテレーター */
+    class Iterator{
+        /**
+        * 引数のオブジェクトからイテレーターを生成します。
+        * @param {Object} object オブジェクト
+        * @return {Iterator} イテレーター
+        */
+        constructor(object){
+            this.object = object;
+        }
+
+        /**
+        * 空のイテレーターを生成します。
+        * @return {Iterator} 空のイテレーター
+        */
+        static empty(){
+            return new this(null);
+        }
+
+        /**
+        * 引数のオブジェクトからイテレーターを生成します。
+        * @param {Object} object オブジェクト
+        * @return {Iterator} イテレーター
+        */
+        static of(object){
+            return new this(object);
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行し、自身を返します。
+        * @param {Function} processer : (key, value) => {...}
+        * @return {Iterator} 自身
+        */
+        peek(processer){
+            this.forEach(processer);
+            return this;
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行し、条件を満たす要素からなるイテレーターを生成します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Iterator} 条件を満たす要素からなるイテレーター
+        */
+        filter(matcher){
+            if(this.isEmpty()){
+                return this;
+            }
+            const filtered = {};
+            Object.keys(this.object)
+                .filter(key => matcher(key, this.object[key]))
+                .forEach(key => filtered[key] = this.object[key]);
+            return Iterator.of(filtered);
+        }
+
+        /**
+        * 引数の関数を各要素のキーに対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
+        * @param {Function} keyMapper : (key, value) => newKey
+        * @return {Iterator} 新しい要素からなるイテレーター
+        */
+        key(keyMapper){
+            return this.map(keyMapper, (key, value) => value);
+        }
+
+        /**
+        * 引数の関数を各要素の値に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
+        * @param {Function} valueMapper : (key, value) => newValue
+        * @return {Iterator} 新しい要素からなるイテレーター
+        */
+        value(valueMapper){
+            return this.map((key, value) => key, valueMapper);
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
+        * @param {Function} keyMapper : (key, value) => newKey
+        * @param {Function} valueMapper : (key, value) => newValue
+        * @return {Iterator} 新しい要素からなるイテレーター
+        */
+        map(keyMapper, valueMapper){
+            if(this.isEmpty()){
+                return this;
+            }
+            const mapped = {};
+            Object.keys(this.object)
+                .forEach(key => mapped[keyMapper(key, this.object[key])] = valueMapper(key, this.object[key]));
+            return Iterator.of(mapped);
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行します。
+        * @param {Function} processer : (key, value) => {...}
+        */
+        forEach(processer){
+            if(this.isNotEmpty()){
+                Object.keys(this.object)
+                    .forEach(key => processer(key, this.object[key]));
+            }
+        }
+
+        /**
+        * イテレーターの中身を取得します。
+        * @return {Object} イテレーターの中身
+        */
+        get(){
+            return this.object;
+        }
+
+        /**
+        * イテレーターの中身のキー配列を返します。
+        * 要素が空の場合、空の配列を返します。
+        * @return {Object[]} イテレーターの中身のキー配列
+        */
+        keys(){
+            return this.isNotEmpty() ? Object.keys(this.object) : [];
+        }
+
+        /**
+        * イテレーターの中身の値配列を返します。
+        * 要素が空の場合、空の配列を返します。
+        * @return {Object[]} イテレーターの中身の値配列
+        */
+        values(){
+            return this.isNotEmpty() ? Object.values(this.object) : [];
+        }
+
+        /**
+        * 引数の条件を満たす要素のキーを返します。
+        * 条件を満たす要素がない場合、undefinedを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Object} 引数の条件を満たす要素があればその値、なければundefined
+        */
+        findKey(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(matcher(key, this.object[key])){
+                        return key;
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        /**
+        * 引数の条件を満たす要素の値を返します。
+        * 条件を満たす要素がない場合、undefinedを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Object} 引数の条件を満たす要素があればそのキー、なければundefined
+        */
+        find(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(matcher(key, this.object[key])){
+                        return this.object[key];
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        /**
+        * いずれかの要素が引数の条件を満たすかどうかを判定します。
+        * 要素が空の場合、falseを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Boolean} いずれかの要素が条件を満たせばtrue、それ以外はfalse
+        */
+        some(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(matcher(key, this.object[key])){
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+        * すべての要素が引数の条件を満たすかどうかを判定します。
+        * 要素が空の場合、trueを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Boolean} すべての要素が条件を満たせばtrue、それ以外はfalse
+        */
+        every(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(!matcher(key, this.object[key])){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /**
+        * 要素が空であるかどうかを判定します。
+        * @return {Boolean} 要素が空であればtrue、それ以外はfalse
+        */
+        isEmpty(){
+            return this.object === null || this.value === undefined;
+        }
+
+        /**
+        * 要素が空ではないかどうかを判定します。
+        * @return {Boolean} 要素が空でなければtrue、それ以外はfalse
+        */
+        isNotEmpty(){
+            return this.value !== null && this.value !== undefined;
+        }
+    }
+    
+    /** 値保持クラス */
     class HasValue{
         /**
         * @param {Object} value 値
@@ -463,7 +673,9 @@
     const settings = getSettings();
 
     //各種機能の実行
-    Object.keys(SETTINGS_KEY_ACTIONS).filter(key => settings[key]　 === true).forEach(key => SETTINGS_KEY_ACTIONS[key]());
+    Iterator.of(SETTINGS_KEY_ACTIONS)
+        .filter(key => settings[key] === true)
+        .forEach((key, action) => action());
 
     /**
     * 設定を初期化します。
@@ -473,10 +685,9 @@
 
         //未設定項目にデフォルト値を設定
         SETTING_DATAS.forEach(settingData => {
-        	const inputKeyDatas = settingData.inputKeyDatas;
-            Object.keys(inputKeyDatas)
+            Iterator.of(settingData.inputKeyDatas)
                 .filter(key => settings[key] === undefined)
-                .forEach(key => settings[key] = inputKeyDatas[key].default);
+                .forEach((key, inputData) => settings[key] = inputData.default);
         });
 
         setSettings(settings);
@@ -508,17 +719,14 @@
     function appendSettingSection(settingPage, settiongData){
         //設定項目の作成
         const inputKeyDatas = settiongData.inputKeyDatas;
-        const settings = getSettings();
-
-        //インプットフォーム要素の作成
-        const inputKeyForms = convertObjectValue(inputKeyDatas, (key, data) => createSettingInputFormElement(data));
-        const inputForms = Object.values(inputKeyForms);
-        const section = createSettingSection(settiongData, inputForms);
+        const inputKeyForms = Iterator.of(inputKeyDatas).value((key, data) => createSettingInputFormElement(data)).get();
+        const section = createSettingSection(settiongData, Object.values(inputKeyForms));
         settingPage.appendChild(section);
 
         //フォームの初期値を設定
-        const inputKeyInputs = convertObjectValue(inputKeyForms, (key, form) => {
-            const input = form.querySelector('#' + HTML_ID_PREFIX + key);
+        const settings = getSettings();
+        const inputKeyInputs = Iterator.of(inputKeyForms).value(key => document.getElementById(HTML_ID_PREFIX + key)).get();
+        Iterator.of(inputKeyInputs).forEach((key, input) => {
             const inputData = inputKeyDatas[key];
             switch(inputData.type){
                 case FormTypes.TEXT:
@@ -529,15 +737,13 @@
                     input.checked = settings[key];
                     break;
             }
-            return input;
         });
 
-        const button = section.querySelector('.btn');
-        const message = section.querySelector('.success');
-
         //値変更時に変更ボタンをクリック可能化
+        const changeButton = section.querySelector('.btn');
+        const message = section.querySelector('.success');
         const onChangeValue = () => {
-            const inputKeyInputValues = convertObjectValue(inputKeyInputs, (key, input) => {
+            const inputKeyInputValues = Iterator.of(inputKeyInputs).value((key, input) => {
                 const inputData = inputKeyDatas[key];
                 switch(inputData.type){
                     case FormTypes.TEXT:
@@ -546,12 +752,11 @@
                     case FormTypes.CHECKBOX:
                         return input.checked;
                 }
-            });
-            button.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
+            }).get();
+            changeButton.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
             setDisplay(message, DisplayTypes.NONE);
         };
-
-        forEach(inputKeyInputs, (key, input) => {
+        Iterator.of(inputKeyInputs).forEach((key, input) => {
             const inputData = inputKeyDatas[key];
             switch(inputData.type){
                 case FormTypes.TEXT:
@@ -565,8 +770,8 @@
         });
 
         //変更ボタンクリック時に設定を更新
-        addEventListener(button, EventTypes.CLICK, () => {
-            forEach(inputKeyInputs, (key, input) => {
+        addEventListener(changeButton, EventTypes.CLICK, () => {
+            Iterator.of(inputKeyInputs).forEach((key, input) => {
                 const inputData = inputKeyDatas[key];
                 switch(inputData.type){
                     case FormTypes.TEXT:
@@ -582,7 +787,7 @@
             });
 
             setSettings(settings);
-            button.disabled = true;
+            changeButton.disabled = true;
             setDisplay(message, DisplayTypes.INLINE);
         });
     }
@@ -702,14 +907,10 @@
     * @return {Boolean} すべて等しければtrue、それ以外はfalse
     */
     function equalsInputValueToSettings(inputKeyInputValues, settings){
-        for(const key in inputKeyInputValues){
-            const inputValue = inputKeyInputValues[key];
+        return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
             const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
-            if(inputValue != settingValue){
-                return false;
-    }
-                }
-        return true;
+            return inputValue == settingValue;
+        });
     }
 
     /**
@@ -1030,41 +1231,19 @@
         observe(messagesObserver, messages, ObserveModes.CHILD_LIST);
     }
 
+
     /**
     * オブジェクトを深く凍結します。
     * @param {Object} object オブジェクト
     */
     function deepFreeze(object){
         Object.freeze(object);
-        for(const key in object){
-            const value = object[key];
+        Iterator.of(object).forEach((key, value) => {
             if(!object.hasOwnProperty(key) || typeof value != "object" || Object.isFrozen(value)){
-                continue;
+                return;
             }
             deepFreeze(value);
-    	}
-    }
-
-
-    /**
-    * オブジェクトをキーと値でループ処理します。
-    * @param {Object} object オブジェクト
-    * @param {Function} processer 処理関数：(key, value) => {...}
-    */
-    function forEach(object, processer){
-        Object.keys(object).forEach(key => processer(key, object[key]));
-    }
-
-    /**
-    * オブジェクトの値を変換して新しいオブジェクトを作成します。
-    * @param {Object} object オブジェクト
-    * @param {Function} converter 変換関数：(key, value) => newValue
-    * @return {Object} 変換したオブジェクト
-    */
-    function convertObjectValue(object, converter){
-        const converted = {};
-        forEach(object, (key, value) => converted[key] = converter(key, value));
-        return converted;
+        });
     }
 
     /**
@@ -1253,7 +1432,7 @@
     * @param {Object} attributes 属性
     */
     function setAttributes(element, attributes){
-        forEach(attributes, (name,　value) =>  setAttribute(element, name, value));
+        Iterator.of(attributes).forEach((name, value) => setAttribute(element, name, value));
     }
 
     /**
@@ -1285,7 +1464,7 @@
     * @param {Object} styles スタイル
     */
     function setStyles(element, styles){
-        forEach(styles, (name,　value) => setStyle(element, name, value));
+        Iterator.of(styles).forEach((name, value) => setStyle(element, name, value));
     }
 
     /**

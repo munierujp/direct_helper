@@ -13,6 +13,9 @@
 
     /** value保持クラス */
     class HasValue{
+        /**
+        * @param {Object} value 値
+        */
         constructor(value){
             this.value = value;
         }
@@ -134,7 +137,7 @@
                 type: FormTypes.CHECKBOX,
                 key: "show_message_count",
                 name: "入力文字数の表示",
-            	default: true,
+                default: true,
                 description: "入力文字数をカウントダウン形式で表示します。"
             }
         }
@@ -156,7 +159,7 @@
         }
     };
 
-    /** メッセージ監視設定項目データ */
+    /** メッセージ監視設定データ */
     const WATCH_MESSAGE_SETTING_DATA = {
         key: "message-watching-settings",
         title: "メッセージ監視",
@@ -166,28 +169,28 @@
                 type: FormTypes.CHECKBOX,
                 key: "watch_message",
                 name: "メッセージの監視",
-            	default: true,
+                default: true,
                 description: "メッセージを監視してコンソールに出力します。"
             },
             show_past_message: {
                 type: FormTypes.CHECKBOX,
                 key: "show_past_message",
                 name: "過去メッセージの表示",
-            	default: false,
+                default: false,
                 description: "監視開始以前のメッセージを表示します。"
             },
             watch_default_observe_talk: {
                 type: FormTypes.CHECKBOX,
                 key: "watch_default_observe_talk",
                 name: "デフォルト監視対象の自動監視",
-            	default: true,
+                default: true,
                 description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。"
             },
             default_observe_talk_ids: {
                 type: FormTypes.TEXT_ARRAY,
                 key: "default_observe_talk_ids",
                 name: "デフォルト監視トークID",
-            	default: [],
+                default: [],
                 description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。'
             }
         }
@@ -313,24 +316,25 @@
     function drawSettingView(){
         const settingPage = document.getElementById("environment-page");
 
-        //水平線
+        //水平線を描画
         const hr = createElement(ElementTypes.HR);
         settingPage.appendChild(hr);
 
-        //説明
+        //説明を描画
         const description = createElementWithHTML(ElementTypes.DIV, SETTING_DESCRIPTION);
         settingPage.appendChild(description);
 
-        //設定項目
-        SETTING_DATAS.forEach(settiongData => drawSettingSection(settingPage, settiongData));
+        //設定項目を描画
+        SETTING_DATAS.forEach(settiongData => appendSettingSection(settingPage, settiongData));
     }
 
     /**
-    * 設定画面に設定項目を描画します。
+    * 設定画面に項目を追加します。
     * @param {HTMLElement} settingPage 設定画面
     * @param {Object} settiongData 設定データ
     */
-    function drawSettingSection(settingPage, settiongData){
+    function appendSettingSection(settingPage, settiongData){
+        //設定項目の作成
         const inputKeyDatas = settiongData.inputKeyDatas;
         const settings = getSettings();
 
@@ -340,7 +344,7 @@
         const section = createSettingSection(settiongData, inputForms);
         settingPage.appendChild(section);
 
-        //フォームの初期値にローカルストレージの値を設定
+        //フォームの初期値を設定
         const inputKeyInputs = convertObjectValue(inputKeyForms, (key, form) => {
             const input = form.querySelector('#' + HTML_ID_PREFIX + key);
             const inputData = inputKeyDatas[key];
@@ -359,7 +363,7 @@
         const button = section.querySelector('.btn');
         const message = section.querySelector('.success');
 
-        //値変更時にボタンをクリック可能化
+        //値変更時に変更ボタンをクリック可能化
         const onChangeValue = () => {
             const inputKeyInputValues = convertObjectValue(inputKeyInputs, (key, input) => {
                 const inputData = inputKeyDatas[key];
@@ -388,7 +392,7 @@
             }
         });
 
-        //ボタンクリック時にローカルストレージの値を更新
+        //変更ボタンクリック時に設定を更新
         addEventListener(button, EventTypes.CLICK, () => {
             forEach(inputKeyInputs, (key, input) => {
                 const inputData = inputKeyDatas[key];
@@ -412,9 +416,9 @@
     }
 
     /**
-    * 設定画面のインプットフォーム要素を作成します。
+    * 設定画面の入力フォーム要素を作成します。
     * @param {Object} inputData インプットデータ
-    * @return {HTMLElement} インプットフォーム要素
+    * @return {HTMLElement} 入力フォーム要素
     */
     function createSettingInputFormElement(inputData){
         const form = createElement(ElementTypes.DIV, {
@@ -479,12 +483,12 @@
 
     /**
     * 設定画面の項目要素を作成します。
-    * @param {Object} settiongData 設定データ
+    * @param {Object} settingData 設定データ
     * @param {Object} inputKeyForms
     * @return {HTMLElement} 項目要素
     */
-    function createSettingSection(settiongData, inputKeyForms){
-        const header = createElementWithHTML(ElementTypes.DIV, settiongData.title, {
+    function createSettingSection(settingData, inputKeyForms){
+        const header = createElementWithHTML(ElementTypes.DIV, settingData.title, {
             class: "c-section__heading"
         });
 
@@ -538,8 +542,8 @@
             const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
             if(inputValue != settingValue){
                 return false;
-            }
-        }
+    }
+                }
         return true;
     }
 
@@ -551,7 +555,7 @@
 
         const userDialog = document.getElementById("user-dialog-basic-profile");
         const icon = userDialog.querySelector('.prof-icon-large');
-        setStyle(icon, "cursor",  "zoom-in");
+        setStyle(icon, "cursor", "zoom-in");
         const image = icon.querySelector('img');
 
         //アイコンクリック時に拡大
@@ -579,7 +583,7 @@
                 "align-items": "center",
                 "justify-content": "center",
                 "z-index": CUSTOM_MODAL_Z + 1,
-                "cursor": "zoom-out	"
+                "cursor": "zoom-out "
             });
 
             //拡大画像を作成
@@ -605,8 +609,8 @@
     * マルチビューのレスポンシブ化機能を実行します。
     */
     function doResponsiveMultiView(){
-        const multiPanes = document.getElementById("talk-panes-multi");
-        const talkPanes = multiPanes.querySelectorAll('.talk-pane');
+        const multiPane = document.getElementById("talk-panes-multi");
+        const talkPanes = multiPane.querySelectorAll('.talk-pane');
         talkPanes.forEach(talkPane => {
             const talkPaneObserver = new MutationObserver(mutations => {
                 mutations.filter(mutation => mutation.attributeName == "class").forEach(mutation => {
@@ -727,7 +731,7 @@
 
         const messages = document.getElementById("messages");
         const messagesObserver = new MutationObserver(mutations => {
-            const observeStartDate = new Date();
+        const observeStartDate = new Date();
 
             mutations.forEach(mutation => {
                 const nodes = mutation.addedNodes;
@@ -742,7 +746,7 @@
                     //メッセージが投稿されると、.real-msgs下に子ノードが追加される
                     const talk = node.querySelector('.real-msgs');
                     const talkObserver = new MutationObserver(mutations => {
-                        mutations.forEach(mutation => {
+            mutations.forEach(mutation => {
                             const nodes = mutation.addedNodes;
                             Array.from(nodes).filter(node => node.className == "msg").forEach(node => {
                                 const message = {
@@ -757,7 +761,7 @@
                                 //過去メッセージ非表示設定時、過去メッセージであれば次へ
                                 if(settings.show_past_message === false && message.time < observeStartDate){
                                     return;
-                                }
+        }
 
                                 const messageArea = node.querySelector('div:first-child');
                                 const userType = messageArea.className;
@@ -767,18 +771,18 @@
 
                                 //ユーザー名
                                 switch(userType){
-                                    case UserTypes.SYSTEM.value:
+            case UserTypes.SYSTEM.value:
                                         message.userName = settings.user_name_system;
                                         break;
-                                    case UserTypes.ME.value:
-                                        const myUserName = document.getElementById("current-username");
+            case UserTypes.ME.value:
+                const myUserName = document.getElementById("current-username");
                                         message.userName = removeBlank(myUserName.textContent);
                                         break;
-                                    case UserTypes.OTHERS.value:
+            case UserTypes.OTHERS.value:
                                         const userName = messageArea.querySelector('.username');
                                         message.userName = removeBlank(userName.textContent);
                                         break;
-                                }
+        }
 
                                 //ヘッダー
                                 const headerReplacers = [
@@ -796,17 +800,17 @@
                                         case MessageTypes.STAMP_AND_TEXT.value:
                                             //本文テキストのみを取得するためにコピーしたノードからメッセージメニューを削除
                                             const messageText = deepCloneNode(messageBody.querySelector('.msg-text'));
-                                            const messageMenu = messageText.querySelector('.msg-menu-container');
+        const messageMenu = messageText.querySelector('.msg-menu-container');
                                             if(messageMenu !== null){
                                                 messageText.removeChild(messageMenu);
-                                            }
+    }
 
                                             message.body = messageText.textContent;
                                             break;
                                         case MessageTypes.STAMP.value:
                                             message.body = settings.log_stamp;
                                             break;
-                                    }
+    }
                                 }else{
                                     const messageTypeSub = messageTypes[1];
                                     switch(messageTypeSub){
@@ -817,8 +821,8 @@
                                             const text = thumbnailText !== null ? thumbnailText.textContent : "";
                                             message.body = prefix + text;
                                             break;
-                                    }
-                                }
+    }
+    }
 
                                 //スタンプ
                                 switch(messageTypeMain){
@@ -826,7 +830,7 @@
                                     case MessageTypes.STAMP_AND_TEXT.value:
                                         message.stamp = messageBody.querySelector('img');
                                         break;
-                                }
+    }
 
                                 //メッセージをコンソールに出力
                                 console.group(header);
@@ -834,7 +838,7 @@
                                     console.log(settings.log_label, message.body, message.stamp);
                                 }else{
                                     console.log(settings.log_label, message.body);
-                                }
+        }
                                 console.groupEnd();
                             });
                         });
@@ -873,7 +877,7 @@
                 continue;
             }
             deepFreeze(value);
-        }
+    	}
     }
 
 
@@ -930,9 +934,9 @@
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const dayOfMonth = date.getDate();
-        const day = date.getDay();
+        const dayOfWeek = date.getDay();
         const dayTexts = ["日", "月", "火", "水", "木", "金", "土"];
-        const dayText = dayTexts[day];
+        const dayOfWeekText = dayTexts[dayOfWeek];
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const seconds = date.getSeconds();
@@ -943,7 +947,7 @@
             [/M/g, month],
             [/dd/g, zeroPadding(dayOfMonth, 2)],
             [/d/g, dayOfMonth],
-            [/e/g, dayText],
+            [/e/g, dayOfWeekText],
             [/HH/g, zeroPadding(hours, 2)],
             [/H/g, hours],
             [/mm/g, zeroPadding(minutes, 2)],
@@ -981,7 +985,7 @@
 
     /**
     * カンマ区切りの文字列を配列に変換します。
-    * 文字列が空の場合は空の配列を返します。
+    * 空文字の場合は空の配列を返します。
     * @param {String} string カンマ区切りの文字列
     * @return {String[]} 配列
     */
@@ -1033,39 +1037,42 @@
     }
 
     /**
-    * 内部テキストを持ったHTML要素を作成します。
+    * 内部テキストを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} type 要素種別
     * @param {Object} [attributes] 属性
+    * @param {Object} [styles] スタイル
     * @param {String} text テキスト
     * @return {HTMLElement} HTML要素
     */
-    function createElementWithText(type, text, attributes){
-        const element = createElement(type, attributes);
+    function createElementWithText(type, text, attributes, styles){
+        const element = createElement(type, attributes, styles);
         element.textContent = text;
         return element;
     }
 
     /**
-    * 内部HTMLを持ったHTML要素を作成します。
+    * 内部HTMLを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} type 要素種別
     * @param {Object} [attributes] 属性
+    * @param {Object} [styles] スタイル
     * @param {String} html HTML
     * @return {HTMLElement} HTML要素
     */
-    function createElementWithHTML(type, html, attributes){
-        const element = createElement(type, attributes);
+    function createElementWithHTML(type, html, attributes, styles){
+        const element = createElement(type, attributes, styles);
         element.innerHTML = html;
         return element;
     }
 
     /**
-    * HTML要素を作成します。
+    * HTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} type 要素種別
     * @param {Object} [attributes] 属性
+    * @param {Object} [styles] スタイル
     * @return {HTMLElement} HTML要素
-    * @throws {Error} エラー
+    * @throws {Error} typeの型がElementTypeではない場合
     */
-    function createElement(type, attributes){
+    function createElement(type, attributes, styles){
         if(!(type instanceof ElementType)){
             throw new Error("type is not instance of ElementType");
         }
@@ -1099,7 +1106,7 @@
     * HTML要素にディスプレイ属性を設定します。
     * @param {HTMLElement} element HTML要素
     * @param {DisplayType} type ディスプレイ種別
-    * @throws {Error} エラー
+    * @throws {Error} typeの型がDisplayTypeではない場合
     */
     function setDisplay(element, type){
         if(!(type instanceof DisplayType)){
@@ -1120,7 +1127,7 @@
     /**
     * HTML要素にスタイルを設定します。
     * @param {HTMLElement} element HTML要素
-    * @param {String} name 属性名
+    * @param {String} name プロパティ名
     * @param {String} value 値
     */
     function setStyle(element, name, value){
@@ -1128,11 +1135,11 @@
     }
 
     /**
-    * HTML要素にイベントを追加します。
+    * HTML要素にイベントリスナーを追加します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} type イベント種別
-    * @param {Function} listener イベント発生時実行関数
-    * @throws {Error} エラー
+    * @param {Function} listener イベントリスナー
+    * @throws {Error} typeの型がEventTypeではない場合
     */
     function addEventListener(element, type, listener){
         if(!(type instanceof EventType)){
@@ -1142,7 +1149,7 @@
     }
 
     /**
-    * ローカルストレージから設定を取得します。
+    * ローカルストレージからJSON形式の設定を取得します。
     * ローカルストレージ上に値が存在しない場合、空のオブジェクトを返します。
     * @return {Object} 設定
     */
@@ -1152,7 +1159,7 @@
     }
 
     /**
-    * ローカルストレージに設定をセットします。
+    * ローカルストレージにJSON形式で設定をセットします。
     * @param {Object} settings 設定
     */
     function setSettings(settings){

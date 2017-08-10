@@ -11,6 +11,178 @@
 (function(){
     'use strict';
 
+    /** オプショナル */
+    class Optional{
+        /**
+        * 引数の値を含むオプショナルを生成します。
+        * @param {Object} value 値
+        * @return {Optional} オプショナル
+        */
+        constructor(value){
+            this.value = value;
+        }
+
+        /**
+        * 空のオプショナルを生成します。
+        * @return {Optional} 空のオプショナル
+        */
+        static empty(){
+            return new this(null);
+        }
+
+        /**
+        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
+        * それ以外の場合は例外をスローします。
+        * @param {Object} value 値
+        * @return {Optional} オプショナル
+        * @throws {Error} valueがnullまたはundefinedの場合
+        */
+        static of(value){
+            if(value === null || value === undefined){
+                throw new Error("value is null or undefined");
+            }
+            return new this(value);
+        }
+
+        /**
+        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Object} value 値
+        * @return {Optional} オプショナル
+        */
+        static ofAbsentable(value){
+            return (value !== null && value !== undefined) ? this.of(value) : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、trueの場合は自身を返します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Function} matcher : value => Boolean
+        * @return {Optional} オプショナル
+        */
+        filter(matcher){
+            return (this.isPresent() && matcher(this.value)) ? this : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、新しい中身からなるオプショナルを生成します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Function} mapper : value => newValue
+        * @return {Optional} オプショナル
+        */
+        map(mapper){
+            return this.isPresent() ? Optional.ofAbsentable(mapper(this.value)) : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、結果を返します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Function} mapper : value => newValue
+        * @return {Optional} オプショナル
+        */
+        flatMap(mapper){
+            return this.isPresent() ? mapper(this.value) : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、自身を返します。
+        * それ以外の場合はそのまま自身を返します。
+        * @param {Function} processer : value => {...}
+        * @return {Optional} 自身
+        */
+        ifPresent(processer){
+            if(this.isPresent()){
+                processer(this.value);
+            }
+            return this;
+        }
+
+        /**
+        * オプショナルの中身が存在しない場合は引数の関数を実行し、自身を返します。
+        * それ以外の場合はそのまま自身を返します。
+        * @param {Function} processer : () => {...}
+        * @return {Optional} 自身
+        */
+        ifAbsent(processer){
+            if(this.isAbsent()){
+                processer();
+            }
+            return this;
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は例外をスローします。
+        * @return {Object} オプショナルの中身
+        * @throws {Error} オプショナルの中身が空の場合
+        */
+        get(){
+            if(this.isAbsent()){
+                throw new Error("this is empty");
+            }
+            return this.value;
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は引数の値を返します。
+        * @param {Object} other 値
+        * @return {Object} オプショナルの中身
+        */
+        orElse(other){
+            return this.isPresent() ? this.value : other;
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は引数の関数を実行した結果を返します。
+        * @param {Function} getter : () => other
+        * @return {Object} オプショナルの中身
+        */
+        orElseGet(getter){
+            return this.isPresent() ? this.value : getter();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は引数の関数を実行した結果をスローします。
+        * @param {Function} supplier : () => Error
+        * @return {Object} オプショナルの中身
+        * @throws {Error} オプショナルの中身が空の場合
+        */
+        orElseThrow(supplier){
+            if(this.isAbsent()){
+                throw supplier();
+            }
+            return this.value;
+        }
+
+        /**
+        * オプショナルの中身が存在するかどうかを判定します。
+        * @return {Boolean} 中身が存在すればtrue、存在しなければfalse
+        */
+        isPresent(){
+            return this.value !== null && this.value !== undefined;
+        }
+
+        /**
+        * オプショナルの中身が存在しないかどうかを判定します。
+        * @return {Boolean} 中身が存在しなければtrue、存在すればfalse
+        */
+        isAbsent(){
+            return this.value === null || this.value === undefined;
+        }
+
+        /**
+        * オプショナルの中身と引数のオプショナルの中身が等しいかどうかを判定します。
+        * @param {Optional} other 他のオプショナル
+        * @return {Boolean} 等しければtrue、等しくなければfalse
+        */
+        equals(other){
+            return other instanceof Optional && this.value === other.value;
+        }
+    }
+
     /** value保持クラス */
     class HasValue{
         /**
@@ -446,12 +618,12 @@
                 form.appendChild(label);
                 form.appendChild(inputArea);
 
-                if(inputData.description !== undefined){
-                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description, {
+                Optional.ofAbsentable(inputData.description).ifPresent(description => {
+                    const annotation = createElementWithHTML(ElementTypes.DIV, description, {
                         class: "annotation"
                     });
                     form.appendChild(annotation);
-                }
+                });
                 break;
             case FormTypes.CHECKBOX:
                 const checkbox = createElement(ElementTypes.INPUT, {
@@ -468,12 +640,12 @@
                 });
                 checkboxArea.appendChild(label);
 
-                if(inputData.description !== undefined){
-                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description, {
+                Optional.ofAbsentable(inputData.description).ifPresent(description => {
+                    const annotation = createElementWithHTML(ElementTypes.DIV, description, {
                         class: "annotation"
                     });
                     checkboxArea.appendChild(annotation);
-                }
+                });
 
                 form.appendChild(checkboxArea);
                 break;
@@ -484,48 +656,41 @@
     /**
     * 設定画面の項目要素を作成します。
     * @param {Object} settingData 設定データ
-    * @param {Object} inputKeyForms
+    * @param {HTMLElement[]} inputForms 入力フォーム要素リスト
     * @return {HTMLElement} 項目要素
     */
-    function createSettingSection(settingData, inputKeyForms){
+    function createSettingSection(settingData, inputForms){
+        const section = createElement(ElementTypes.DIV, {
+            class: "c-section",
+            id: HTML_ID_PREFIX + settingData.key
+        });
         const header = createElementWithHTML(ElementTypes.DIV, settingData.title, {
             class: "c-section__heading"
         });
+        section.appendChild(header);
 
-        let description;
-        if(settiongData.description !== undefined){
-            description = createElementWithHTML(ElementTypes.DIV, settiongData.description, {
+        Optional.ofAbsentable(settingData.description).ifPresent(descriptionText => {
+            const description = createElementWithHTML(ElementTypes.DIV, descriptionText, {
                 class: "form-group"
             });
-        }
+            section.appendChild(description);
+        });
 
-        const button = createElementWithHTML(ElementTypes.BUTTON, "変更", {
+        inputForms.forEach(inputForm => section.appendChild(inputForm));
+
+        const changeButtonArea = createElement(ElementTypes.DIV);
+        const changeButton = createElementWithHTML(ElementTypes.BUTTON, "変更", {
             type: "button",
             class: "btn btn-primary btn-fix"
         });
-        button.disabled = true;
-
+        changeButton.disabled = true;
+        changeButtonArea.appendChild(changeButton);
         const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。", {
             class: "success"
         });
         setDisplay(message, DisplayTypes.NONE);
-
-        const buttonArea = createElement(ElementTypes.DIV);
-        buttonArea.appendChild(button);
-        buttonArea.appendChild(message);
-
-        const section = createElement(ElementTypes.DIV, {
-            class: "c-section",
-            id: HTML_ID_PREFIX + settiongData.key
-        });
-        section.appendChild(header);
-
-        if(description !== undefined){
-            section.appendChild(description);
-        }
-
-        Object.values(inputKeyForms).forEach(inputForm => section.appendChild(inputForm));
-        section.appendChild(buttonArea);
+        changeButtonArea.appendChild(message);
+        section.appendChild(changeButtonArea);
 
         return section;
     }
@@ -1077,9 +1242,8 @@
             throw new Error("type is not instance of ElementType");
         }
         const element = document.createElement(type.value);
-        if(attributes !== undefined){
-            setAttributes(element, attributes);
-        }
+        Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
+        Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
         return element;
     }
 

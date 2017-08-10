@@ -408,7 +408,6 @@
     /** ディスプレイ種別 */
     const DisplayTypes = {
         BLOCK: new DisplayType("block"),
-        FLEX: new DisplayType("flex"),
         INLINE: new DisplayType("inline"),
         NONE: new DisplayType("none")
     };
@@ -970,7 +969,8 @@
         const multiPane = document.getElementById("talk-panes-multi");
         const talkPanes = multiPane.querySelectorAll('.talk-pane');
         talkPanes.forEach(talkPane => {
-            const talkPaneObserver = new MutationObserver(mutations => {
+            //トークペインのclass属性変更時、表示を切り替え
+            observeNode(talkPane, ObserveModes.ATTRIBUTES, mutations => {
                 mutations.filter(mutation => mutation.attributeName == "class").forEach(mutation => {
                     const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
                     const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
@@ -1010,8 +1010,6 @@
                     }
                 });
             });
-            //トークペイン監視開始
-            observe(talkPaneObserver, talkPane, ObserveModes.ATTRIBUTES);
         });
     }
 
@@ -1037,6 +1035,7 @@
             addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
         });
     }
+
 
     /**
     * メッセージの監視機能を実行します。
@@ -1342,16 +1341,16 @@
 
     /**
      * ノードの変更を監視します。
-     * @param {MutationObserver} observer オブザーバー
      * @param {Node} target 監視対象ノード
      * @param {ObserveMode} mode 監視モード
-     * @throws {Error} エラー
+     * @param {Function} observer オブザーブ関数:mutations => {...}
+     * @throws {Error} modeの型がObserveModeではない場合
      */
-    function observe(observer, target, mode){
+    function observeNode(target, mode, observer){
         if(!(mode instanceof ObserveMode)){
             throw new Error("mode is not instance of ObserveMode");
         }
-        observer.observe(target, mode.value);
+        new MutationObserver(observer).observe(target, mode.value);
     }
 
     /**

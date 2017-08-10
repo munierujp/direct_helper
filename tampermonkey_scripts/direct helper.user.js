@@ -11,8 +11,415 @@
 (function(){
     'use strict';
 
-    /** value保持クラス */
+    /** オプショナル */
+    class Optional{
+        /**
+        * 引数の値を含むオプショナルを生成します。
+        * @param {Object} value 値
+        * @return {Optional} オプショナル
+        */
+        constructor(value){
+            this.value = value;
+        }
+
+        /**
+        * 空のオプショナルを生成します。
+        * @return {Optional} 空のオプショナル
+        */
+        static empty(){
+            return new this(null);
+        }
+
+        /**
+        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
+        * それ以外の場合は例外をスローします。
+        * @param {Object} value 値
+        * @return {Optional} オプショナル
+        * @throws {Error} valueがnullまたはundefinedの場合
+        */
+        static of(value){
+            if(value === null || value === undefined){
+                throw new Error("value is null or undefined");
+            }
+            return new this(value);
+        }
+
+        /**
+        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Object} value 値
+        * @return {Optional} オプショナル
+        */
+        static ofAbsentable(value){
+            return (value !== null && value !== undefined) ? this.of(value) : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、trueの場合は自身を返します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Function} matcher : value => Boolean
+        * @return {Optional} オプショナル
+        */
+        filter(matcher){
+            return (this.isPresent() && matcher(this.value)) ? this : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、新しい中身からなるオプショナルを生成します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Function} mapper : value => newValue
+        * @return {Optional} オプショナル
+        */
+        map(mapper){
+            return this.isPresent() ? Optional.ofAbsentable(mapper(this.value)) : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、結果を返します。
+        * それ以外の場合は空のオプショナルを返します。
+        * @param {Function} mapper : value => newValue
+        * @return {Optional} オプショナル
+        */
+        flatMap(mapper){
+            return this.isPresent() ? mapper(this.value) : Optional.empty();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合は引数の関数を実行し、自身を返します。
+        * それ以外の場合はそのまま自身を返します。
+        * @param {Function} processer : value => {...}
+        * @return {Optional} 自身
+        */
+        ifPresent(processer){
+            if(this.isPresent()){
+                processer(this.value);
+            }
+            return this;
+        }
+
+        /**
+        * オプショナルの中身が存在しない場合は引数の関数を実行し、自身を返します。
+        * それ以外の場合はそのまま自身を返します。
+        * @param {Function} processer : () => {...}
+        * @return {Optional} 自身
+        */
+        ifAbsent(processer){
+            if(this.isAbsent()){
+                processer();
+            }
+            return this;
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は例外をスローします。
+        * @return {Object} オプショナルの中身
+        * @throws {Error} オプショナルの中身が空の場合
+        */
+        get(){
+            if(this.isAbsent()){
+                throw new Error("this is empty");
+            }
+            return this.value;
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は引数の値を返します。
+        * @param {Object} other 値
+        * @return {Object} オプショナルの中身
+        */
+        orElse(other){
+            return this.isPresent() ? this.value : other;
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は引数の関数を実行した結果を返します。
+        * @param {Function} getter : () => other
+        * @return {Object} オプショナルの中身
+        */
+        orElseGet(getter){
+            return this.isPresent() ? this.value : getter();
+        }
+
+        /**
+        * オプショナルの中身が存在する場合はそれを返します。
+        * それ以外の場合は引数の関数を実行した結果をスローします。
+        * @param {Function} supplier : () => Error
+        * @return {Object} オプショナルの中身
+        * @throws {Error} オプショナルの中身が空の場合
+        */
+        orElseThrow(supplier){
+            if(this.isAbsent()){
+                throw supplier();
+            }
+            return this.value;
+        }
+
+        /**
+        * オプショナルの中身が存在するかどうかを判定します。
+        * @return {Boolean} 中身が存在すればtrue、存在しなければfalse
+        */
+        isPresent(){
+            return this.value !== null && this.value !== undefined;
+        }
+
+        /**
+        * オプショナルの中身が存在しないかどうかを判定します。
+        * @return {Boolean} 中身が存在しなければtrue、存在すればfalse
+        */
+        isAbsent(){
+            return this.value === null || this.value === undefined;
+        }
+
+        /**
+        * オプショナルの中身と引数のオプショナルの中身が等しいかどうかを判定します。
+        * @param {Optional} other 他のオプショナル
+        * @return {Boolean} 等しければtrue、等しくなければfalse
+        */
+        equals(other){
+            return other instanceof Optional && this.value === other.value;
+        }
+    }
+
+    /** イテレーター */
+    class Iterator{
+        /**
+        * 引数のオブジェクトからイテレーターを生成します。
+        * @param {Object} object オブジェクト
+        * @return {Iterator} イテレーター
+        */
+        constructor(object){
+            this.object = object;
+        }
+
+        /**
+        * 空のイテレーターを生成します。
+        * @return {Iterator} 空のイテレーター
+        */
+        static empty(){
+            return new this(null);
+        }
+
+        /**
+        * 引数のオブジェクトからイテレーターを生成します。
+        * @param {Object} object オブジェクト
+        * @return {Iterator} イテレーター
+        */
+        static of(object){
+            return new this(object);
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行し、自身を返します。
+        * @param {Function} processer : (key, value) => {...}
+        * @return {Iterator} 自身
+        */
+        peek(processer){
+            this.forEach(processer);
+            return this;
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行し、条件を満たす要素からなるイテレーターを生成します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Iterator} 条件を満たす要素からなるイテレーター
+        */
+        filter(matcher){
+            if(this.isEmpty()){
+                return this;
+            }
+            const filtered = {};
+            Object.keys(this.object)
+                .filter(key => matcher(key, this.object[key]))
+                .forEach(key => filtered[key] = this.object[key]);
+            return Iterator.of(filtered);
+        }
+
+        /**
+        * 引数の関数を各要素のキーに対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
+        * @param {Function} keyMapper : (key, value) => newKey
+        * @return {Iterator} 新しい要素からなるイテレーター
+        */
+        key(keyMapper){
+            return this.map(keyMapper, (key, value) => value);
+        }
+
+        /**
+        * 引数の関数を各要素の値に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
+        * @param {Function} valueMapper : (key, value) => newValue
+        * @return {Iterator} 新しい要素からなるイテレーター
+        */
+        value(valueMapper){
+            return this.map((key, value) => key, valueMapper);
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
+        * @param {Function} keyMapper : (key, value) => newKey
+        * @param {Function} valueMapper : (key, value) => newValue
+        * @return {Iterator} 新しい要素からなるイテレーター
+        */
+        map(keyMapper, valueMapper){
+            if(this.isEmpty()){
+                return this;
+            }
+            const mapped = {};
+            Object.keys(this.object)
+                .forEach(key => mapped[keyMapper(key, this.object[key])] = valueMapper(key, this.object[key]));
+            return Iterator.of(mapped);
+        }
+
+        /**
+        * 引数の関数を各要素に対して一度ずつ実行します。
+        * @param {Function} processer : (key, value) => {...}
+        */
+        forEach(processer){
+            if(this.isNotEmpty()){
+                Object.keys(this.object)
+                    .forEach(key => processer(key, this.object[key]));
+            }
+        }
+
+        /**
+        * イテレーターの中身を取得します。
+        * @return {Object} イテレーターの中身
+        */
+        get(){
+            return this.object;
+        }
+
+        /**
+        * イテレーターの中身のキー配列を返します。
+        * 要素が空の場合、空の配列を返します。
+        * @return {Object[]} イテレーターの中身のキー配列
+        */
+        keys(){
+            return this.isNotEmpty() ? Object.keys(this.object) : [];
+        }
+
+        /**
+        * イテレーターの中身の値配列を返します。
+        * 要素が空の場合、空の配列を返します。
+        * @return {Object[]} イテレーターの中身の値配列
+        */
+        values(){
+            return this.isNotEmpty() ? Object.values(this.object) : [];
+        }
+
+        /**
+        * 引数の条件を満たす要素のキーを返します。
+        * 条件を満たす要素がない場合、undefinedを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Object} 引数の条件を満たす要素があればその値、なければundefined
+        */
+        findKey(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(matcher(key, this.object[key])){
+                        return key;
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        /**
+        * 引数の条件を満たす要素の値を返します。
+        * 条件を満たす要素がない場合、undefinedを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Object} 引数の条件を満たす要素があればそのキー、なければundefined
+        */
+        find(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(matcher(key, this.object[key])){
+                        return this.object[key];
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        /**
+        * いずれかの要素が引数の条件を満たすかどうかを判定します。
+        * 要素が空の場合、falseを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Boolean} いずれかの要素が条件を満たせばtrue、それ以外はfalse
+        */
+        some(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(matcher(key, this.object[key])){
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        /**
+        * すべての要素が引数の条件を満たすかどうかを判定します。
+        * 要素が空の場合、trueを返します。
+        * @param {Function} matcher : (key, value) => Boolean
+        * @return {Boolean} すべての要素が条件を満たせばtrue、それ以外はfalse
+        */
+        every(matcher){
+            if(this.isNotEmpty()){
+                for(const key in this.object){
+                    if(!matcher(key, this.object[key])){
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        /**
+        * 要素が空であるかどうかを判定します。
+        * @return {Boolean} 要素が空であればtrue、それ以外はfalse
+        */
+        isEmpty(){
+            return this.object === null || this.value === undefined;
+        }
+
+        /**
+        * 要素が空ではないかどうかを判定します。
+        * @return {Boolean} 要素が空でなければtrue、それ以外はfalse
+        */
+        isNotEmpty(){
+            return this.value !== null && this.value !== undefined;
+        }
+    }
+
+    /** トーク */
+    class Talk{
+        /**
+        * @param {String} id トークID
+        * @param {String} name トーク名
+        */
+        constructor(id, name){
+            this.id = id;
+            this.name = name;
+        }
+    }
+
+    /** メッセージ */
+    class Message{
+        /**
+        * @param {Talk} talk トーク
+        */
+        constructor(talk){
+            this.talk = talk;
+        }
+    }
+
+    /** 値保持クラス */
     class HasValue{
+        /**
+        * @param {Object} value 値
+        */
         constructor(value){
             this.value = value;
         }
@@ -23,7 +430,6 @@
     /** ディスプレイ種別 */
     const DisplayTypes = {
         BLOCK: new DisplayType("block"),
-        FLEX: new DisplayType("flex"),
         INLINE: new DisplayType("inline"),
         NONE: new DisplayType("none")
     };
@@ -62,11 +468,26 @@
     class MessageType extends HasValue{}
     /** メッセージ種別 */
     const MessageTypes = {
-        FILE: new MessageType("msg-text-contained-thumb"),
-        IMAGE: new MessageType("thumb-cover"),
-        STAMP: new MessageType("stamp"),
-        STAMP_AND_TEXT: new MessageType("stamp-with-text"),
-        TEXT: new MessageType("msg-text")
+        FILE: new MessageType("msg-type-file"),
+        FILE_AND_TEXT: new MessageType("msg-type-textMultipleFile"),
+        STAMP: new MessageType("msg-type-stamp"),
+        TEXT: new MessageType("msg-type-text")
+    };
+
+    /** ファイル種別クラス */
+    class FileType extends HasValue{}
+    /** ファイル種別 */
+    const FileTypes = {
+        IMAGE: new FileType("msg-thumb-cover"),
+        OTHER: new FileType()
+    };
+
+    /** スタンプ種別クラス */
+    class StampType extends HasValue{}
+    /** スタンプ種別 */
+    const StampTypes = {
+        NO_TEXT: new StampType("no-text"),
+        WITH_TEXT: new StampType("stamp-with-text-body")
     };
 
     /** 監視モードクラス */
@@ -91,9 +512,11 @@
         DisplayTypes,
         ElementTypes,
         EventTypes,
+        FileTypes,
         FormTypes,
         MessageTypes,
         ObserveModes,
+        StampTypes,
         UserTypes
     ];
     //enumを深く凍結
@@ -105,31 +528,11 @@
     /** ローカルストレージ設定キー */
     const LOCAL_STORAGE_SETTINGS_KEY = "direct_helper_settings";
 
-    /** 設定デフォルト値 */
-    const SETTINGS_DEFAULT_VALUES = {
-        custom_log_message_header:  "<time> [<talkName>] <userName>",
-        custom_log_start_observe_messages: "<time> メッセージの監視を開始します。",
-        custom_log_start_observe_talk: "<time> [<talkName>]の監視を開始します。",
-        date_format: "yyyy/M/d(e) HH:mm:ss",
-        default_observe_talk_ids: [],
-        expand_user_icon: true,
-        log_file: "[ファイル]",
-        log_image: "[画像]",
-        log_label: "",
-        log_stamp: "[スタンプ]",
-        responsive_multi_view: true,
-        show_message_count: true,
-        show_past_message: false,
-        user_name_system: "システム",
-        watch_default_observe_talk: true,
-        watch_message: true,
-    };
-
     /** 設定画面説明 */
     const SETTING_DESCRIPTION = "以下はdirect helperの設定です。設定変更後はページをリロードしてください。";
 
-    /** ユーザーダイアログ設定項目データ */
-    const SETTING_SECTION_USER_DIALOG_DATA = {
+    /** ユーザーダイアログ設定データ */
+    const USER_DIALOG_SETTING_DATA = {
         key: "user-dialog-settings",
         title: "ユーザーダイアログ",
         description: "ユーザーダイアログの動作を変更します。",
@@ -138,13 +541,14 @@
                 type: FormTypes.CHECKBOX,
                 key: "expand_user_icon",
                 name: "ユーザーアイコンの拡大",
+                default: true,
                 description: "ユーザーアイコンをクリックで拡大表示します。"
             }
         }
     };
 
-    /** メッセージ入力設定項目データ */
-    const SETTING_SECTION_INPUT_MESSAGE_DATA = {
+    /** メッセージ入力設定データ */
+    const INPUT_MESSAGE_SETTING_DATA = {
         key: "input-message-settings",
         title: "メッセージ入力",
         description: "メッセージ入力欄の動作を変更します。",
@@ -153,13 +557,14 @@
                 type: FormTypes.CHECKBOX,
                 key: "show_message_count",
                 name: "入力文字数の表示",
+                default: true,
                 description: "入力文字数をカウントダウン形式で表示します。"
             }
         }
     };
 
-    /** マルチビュー設定項目データ */
-    const SETTING_SECTION_MULTI_VIEW_DATA = {
+    /** マルチビュー設定データ */
+    const MULTI_VIEW_SETTING_DATA = {
         key: "multi-view-settings",
         title: "マルチビュー",
         description: "マルチビューの動作を変更します。",
@@ -168,46 +573,51 @@
                 type: FormTypes.CHECKBOX,
                 key: "responsive_multi_view",
                 name: "マルチビューのレスポンシブ化",
+                default: true,
                 description: "選択状態に応じてマルチビューのカラム数を動的に変更します。"
             }
         }
     };
 
-    /** メッセージ監視設定項目データ */
-    const SETTING_SECTION_WATCH_MESSAGE_DATA = {
+    /** メッセージ監視設定データ */
+    const WATCH_MESSAGE_SETTING_DATA = {
         key: "message-watching-settings",
         title: "メッセージ監視",
-        description: "メッセージを監視してコンソールに出力します。",
+        description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
         inputKeyDatas: {
             watch_message: {
                 type: FormTypes.CHECKBOX,
                 key: "watch_message",
                 name: "メッセージの監視",
+                default: true,
                 description: "メッセージを監視してコンソールに出力します。"
             },
             show_past_message: {
                 type: FormTypes.CHECKBOX,
                 key: "show_past_message",
                 name: "過去メッセージの表示",
+                default: false,
                 description: "監視開始以前のメッセージを表示します。"
             },
             watch_default_observe_talk: {
                 type: FormTypes.CHECKBOX,
                 key: "watch_default_observe_talk",
                 name: "デフォルト監視対象の自動監視",
+                default: true,
                 description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。"
             },
             default_observe_talk_ids: {
                 type: FormTypes.TEXT_ARRAY,
                 key: "default_observe_talk_ids",
                 name: "デフォルト監視トークID",
+                default: [],
                 description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。'
             }
         }
     };
 
-    /** ログ設定項目データ */
-    const SETTING_SECTION_LOG_DATA = {
+    /** ログ設定データ */
+    const LOG_SETTING_DATA = {
         key: "log-settings",
         title: "ログ",
         description: "ログの表示形式をカスタマイズします。",
@@ -216,70 +626,79 @@
                 type: FormTypes.TEXT,
                 key: "log_label",
                 name: "ログラベル",
+                default: "",
                 description: "コンソールでのフィルター用の文字列です。"
             },
             user_name_system: {
                 type: FormTypes.TEXT,
                 key: "user_name_system",
+                default: "システム",
                 name: "システムユーザー名"
             },
             log_stamp: {
                 type: FormTypes.TEXT,
                 key: "log_stamp",
+                default: "[スタンプ]",
                 name: "スタンプログ"
             },
             log_image: {
                 type: FormTypes.TEXT,
                 key: "log_image",
+                default: "[画像]",
                 name: "画像ログ"
             },
             log_file: {
                 type: FormTypes.TEXT,
                 key: "log_file",
+                default: "[ファイル]",
                 name: "ファイルログ"
             },
             date_format: {
                 type: FormTypes.TEXT,
                 key: "date_format",
                 name: "日付フォーマット",
+                default: "yyyy/M/d(e) HH:mm:ss",
                 description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss"
             },
             custom_log_start_observe_messages: {
                 type: FormTypes.TEXT,
                 key: "custom_log_start_observe_messages",
                 name: "カスタムログ：メッセージ監視開始文",
+                default: "<time> メッセージの監視を開始します。",
                 description: "&lt;time&gt;:監視開始日時"
             },
             custom_log_start_observe_talk: {
                 type: FormTypes.TEXT,
                 key: "custom_log_start_observe_talk",
                 name: "カスタムログ：トーク監視開始文",
+                default: "<time> [<talkName>]の監視を開始します。",
                 description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時"
             },
             custom_log_message_header: {
                 type: FormTypes.TEXT,
                 key: "custom_log_message_header",
                 name: "カスタムログ：メッセージヘッダー",
+                default: "<time> [<talkName>] <userName>",
                 description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名"
             }
         }
     };
 
-    /** 設定項目データリスト */
-    const SETTING_SECTION_DATAS = [
-        SETTING_SECTION_USER_DIALOG_DATA,
-        SETTING_SECTION_INPUT_MESSAGE_DATA,
-        SETTING_SECTION_MULTI_VIEW_DATA,
-        SETTING_SECTION_WATCH_MESSAGE_DATA,
-        SETTING_SECTION_LOG_DATA
+    /** 設定データリスト（描画順） */
+    const SETTING_DATAS = [
+        USER_DIALOG_SETTING_DATA,
+        INPUT_MESSAGE_SETTING_DATA,
+        MULTI_VIEW_SETTING_DATA,
+        WATCH_MESSAGE_SETTING_DATA,
+        LOG_SETTING_DATA
     ];
 
-    /** 機能 */
-    const SETTINGS_KEY_FUNCTIONS = {
-        expand_user_icon: makeUserIconExpandable,
-        show_message_count: showMessageCount,
-        responsive_multi_view: makeMultiViewResponsive,
-        watch_message: watchMessage
+    /** 機能リスト（実行順） */
+    const SETTINGS_KEY_ACTIONS = {
+        expand_user_icon: doExpandUserIcon,
+        responsive_multi_view: doResponsiveMultiView,
+        show_message_count: doShowMessageCount,
+        watch_message: doWatchMessage
     };
 
     //設定の初期化
@@ -292,7 +711,9 @@
     const settings = getSettings();
 
     //各種機能の実行
-    Object.keys(SETTINGS_KEY_FUNCTIONS).filter(key => settings[key]　 === true).forEach(key => SETTINGS_KEY_FUNCTIONS[key]());
+    Iterator.of(SETTINGS_KEY_ACTIONS)
+        .filter(key => settings[key] === true)
+        .forEach((key, action) => action());
 
     /**
     * 設定を初期化します。
@@ -301,7 +722,11 @@
         const settings = getSettings();
 
         //未設定項目にデフォルト値を設定
-        Object.keys(SETTINGS_DEFAULT_VALUES).filter(key => settings[key] === undefined).forEach(key => settings[key] = SETTINGS_DEFAULT_VALUES[key]);
+        SETTING_DATAS.forEach(settingData => {
+            Iterator.of(settingData.inputKeyDatas)
+                .filter(key => settings[key] === undefined)
+                .forEach((key, inputData) => settings[key] = inputData.default);
+        });
 
         setSettings(settings);
     }
@@ -312,36 +737,34 @@
     function drawSettingView(){
         const settingPage = document.getElementById("environment-page");
 
-        //水平線
+        //水平線を描画
         const hr = createElement(ElementTypes.HR);
         settingPage.appendChild(hr);
 
-        //説明
+        //説明を描画
         const description = createElementWithHTML(ElementTypes.DIV, SETTING_DESCRIPTION);
         settingPage.appendChild(description);
 
-        //設定項目
-        SETTING_SECTION_DATAS.forEach(settingSectionData => drawSettingSection(settingPage, settingSectionData));
+        //設定項目を描画
+        SETTING_DATAS.forEach(settiongData => appendSettingSection(settingPage, settiongData));
     }
 
     /**
-    * 設定画面に設定項目を描画します。
+    * 設定画面に項目を追加します。
     * @param {HTMLElement} settingPage 設定画面
-    * @param {Object} settingSectionData 設定項目データ
+    * @param {Object} settiongData 設定データ
     */
-    function drawSettingSection(settingPage, settingSectionData){
-        const inputKeyDatas = settingSectionData.inputKeyDatas;
-        const settings = getSettings();
-
-        //インプットフォーム要素の作成
-        const inputKeyForms = convertObjectValue(inputKeyDatas, (key, data) => createSettingInputFormElement(data));
-        const inputForms = Object.values(inputKeyForms);
-        const section = createSettingSection(settingSectionData, inputForms);
+    function appendSettingSection(settingPage, settiongData){
+        //設定項目の作成
+        const inputKeyDatas = settiongData.inputKeyDatas;
+        const inputKeyForms = Iterator.of(inputKeyDatas).value((key, data) => createSettingInputFormElement(data)).get();
+        const section = createSettingSection(settiongData, Object.values(inputKeyForms));
         settingPage.appendChild(section);
 
-        //フォームの初期値にローカルストレージの値を設定
-        const inputKeyInputs = convertObjectValue(inputKeyForms, (key, form) => {
-            const input = form.querySelector('#' + HTML_ID_PREFIX + key);
+        //フォームの初期値を設定
+        const settings = getSettings();
+        const inputKeyInputs = Iterator.of(inputKeyForms).value(key => document.getElementById(HTML_ID_PREFIX + key)).get();
+        Iterator.of(inputKeyInputs).forEach((key, input) => {
             const inputData = inputKeyDatas[key];
             switch(inputData.type){
                 case FormTypes.TEXT:
@@ -352,15 +775,13 @@
                     input.checked = settings[key];
                     break;
             }
-            return input;
         });
 
-        const button = section.querySelector('.btn');
+        //値変更時に変更ボタンをクリック可能化
+        const changeButton = section.querySelector('.btn');
         const message = section.querySelector('.success');
-        
-        //値変更時にボタンをクリック可能化
         const onChangeValue = () => {
-            const inputKeyInputValues = convertObjectValue(inputKeyInputs, (key, input) => {
+            const inputKeyInputValues = Iterator.of(inputKeyInputs).value((key, input) => {
                 const inputData = inputKeyDatas[key];
                 switch(inputData.type){
                     case FormTypes.TEXT:
@@ -369,12 +790,11 @@
                     case FormTypes.CHECKBOX:
                         return input.checked;
                 }
-            });
-            button.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
+            }).get();
+            changeButton.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
             setDisplay(message, DisplayTypes.NONE);
         };
-
-        forEach(inputKeyInputs, (key, input) => {
+        Iterator.of(inputKeyInputs).forEach((key, input) => {
             const inputData = inputKeyDatas[key];
             switch(inputData.type){
                 case FormTypes.TEXT:
@@ -387,9 +807,9 @@
             }
         });
 
-        //ボタンクリック時にローカルストレージの値を更新
-        addEventListener(button, EventTypes.CLICK, () => {
-            forEach(inputKeyInputs, (key, input) => {
+        //変更ボタンクリック時に設定を更新
+        addEventListener(changeButton, EventTypes.CLICK, () => {
+            Iterator.of(inputKeyInputs).forEach((key, input) => {
                 const inputData = inputKeyDatas[key];
                 switch(inputData.type){
                     case FormTypes.TEXT:
@@ -405,122 +825,110 @@
             });
 
             setSettings(settings);
-            button.disabled = true;
+            changeButton.disabled = true;
             setDisplay(message, DisplayTypes.INLINE);
         });
     }
 
     /**
-    * 設定画面のインプットフォーム要素を作成します。
+    * 設定画面の入力フォーム要素を作成します。
     * @param {Object} inputData インプットデータ
-    * @return {HTMLElement} インプットフォーム要素
+    * @return {HTMLElement} 入力フォーム要素
     */
     function createSettingInputFormElement(inputData){
-        const form = createElement(ElementTypes.DIV, {
+        const inputForm = createElement(ElementTypes.DIV, {
             class: "form-group"
         });
-        const label = createElement(ElementTypes.LABEL);
 
         switch(inputData.type){
             case FormTypes.TEXT:
             case FormTypes.TEXT_ARRAY:
-                setAttribute(label, "class", "control-label");
-                label.innerText = inputData.name;
-
+                const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+                    class: "control-label"
+                });
+                inputForm.appendChild(inputLabel);
+                const inputArea = createElement(ElementTypes.DIV, {
+                    class: "controls"
+                });
                 const input = createElement(ElementTypes.INPUT, {
                     id: HTML_ID_PREFIX + inputData.key,
                     class: "form-control",
                     name: "status"
                 });
-
-                const inputArea = createElement(ElementTypes.DIV, {
-                    class: "controls"
-                });
                 inputArea.appendChild(input);
-
-                form.appendChild(label);
-                form.appendChild(inputArea);
-
-                if(inputData.description !== undefined){
-                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description, {
+                inputForm.appendChild(inputArea);
+                Optional.ofAbsentable(inputData.description).ifPresent(description => {
+                    const annotation = createElementWithHTML(ElementTypes.DIV, description, {
                         class: "annotation"
                     });
-                    form.appendChild(annotation);
-                }
+                    inputForm.appendChild(annotation);
+                });
                 break;
             case FormTypes.CHECKBOX:
+                const checkboxArea = createElement(ElementTypes.DIV, {
+                    class: "checkbox"
+                });
+                const checkboxLabel = createElement(ElementTypes.LABEL);
                 const checkbox = createElement(ElementTypes.INPUT, {
                     id: HTML_ID_PREFIX + inputData.key,
                     type: "checkbox"
                 });
-
+                checkboxLabel.appendChild(checkbox);
                 const labelText = document.createTextNode(inputData.name);
-                label.appendChild(checkbox);
-                label.appendChild(labelText);
+                checkboxLabel.appendChild(labelText);
+                checkboxArea.appendChild(checkboxLabel);
 
-                const checkboxArea = createElement(ElementTypes.DIV, {
-                    class: "checkbox"
-                });
-                checkboxArea.appendChild(label);
-
-                if(inputData.description !== undefined){
-                    const annotation = createElementWithHTML(ElementTypes.DIV, inputData.description, {
+                Optional.ofAbsentable(inputData.description).ifPresent(description => {
+                    const annotation = createElementWithHTML(ElementTypes.DIV, description, {
                         class: "annotation"
                     });
                     checkboxArea.appendChild(annotation);
-                }
+                });
 
-                form.appendChild(checkboxArea);
+                inputForm.appendChild(checkboxArea);
                 break;
         }
-        return form;
+        return inputForm;
     }
 
     /**
     * 設定画面の項目要素を作成します。
-    * @param {Object} settingSectionData 設定項目データ
-    * @param {Object} inputKeyForms
+    * @param {Object} settingData 設定データ
+    * @param {HTMLElement[]} inputForms 入力フォーム要素リスト
     * @return {HTMLElement} 項目要素
     */
-    function createSettingSection(settingSectionData, inputKeyForms){
-        const header = createElementWithHTML(ElementTypes.DIV, settingSectionData.title, {
+    function createSettingSection(settingData, inputForms){
+        const section = createElement(ElementTypes.DIV, {
+            class: "c-section",
+            id: HTML_ID_PREFIX + settingData.key
+        });
+        const header = createElementWithHTML(ElementTypes.DIV, settingData.title, {
             class: "c-section__heading"
         });
+        section.appendChild(header);
 
-        let description;
-        if(settingSectionData.description !== undefined){
-            description = createElementWithHTML(ElementTypes.DIV, settingSectionData.description, {
+        Optional.ofAbsentable(settingData.description).ifPresent(descriptionText => {
+            const description = createElementWithHTML(ElementTypes.DIV, descriptionText, {
                 class: "form-group"
             });
-        }
+            section.appendChild(description);
+        });
 
-        const button = createElementWithHTML(ElementTypes.BUTTON, "変更", {
+        inputForms.forEach(inputForm => section.appendChild(inputForm));
+
+        const changeButtonArea = createElement(ElementTypes.DIV);
+        const changeButton = createElementWithHTML(ElementTypes.BUTTON, "変更", {
             type: "button",
             class: "btn btn-primary btn-fix"
         });
-        button.disabled = true;
-
+        changeButton.disabled = true;
+        changeButtonArea.appendChild(changeButton);
         const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。", {
             class: "success"
         });
         setDisplay(message, DisplayTypes.NONE);
-
-        const buttonArea = createElement(ElementTypes.DIV);
-        buttonArea.appendChild(button);
-        buttonArea.appendChild(message);
-
-        const section = createElement(ElementTypes.DIV, {
-            class: "c-section",
-            id: HTML_ID_PREFIX + settingSectionData.key
-        });
-        section.appendChild(header);
-
-        if(description !== undefined){
-            section.appendChild(description);
-        }
-
-        Object.values(inputKeyForms).forEach(inputForm => section.appendChild(inputForm));
-        section.appendChild(buttonArea);
+        changeButtonArea.appendChild(message);
+        section.appendChild(changeButtonArea);
 
         return section;
     }
@@ -532,25 +940,21 @@
     * @return {Boolean} すべて等しければtrue、それ以外はfalse
     */
     function equalsInputValueToSettings(inputKeyInputValues, settings){
-        for(const key in inputKeyInputValues){
-            const inputValue = inputKeyInputValues[key];
+        return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
             const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
-            if(inputValue != settingValue){
-                return false;
-            }
-        }
-        return true; 
+            return inputValue == settingValue;
+        });
     }
 
     /**
-    * ユーザーアイコンを拡大します。
+    * ユーザーアイコンの拡大機能を実行します。
     */
-    function makeUserIconExpandable(){
+    function doExpandUserIcon(){
         const CUSTOM_MODAL_Z = 9999;
 
         const userDialog = document.getElementById("user-dialog-basic-profile");
         const icon = userDialog.querySelector('.prof-icon-large');
-        setStyle(icon, "cursor",  "zoom-in");
+        setStyle(icon, "cursor", "zoom-in");
         const image = icon.querySelector('img');
 
         //アイコンクリック時に拡大
@@ -564,11 +968,9 @@
             setStyle(modal, "z-index", CUSTOM_MODAL_Z);
 
             //拡大画像エリアを作成
-            const expandedImageAreaAttributes = {
+            const expandedImageArea = createElement(ElementTypes.DIV, {
                 id: HTML_ID_PREFIX + "expanded-user-icon"
-            };
-            const expandedImageArea = createElement(ElementTypes.DIV, expandedImageAreaAttributes);
-            setStyles(expandedImageArea, {
+            },{
                 "position": "fixed",
                 "top": 0,
                 "left": 0,
@@ -578,14 +980,13 @@
                 "align-items": "center",
                 "justify-content": "center",
                 "z-index": CUSTOM_MODAL_Z + 1,
-                "cursor": "zoom-out	"
+                "cursor": "zoom-out "
             });
 
             //拡大画像を作成
             const expandedImage = createElement(ElementTypes.IMG, {
                 src: url
-            });
-            setStyles(expandedImage, {
+            }, {
                 "max-width": "100%",
                 "max-height": "100%"
             });
@@ -601,33 +1002,14 @@
     }
 
     /**
-    * メッセージの文字数を表示します。
+    * マルチビューのレスポンシブ化機能を実行します。
     */
-    function showMessageCount(){
-        const sendForms = document.querySelectorAll(".form-send");
-        sendForms.forEach(sendForm => {
-            const textArea = sendForm.querySelector('.form-send-text');
-            const maxLength = textArea.maxLength;
-
-            //カウンターを作成
-            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength);
-            setStyle(counter, "margin-right", "8px");
-            const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-            sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
-
-            //文字入力時にカウンターの値を更新
-            addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
-        });
-    }
-
-    /**
-    * マルチビューをレスポンシブ化します。
-    */
-    function makeMultiViewResponsive(){
-        const multiPanes = document.getElementById("talk-panes-multi");
-        const talkPanes = multiPanes.querySelectorAll('.talk-pane');
+    function doResponsiveMultiView(){
+        const multiPane = document.getElementById("talk-panes-multi");
+        const talkPanes = multiPane.querySelectorAll('.talk-pane');
         talkPanes.forEach(talkPane => {
-            const talkPaneObserver = new MutationObserver(mutations => {
+            //トークペインのclass属性変更時、表示を切り替え
+            observeNode(talkPane, ObserveModes.ATTRIBUTES, mutations => {
                 mutations.filter(mutation => mutation.attributeName == "class").forEach(mutation => {
                     const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
                     const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
@@ -667,197 +1049,289 @@
                     }
                 });
             });
-            //トークペイン監視開始
-            observe(talkPaneObserver, talkPane, ObserveModes.ATTRIBUTES);
         });
     }
 
     /**
-    * メッセージを監視します。
+    * 入力文字数の表示機能を実行します。
     */
-    function watchMessage(){
-        const observedTalkIdList = [];
-        const talkDataMap = {};
+    function doShowMessageCount(){
+        const sendForms = document.querySelectorAll('.form-send');
+        sendForms.forEach(sendForm => {
+            const textArea = sendForm.querySelector('.form-send-text');
+            const maxLength = textArea.maxLength;
 
+            //カウンターを作成
+            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength, {
+                id: HTML_ID_PREFIX + "message-count"
+            }, {
+                "margin-right": "8px"
+            });
+            const sendButtonArea = sendForm.querySelector('.form-send-button-group');
+            sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
+
+            //文字入力時にカウンターの値を更新
+            addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
+        });
+    }
+
+    /**
+    * メッセージの監視機能を実行します。
+    */
+    function doWatchMessage(){
+        const talkIdTalk = {};
+        const observingTalkIds = [];
+
+        //トーク一覧に子ノード追加時、トーク関連処理を実行
         const talks = document.getElementById("talks");
-        const talksObserver = new MutationObserver(mutations => {
+        observeNode(talks, ObserveModes.CHILD_LIST, mutations => {
             //デフォルト監視対象を監視対象に追加
             if(settings.watch_default_observe_talk === true){
                 //既読デフォルト監視トークIDリストの作成
-                const readDefaultObserveTalkIds = settings.default_observe_talk_ids.filter(talkId => {
+                const readTalkIds = settings.default_observe_talk_ids.filter(talkId => {
                     const talk = document.getElementById(talkId);
-                    const badge = talk.querySelector('.corner-badge');
-                    return badge === null;
+                    return Optional.ofAbsentable(talk.querySelector('.corner-badge')).isAbsent();
                 });
 
                 //既読デフォルト監視トークを監視対象に追加
-                readDefaultObserveTalkIds.filter(talkId => !existsInArray(observedTalkIdList, talkId)).forEach((talkId, index) => {
+                readTalkIds.filter(talkId => !observingTalkIds.includes(talkId)).forEach((talkId, index) => {
                     const talk = document.getElementById(talkId);
+                    //監視対象に追加するためにクリック
                     talk.click();
+                    observingTalkIds.push(talkId);
 
                     //最後の場合はトークを閉じるために2回クリック
-                    const isLastTalk = index == readDefaultObserveTalkIds.length -1;
-                    if(isLastTalk){
+                    if(index == readTalkIds.length -1){
                         talk.click();
                     }
                 });
             }
 
-            //トークデータマップの更新
+            //トーク情報の更新
             mutations.forEach(mutation => {
-                const nodes = mutation.addedNodes;
-                nodes.forEach(node => {
-                    const talk = node;
-                    const talkId = talk.id;
-                    const talkName = talk.querySelector('.talk-name-part').textContent;
-                    const talkIsRead =  talk.querySelector('.corner-badge') === null;
-                    const talkData = {
-                        isRead: talkIsRead,
-                        talkId: talkId,
-                        talkName: talkName
-                    };
-                    talkDataMap[talkId] = talkData;
+                const talkItems = mutation.addedNodes;
+                talkItems.forEach(talkItem => {
+                    const talkId = talkItem.id;
+                    const talkName = talkItem.querySelector('.talk-name-part').textContent;
+                    const talk = new Talk(talkId, talkName);
+                    const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
+                    talk.isRead = talkIsRead;
+                    talkIdTalk[talkId] = talk;
                 });
             });
         });
 
-        //トーク一覧監視開始
-        observe(talksObserver, talks, ObserveModes.CHILD_LIST);
+        //トークの追加を監視
+        observeAddingTalk(talkIdTalk);
+    }
 
-        const messages = document.getElementById("messages");
-        const messagesObserver = new MutationObserver(mutations => {
-            const observeStartDate = new Date();
-
-            mutations.forEach(mutation => {
-                const nodes = mutation.addedNodes;
-                nodes.forEach(node => {
-                    const talkId = node.id.replace("msgs", "talk");
-                    const talkName = talkDataMap[talkId].talkName;
-
-                    //監視トークIDリストに追加
-                    observedTalkIdList.push(talkId);
-
-                    //トークの監視
-                    //メッセージが投稿されると、.real-msgs下に子ノードが追加される
-                    const talk = node.querySelector('.real-msgs');
-                    const talkObserver = new MutationObserver(mutations => {
-                        mutations.forEach(mutation => {
-                            const nodes = mutation.addedNodes;
-                            Array.from(nodes).filter(node => node.className == "msg").forEach(node => {
-                                const message = {
-                                    talkId: talkId,
-                                    talkName: talkName
-                                };
-
-                                const createdTimestamp = Number(node.getAttribute("data-created-at"));
-                                const createdDate = new Date(Number(node.getAttribute("data-created-at")));
-                                message.time = createdDate;
-
-                                //過去メッセージ非表示設定時、過去メッセージであれば次へ
-                                if(settings.show_past_message === false && message.time < observeStartDate){
-                                    return;
-                                }
-
-                                const messageArea = node.querySelector('div:first-child');
-                                const userType = messageArea.className;
-                                const messageBody = messageArea.querySelector('.msg-body');
-                                const messageTypes = messageBody.querySelector('div').classList;
-                                const messageTypeMain = messageTypes[0];
-
-                                //ユーザー名
-                                switch(userType){
-                                    case UserTypes.SYSTEM.value:
-                                        message.userName = settings.user_name_system;
-                                        break;
-                                    case UserTypes.ME.value:
-                                        const myUserName = document.getElementById("current-username");
-                                        message.userName = removeBlank(myUserName.textContent);
-                                        break;
-                                    case UserTypes.OTHERS.value:
-                                        const userName = messageArea.querySelector('.username');
-                                        message.userName = removeBlank(userName.textContent);
-                                        break;
-                                }
-
-                                //ヘッダー
-                                const headerReplacers = [
-                                    [/<talkId>/g, message.talkId],
-                                    [/<time>/g, formatDate(message.time, settings.date_format)],
-                                    [/<talkName>/g, message.talkName],
-                                    [/<userName>/g, message.userName]
-                                ];
-                                const header = replace(settings.custom_log_message_header, headerReplacers);
-
-                                //本文
-                                if(messageTypes.length == 1){
-                                    switch(messageTypeMain){
-                                        case MessageTypes.TEXT.value:
-                                        case MessageTypes.STAMP_AND_TEXT.value:
-                                            //本文テキストのみを取得するためにコピーしたノードからメッセージメニューを削除
-                                            const messageText = deepCloneNode(messageBody.querySelector('.msg-text'));
-                                            const messageMenu = messageText.querySelector('.msg-menu-container');
-                                            if(messageMenu !== null){
-                                                messageText.removeChild(messageMenu);
-                                            }
-
-                                            message.body = messageText.textContent;
-                                            break;
-                                        case MessageTypes.STAMP.value:
-                                            message.body = settings.log_stamp;
-                                            break;
-                                    }
-                                }else{
-                                    const messageTypeSub = messageTypes[1];
-                                    switch(messageTypeSub){
-                                        case MessageTypes.FILE.value:
-                                            const fileIsImage = messageBody.querySelector('.msg-thumb').classList.contains(MessageTypes.IMAGE.value);
-                                            const prefix = fileIsImage ? settings.log_image : settings.log_file;
-                                            const thumbnailText = messageBody.querySelector('.msg-thumbs-text');
-                                            const text = thumbnailText !== null ? thumbnailText.textContent : "";
-                                            message.body = prefix + text;
-                                            break;
-                                    }
-                                }
-
-                                //スタンプ
-                                switch(messageTypeMain){
-                                    case MessageTypes.STAMP.value:
-                                    case MessageTypes.STAMP_AND_TEXT.value:
-                                        message.stamp = messageBody.querySelector('img');
-                                        break;
-                                }
-
-                                //メッセージをコンソールに出力
-                                console.group(header);
-                                if(message.stamp !== undefined){
-                                    console.log(settings.log_label, message.body, message.stamp);
-                                }else{
-                                    console.log(settings.log_label, message.body);
-                                }
-                                console.groupEnd();
-                            });
-                        });
-                    });
-
-                    //メッセージ監視開始
-                    const talkReplacers = [
-                        [/<talkId>/g, talkId],
-                        [/<time>/g, formatDate(observeStartDate, settings.date_format)],
-                        [/<talkName>/g, talkName]
-                    ];
-                    console.info(settings.log_label, replace(settings.custom_log_start_observe_talk, talkReplacers));
-                    observe(talkObserver, talk, ObserveModes.CHILD_LIST);
-                });
-            });
-        });
-
-        //メッセージエリア監視開始
+    /**
+    * トークの追加を監視します。
+    * @param {Object} talkIdTalk
+    */
+    function observeAddingTalk(talkIdTalk){
+        //メッセージ監視開始ログを表示
         const observeStartDate = new Date();
-        const messagseReplacers = [
+        const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
             [/<time>/g, formatDate(observeStartDate, settings.date_format)]
-        ];
-        console.info(settings.log_label, replace(settings.custom_log_start_observe_messages, messagseReplacers));
-        observe(messagesObserver, messages, ObserveModes.CHILD_LIST);
+        ]);
+        console.info(settings.log_label, observeStartMessage);
+
+        //メッセージエリアに子ノード追加時、トーク関連処理を実行
+        const messagesArea = document.getElementById("messages");
+        observeNode(messagesArea, ObserveModes.CHILD_LIST, mutations => {
+            mutations.forEach(mutation => {
+                const talkAreas = mutation.addedNodes;
+                talkAreas.forEach(talkArea => {
+                    //トークを生成
+                    const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
+                    const talk = talkIdTalk[talkId];
+
+                    //メッセージの追加を監視
+                    observeAddingMessage(talkArea, talk);
+                });
+            });
+        });
+    }
+
+    /**
+    * メッセージの追加を監視します。
+    * @param {Node} talkArea トークエリア
+    * @param {Talk} talk トーク
+    */
+    function observeAddingMessage(talkArea, talk){
+        //トーク監視開始ログを表示
+        const observeStartDate = new Date();
+        const observeStartMessage = replace(settings.custom_log_start_observe_talk, [
+            [/<talkId>/g, talk.id],
+            [/<time>/g, formatDate(observeStartDate, settings.date_format)],
+            [/<talkName>/g, talk.name]
+        ]);
+        console.info(settings.log_label, observeStartMessage);
+
+        //リアルメッセージエリアに子ノード追加時、メッセージ関連処理を実行
+        const realMessageArea = talkArea.querySelector('.real-msgs');
+        observeNode(realMessageArea, ObserveModes.CHILD_LIST, mutations => {
+            mutations.forEach(mutation => {
+                Array.from(mutation.addedNodes).filter(node => node.className == "msg").forEach(messageArea => {
+                    //メッセージを生成
+                    const message = createMessage(messageArea, talk);
+
+                    //メッセージをコンソールに出力
+                    if(message.time > observeStartDate || settings.show_past_message === true){
+                        logMessage(message);
+                    }
+                });
+            });
+        });
+    }
+
+    /**
+    * メッセージを作成します。
+    * @param {Node} messageArea メッセージエリア
+    * @parma {Talk} talk トーク
+    * @return {Message} メッセージ
+    */
+    function createMessage(messageArea, talk){
+        const messageAreaChild = messageArea.querySelector('div:first-child');
+        const messageBodyArea = messageAreaChild.querySelector('.msg-body');
+        const messageType = getMessageType(messageBodyArea.classList);
+
+        const message = new Message(talk);
+        message.time = getMessageTime(messageArea);
+        message.userName = getMessageUserName(messageAreaChild);
+        message.body = getMessageBody(messageBodyArea, messageType);
+
+        if(messageType == MessageTypes.STAMP){
+            message.stamp = getMessageStamp(messageBodyArea);
+        }
+
+        return message;
+    }
+
+    /**
+    * メッセージの投稿日時を取得します。
+    * @param {Node} messageArea メッセージエリア
+    * @return {Date} メッセージの投稿日時
+    */
+    function getMessageTime(messageArea){
+        const createdTimestamp = Number(messageArea.getAttribute("data-created-at"));
+        return new Date(createdTimestamp);
+    }
+
+    /**
+    * メッセージのユーザー名を取得します。
+    * @param {Node} messageAreaChild メッセージエリア子要素
+    * @return {String} メッセージのユーザー名
+    */
+    function getMessageUserName(messageAreaChild){
+        const userTypeValue = messageAreaChild.className;
+        switch(userTypeValue){
+            case UserTypes.SYSTEM.value:
+                return settings.user_name_system;
+            case UserTypes.ME.value:
+                const myUserName = document.getElementById("current-username");
+                return removeBlank(myUserName.textContent);
+            case UserTypes.OTHERS.value:
+                const otherUserName = messageAreaChild.querySelector('.username');
+                return removeBlank(otherUserName.textContent);
+        }
+    }
+
+    /**
+    * メッセージの本文を取得します。
+    * @param {Node} messageBodyArea メッセージ本文エリア
+    * @param {MessageType} messageType メッセージ種別
+    * @return {String} メッセージの本文
+    */
+    function getMessageBody(messageBodyArea, messageType){
+        if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
+            const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
+            const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
+            if(messageType == MessageTypes.FILE){
+                return prefix;
+            }else{
+                const text = messageBodyArea.querySelector('.msg-thumbs-text');
+                return prefix + text.textContent;
+            }
+        }else if(messageType == MessageTypes.STAMP){
+            const stampType = getStampType(messageBodyArea.classList);
+            if(stampType == StampTypes.NO_TEXT){
+                return settings.log_stamp;
+            }
+        }
+
+        //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
+        const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
+        const messageMenu = messageText.querySelector('.msg-menu-container');
+        Optional.ofAbsentable(messageMenu).ifPresent(m => messageText.removeChild(m));
+        return messageText.textContent;
+    }
+
+    /**
+    * メッセージ種別を取得します。
+    * メッセージ種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {MessageType} メッセージ種別
+    */
+    function getMessageType(classList){
+        const messageTypes = Object.values(MessageTypes).filter(messageType => classList.contains(messageType.value));
+        return messageTypes.length == 1 ? messageTypes[0] : undefined;
+    }
+
+    /**
+    * ファイル種別を取得します。
+    * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {FileType} ファイル種別
+    */
+    function getFileType(classList){
+        const fileTypes = Object.values(FileTypes).filter(fileType => classList.contains(fileType.value));
+        return fileTypes.length == 1 ? fileTypes[0] : undefined;
+    }
+
+    /**
+    * スタンプ種別を取得します。
+    * スタンプ種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {StampType} スタンプ種別
+    */
+    function getStampType(classList){
+        const stampTypes = Object.values(StampTypes).filter(stampType => classList.contains(stampType.value));
+        return stampTypes.length == 1 ? stampTypes[0] : undefined;
+    }
+
+    /**
+    * メッセージのスタンプを取得します。
+    * @param {Node} messageBodyArea メッセージ本文エリア
+    * @return {Node} メッセージのスタンプ
+    */
+    function getMessageStamp(messageBodyArea){
+        return messageBodyArea.querySelector('img');
+    }
+
+    /**
+    * メッセージをコンソールに出力します。
+    * @param {Message} message メッセージ
+    * @throws {Error} messageの型がMessageではない場合
+    */
+    function logMessage(message){
+        if(!(message instanceof Message)){
+            throw new Error("message is not instance of Message");
+        }
+
+        const header = replace(settings.custom_log_message_header, [
+            [/<talkId>/g, message.talk.id],
+            [/<time>/g, formatDate(message.time, settings.date_format)],
+            [/<talkName>/g, message.talk.name],
+            [/<userName>/g, message.userName]
+        ]);
+
+        console.group(header);
+        Optional.ofAbsentable(message.stamp)
+            .ifPresent(stamp => console.log(settings.log_label, message.body, stamp))
+            .ifAbsent(() => console.log(settings.log_label, message.body));
+        console.groupEnd();
     }
 
     /**
@@ -866,35 +1340,12 @@
     */
     function deepFreeze(object){
         Object.freeze(object);
-        for(const key in object){
-            const value = object[key];
+        Iterator.of(object).forEach((key, value) => {
             if(!object.hasOwnProperty(key) || typeof value != "object" || Object.isFrozen(value)){
-                continue;
+                return;
             }
             deepFreeze(value);
-        }
-    }
-
-
-    /**
-    * オブジェクトをキーと値でループ処理します。
-    * @param {Object} object オブジェクト
-    * @param {Function} processer 処理関数：(key, value) => {...}
-    */
-    function forEach(object, processer){
-        Object.keys(object).forEach(key => processer(key, object[key]));
-    }
-
-    /**
-    * オブジェクトの値を変換して新しいオブジェクトを作成します。
-    * @param {Object} object オブジェクト
-    * @param {Function} converter 変換関数：(key, value) => newValue
-    * @return {Object} 変換したオブジェクト
-    */
-    function convertObjectValue(object, converter){
-        const converted = {};
-        forEach(object, (key, value) => converted[key] = converter(key, value));
-        return converted;
+        });
     }
 
     /**
@@ -929,28 +1380,27 @@
         const year = date.getFullYear();
         const month = date.getMonth() + 1;
         const dayOfMonth = date.getDate();
-        const day = date.getDay();
+        const dayOfWeek = date.getDay();
         const dayTexts = ["日", "月", "火", "水", "木", "金", "土"];
-        const dayText = dayTexts[day];
+        const dayOfWeekText = dayTexts[dayOfWeek];
         const hours = date.getHours();
         const minutes = date.getMinutes();
         const seconds = date.getSeconds();
-        const replacers = [
+        return replace(pattern, [
             [/yyyy/g, year],
             [/yy/g, year % 100],
             [/MM/g, zeroPadding(month, 2)],
             [/M/g, month],
             [/dd/g, zeroPadding(dayOfMonth, 2)],
             [/d/g, dayOfMonth],
-            [/e/g, dayText],
+            [/e/g, dayOfWeekText],
             [/HH/g, zeroPadding(hours, 2)],
             [/H/g, hours],
             [/mm/g, zeroPadding(minutes, 2)],
             [/m/g, minutes],
             [/ss/g, zeroPadding(seconds, 2)],
             [/s/g, seconds]
-        ];
-        return replace(pattern, replacers);
+        ]);
     }
 
     /**
@@ -980,7 +1430,7 @@
 
     /**
     * カンマ区切りの文字列を配列に変換します。
-    * 文字列が空の場合は空の配列を返します。
+    * 空文字の場合は空の配列を返します。
     * @param {String} string カンマ区切りの文字列
     * @return {String[]} 配列
     */
@@ -989,37 +1439,17 @@
     }
 
     /**
-    * 配列とカンマ区切りの文字列が等しいかどうかを判定します。
-    * @param {String[]} array 配列
-    * @param {String} string カンマ区切りの文字列
-    * @return {Boolean} 配列とカンマ区切りの文字列が等しければtrue、等しくなければfalse
-    */
-    function equalsArrayToString(array, string){
-        return arrayToString(array) == string;
-    }
-
-    /**
-    * 配列内に値が存在するかどうかを判定します。
-    * @param {Object[]} array 配列
-    * @param {Object} value 値
-    * @return {Boolean} 配列内に値が存在すればtrue、しなければfalse
-    */
-    function existsInArray(array, value){
-        return array.indexOf(value) >= 0;
-    }
-
-    /**
      * ノードの変更を監視します。
-     * @param {MutationObserver} observer オブザーバー
      * @param {Node} target 監視対象ノード
      * @param {ObserveMode} mode 監視モード
-     * @throws {Error} エラー
+     * @param {Function} observer オブザーブ関数:mutations => {...}
+     * @throws {Error} modeの型がObserveModeではない場合
      */
-    function observe(observer, target, mode){
+    function observeNode(target, mode, observer){
         if(!(mode instanceof ObserveMode)){
             throw new Error("mode is not instance of ObserveMode");
         }
-        observer.observe(target, mode.value);
+        new MutationObserver(observer).observe(target, mode.value);
     }
 
     /**
@@ -1032,46 +1462,48 @@
     }
 
     /**
-    * 内部テキストを持ったHTML要素を作成します。
+    * 内部テキストを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} type 要素種別
     * @param {Object} [attributes] 属性
+    * @param {Object} [styles] スタイル
     * @param {String} text テキスト
     * @return {HTMLElement} HTML要素
     */
-    function createElementWithText(type, text, attributes){
-        const element = createElement(type, attributes);
+    function createElementWithText(type, text, attributes, styles){
+        const element = createElement(type, attributes, styles);
         element.textContent = text;
         return element;
     }
 
     /**
-    * 内部HTMLを持ったHTML要素を作成します。
+    * 内部HTMLを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} type 要素種別
     * @param {Object} [attributes] 属性
+    * @param {Object} [styles] スタイル
     * @param {String} html HTML
     * @return {HTMLElement} HTML要素
     */
-    function createElementWithHTML(type, html, attributes){
-        const element = createElement(type, attributes);
+    function createElementWithHTML(type, html, attributes, styles){
+        const element = createElement(type, attributes, styles);
         element.innerHTML = html;
         return element;
     }
 
     /**
-    * HTML要素を作成します。
+    * HTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} type 要素種別
     * @param {Object} [attributes] 属性
+    * @param {Object} [styles] スタイル
     * @return {HTMLElement} HTML要素
-    * @throws {Error} エラー
+    * @throws {Error} typeの型がElementTypeではない場合
     */
-    function createElement(type, attributes){
+    function createElement(type, attributes, styles){
         if(!(type instanceof ElementType)){
             throw new Error("type is not instance of ElementType");
         }
         const element = document.createElement(type.value);
-        if(attributes !== undefined){
-            setAttributes(element, attributes);
-        }
+        Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
+        Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
         return element;
     }
 
@@ -1081,7 +1513,7 @@
     * @param {Object} attributes 属性
     */
     function setAttributes(element, attributes){
-        forEach(attributes, (name,　value) =>  setAttribute(element, name, value));
+        Iterator.of(attributes).forEach((name, value) => setAttribute(element, name, value));
     }
 
     /**
@@ -1098,7 +1530,7 @@
     * HTML要素にディスプレイ属性を設定します。
     * @param {HTMLElement} element HTML要素
     * @param {DisplayType} type ディスプレイ種別
-    * @throws {Error} エラー
+    * @throws {Error} typeの型がDisplayTypeではない場合
     */
     function setDisplay(element, type){
         if(!(type instanceof DisplayType)){
@@ -1113,13 +1545,13 @@
     * @param {Object} styles スタイル
     */
     function setStyles(element, styles){
-        forEach(styles, (name,　value) => setStyle(element, name, value));
+        Iterator.of(styles).forEach((name, value) => setStyle(element, name, value));
     }
 
     /**
     * HTML要素にスタイルを設定します。
     * @param {HTMLElement} element HTML要素
-    * @param {String} name 属性名
+    * @param {String} name プロパティ名
     * @param {String} value 値
     */
     function setStyle(element, name, value){
@@ -1127,11 +1559,11 @@
     }
 
     /**
-    * HTML要素にイベントを追加します。
+    * HTML要素にイベントリスナーを追加します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} type イベント種別
-    * @param {Function} listener イベント発生時実行関数
-    * @throws {Error} エラー
+    * @param {Function} listener イベントリスナー
+    * @throws {Error} typeの型がEventTypeではない場合
     */
     function addEventListener(element, type, listener){
         if(!(type instanceof EventType)){
@@ -1141,7 +1573,7 @@
     }
 
     /**
-    * ローカルストレージから設定を取得します。
+    * ローカルストレージからJSON形式の設定を取得します。
     * ローカルストレージ上に値が存在しない場合、空のオブジェクトを返します。
     * @return {Object} 設定
     */
@@ -1151,7 +1583,7 @@
     }
 
     /**
-    * ローカルストレージに設定をセットします。
+    * ローカルストレージにJSON形式で設定をセットします。
     * @param {Object} settings 設定
     */
     function setSettings(settings){

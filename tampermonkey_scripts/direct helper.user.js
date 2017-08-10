@@ -270,12 +270,12 @@
         LOG_SETTING_DATA
     ];
 
-    /** 機能 */
-    const SETTINGS_KEY_FUNCTIONS = {
-        expand_user_icon: makeUserIconExpandable,
-        show_message_count: showMessageCount,
-        responsive_multi_view: makeMultiViewResponsive,
-        watch_message: watchMessage
+    /** 機能リスト（実行順） */
+    const SETTINGS_KEY_ACTIONS = {
+        expand_user_icon: doExpandUserIcon,
+        responsive_multi_view: doResponsiveMultiView,
+        show_message_count: doShowMessageCount,
+        watch_message: doWatchMessage
     };
 
     //設定の初期化
@@ -288,7 +288,7 @@
     const settings = getSettings();
 
     //各種機能の実行
-    Object.keys(SETTINGS_KEY_FUNCTIONS).filter(key => settings[key]　 === true).forEach(key => SETTINGS_KEY_FUNCTIONS[key]());
+    Object.keys(SETTINGS_KEY_ACTIONS).filter(key => settings[key]　 === true).forEach(key => SETTINGS_KEY_ACTIONS[key]());
 
     /**
     * 設定を初期化します。
@@ -544,9 +544,9 @@
     }
 
     /**
-    * ユーザーアイコンを拡大します。
+    * ユーザーアイコンの拡大機能を実行します。
     */
-    function makeUserIconExpandable(){
+    function doExpandUserIcon(){
         const CUSTOM_MODAL_Z = 9999;
 
         const userDialog = document.getElementById("user-dialog-basic-profile");
@@ -602,29 +602,9 @@
     }
 
     /**
-    * メッセージの文字数を表示します。
+    * マルチビューのレスポンシブ化機能を実行します。
     */
-    function showMessageCount(){
-        const sendForms = document.querySelectorAll(".form-send");
-        sendForms.forEach(sendForm => {
-            const textArea = sendForm.querySelector('.form-send-text');
-            const maxLength = textArea.maxLength;
-
-            //カウンターを作成
-            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength);
-            setStyle(counter, "margin-right", "8px");
-            const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-            sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
-
-            //文字入力時にカウンターの値を更新
-            addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
-        });
-    }
-
-    /**
-    * マルチビューをレスポンシブ化します。
-    */
-    function makeMultiViewResponsive(){
+    function doResponsiveMultiView(){
         const multiPanes = document.getElementById("talk-panes-multi");
         const talkPanes = multiPanes.querySelectorAll('.talk-pane');
         talkPanes.forEach(talkPane => {
@@ -674,9 +654,29 @@
     }
 
     /**
-    * メッセージを監視します。
+    * 入力文字数の表示機能を実行します。
     */
-    function watchMessage(){
+    function doShowMessageCount(){
+        const sendForms = document.querySelectorAll(".form-send");
+        sendForms.forEach(sendForm => {
+            const textArea = sendForm.querySelector('.form-send-text');
+            const maxLength = textArea.maxLength;
+
+            //カウンターを作成
+            const counter = createElementWithHTML(ElementTypes.LABEL, maxLength);
+            setStyle(counter, "margin-right", "8px");
+            const sendButtonArea = sendForm.querySelector('.form-send-button-group');
+            sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
+
+            //文字入力時にカウンターの値を更新
+            addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
+        });
+    }
+
+    /**
+    * メッセージの監視機能を実行します。
+    */
+    function doWatchMessage(){
         const observedTalkIdList = [];
         const talkDataMap = {};
 

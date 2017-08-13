@@ -1283,7 +1283,7 @@
         //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
         const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
         const messageMenu = messageText.querySelector('.msg-menu-container');
-        Optional.ofAbsentable(messageMenu).ifPresent(menu => messageText.removeChild(menu));
+        Optional.ofAbsentable(messageMenu).ifPresent(messageMenu => messageText.removeChild(messageMenu));
         return messageText.textContent;
     }
 

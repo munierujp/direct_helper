@@ -1516,6 +1516,7 @@
     * @param {Object} [styles] スタイル
     * @param {String} text テキスト
     * @return {HTMLElement} HTML要素
+    * @throws {Error} typeの型がElementTypeではない場合
     */
     function createElementWithText(type, text, attributes, styles){
         const element = createElement(type, attributes, styles);
@@ -1530,6 +1531,7 @@
     * @param {Object} [styles] スタイル
     * @param {String} html HTML
     * @return {HTMLElement} HTML要素
+    * @throws {Error} typeの型がElementTypeではない場合
     */
     function createElementWithHTML(type, html, attributes, styles){
         const element = createElement(type, attributes, styles);

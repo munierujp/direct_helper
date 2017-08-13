@@ -485,6 +485,20 @@
         OTHER: new FileType()
     };
 
+    /** キー種別クラス */
+    class KeyType{
+        /**
+        * @param {String} key キー
+        */
+        constructor(key){
+            this.key = key;
+        }
+    }
+    /** キー種別 */
+    const KeyTypes = {
+        ESCAPE: new KeyType("Escape")
+    };
+
     /** スタンプ種別クラス */
     class StampType extends HasValue{}
     /** スタンプ種別 */
@@ -517,6 +531,7 @@
         EventTypes,
         FileTypes,
         FormTypes,
+        KeyTypes,
         MessageTypes,
         ObserveModes,
         StampTypes,
@@ -996,26 +1011,37 @@
             expandedImageArea.appendChild(expandedImage);
             document.body.appendChild(expandedImageArea);
 
+            const addKeyupListener = listener => addEventListener(document, EventTypes.KEYUP, listener);
+            const removeKeyupListener = listener => removeEventListener(document, EventTypes.KEYUP, listener);
+
             const closeExpandedImage = () => {
                 document.body.removeChild(expandedImageArea);
                 setStyle(modal, "z-index", modalZIndex);
             };
 
-            const onKeyup = event => {
-                if(event.key == "Escape"){
+            const onEscapeKeyup = event => {
+                if(event.key == KeyTypes.ESCAPE.key){
                     closeExpandedImage();
-                    removeEventListener(document, EventTypes.KEYUP, onKeyup);
+                    removeKeyupListener(onEscapeKeyup);
                 }
             };
 
-            //拡大画像エリアクリック時に拡大画像エリアを削除
-            addEventListener(expandedImageArea, EventTypes.CLICK, () => {
+            //拡大画像エリアクリック時に拡大画像を閉じる
+            addEventListener(expandedImageArea, EventTypes.CLICK, event => {
                 closeExpandedImage();
-                removeEventListener(document, EventTypes.KEYUP, onKeyup);
+                removeKeyupListener(onEscapeKeyup);
+
+                //拡大画像エリアクリック後にEscapeキー押下時にユーザーダイアログを閉じる
+                addKeyupListener(event => {
+                    if(event.key == KeyTypes.ESCAPE.key){
+                        const userModal = document.getElementById("user-modal");
+                        userModal.click();
+                    }
+                });
             });
 
-            //Escapeキー押下時に拡大画像エリアを削除
-            addEventListener(document, EventTypes.KEYUP, onKeyup);
+            //Escapeキー押下時に拡大画像エリアを閉じる
+            addKeyupListener(onEscapeKeyup);
         });
     }
 
@@ -1580,7 +1606,7 @@
     * HTML要素にイベントリスナーを追加します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} type イベント種別
-    * @param {Function} listener イベントリスナー
+    * @param {Function} listener : Event => {}
     * @throws {Error} typeの型がEventTypeではない場合
     */
     function addEventListener(element, type, listener){
@@ -1594,7 +1620,7 @@
     * HTML要素からイベントリスナーを削除します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} type イベント種別
-    * @param {Function} listener イベントリスナー
+    * @param {Function} listener : Event => {}
     * @throws {Error} typeの型がEventTypeではない場合
     */
     function removeEventListener(element, type, listener){
@@ -1602,38 +1628,6 @@
             throw new Error("type is not instance of EventType");
         }
         element.removeEventListener(type.value, listener, false);
-    }
-
-    /**
-    * HTML要素に1回限定のイベントリスナーを追加します。
-    * @param {HTMLElement} element HTML要素
-    * @param {EventType} type イベント種別
-    * @param {Function} listener イベントリスナー
-    * @throws {Error} typeの型がEventTypeではない場合
-    */
-    function addEventListenerOnce(element, type, listener){
-        if(!(type instanceof EventType)){
-            throw new Error("type is not instance of EventType");
-        }
-        element.addEventListener(type.value, listener, {
-            once: true
-        });
-    }
-
-    /**
-    * HTML要素から1回限定のイベントリスナーを削除します。
-    * @param {HTMLElement} element HTML要素
-    * @param {EventType} type イベント種別
-    * @param {Function} listener イベントリスナー
-    * @throws {Error} typeの型がEventTypeではない場合
-    */
-    function removeEventListenerOnce(element, type, listener){
-        if(!(type instanceof EventType)){
-            throw new Error("type is not instance of EventType");
-        }
-        element.removeEventListener(type.value, listener, {
-            once: true
-        });
     }
 
     /**

@@ -3,7 +3,7 @@
 // @namespace    https://github.com/munierujp/direct_helper
 // @version      1.3
 // @description  directに便利な機能を追加します。
-// @author      @munieru_jp
+// @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
 // @grant        none
 // ==/UserScript==
@@ -970,7 +970,7 @@
             //拡大画像エリアを作成
             const expandedImageArea = createElement(ElementTypes.DIV, {
                 id: HTML_ID_PREFIX + "expanded-user-icon"
-            },{
+            }, {
                 "position": "fixed",
                 "top": 0,
                 "left": 0,
@@ -1264,7 +1264,7 @@
         //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
         const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
         const messageMenu = messageText.querySelector('.msg-menu-container');
-        Optional.ofAbsentable(messageMenu).ifPresent(m => messageText.removeChild(m));
+        Optional.ofAbsentable(messageMenu).ifPresent(menu => messageText.removeChild(menu));
         return messageText.textContent;
     }
 
@@ -1442,7 +1442,7 @@
      * ノードの変更を監視します。
      * @param {Node} target 監視対象ノード
      * @param {ObserveMode} mode 監視モード
-     * @param {Function} observer オブザーブ関数:mutations => {...}
+     * @param {Function} observer : mutations => {...}
      * @throws {Error} modeの型がObserveModeではない場合
      */
     function observeNode(target, mode, observer){

@@ -1494,15 +1494,15 @@
     /**
      * ノードの変更を監視します。
      * @param {Node} target 監視対象ノード
-     * @param {ObserveMode} mode 監視モード
+     * @param {ObserveMode} observeMode 監視モード
      * @param {Function} observer : mutations => {...}
-     * @throws {Error} modeの型がObserveModeではない場合
+     * @throws {Error} observeModeの型がObserveModeではない場合
      */
-    function observeNode(target, mode, observer){
-        if(!(mode instanceof ObserveMode)){
-            throw new Error("mode is not instance of ObserveMode");
+    function observeNode(target, observeMode, observer){
+        if(!(observeMode instanceof ObserveMode)){
+            throw new Error("observeMode is not instance of ObserveMode");
         }
-        new MutationObserver(observer).observe(target, mode.value);
+        new MutationObserver(observer).observe(target, observeMode.value);
     }
 
     /**
@@ -1546,17 +1546,17 @@
 
     /**
     * HTML要素を作成します。属性やスタイルがあれば設定します。
-    * @param {ElementType} type 要素種別
+    * @param {ElementType} elementType 要素種別
     * @param {Object} [attributes] 属性
     * @param {Object} [styles] スタイル
     * @return {HTMLElement} HTML要素
-    * @throws {Error} typeの型がElementTypeではない場合
+    * @throws {Error} elementTypeの型がElementTypeではない場合
     */
-    function createElement(type, attributes, styles){
-        if(!(type instanceof ElementType)){
-            throw new Error("type is not instance of ElementType");
+    function createElement(elementType, attributes, styles){
+        if(!(elementType instanceof ElementType)){
+            throw new Error("elementType is not instance of ElementType");
         }
-        const element = document.createElement(type.value);
+        const element = document.createElement(elementType.value);
         Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
         Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
         return element;
@@ -1584,14 +1584,14 @@
     /**
     * HTML要素にディスプレイ属性を設定します。
     * @param {HTMLElement} element HTML要素
-    * @param {DisplayType} type ディスプレイ種別
-    * @throws {Error} typeの型がDisplayTypeではない場合
+    * @param {DisplayType} displayType ディスプレイ種別
+    * @throws {Error} displayTypeの型がDisplayTypeではない場合
     */
-    function setDisplay(element, type){
-        if(!(type instanceof DisplayType)){
-            throw new Error("type is not instance of DisplayType");
+    function setDisplay(element, displayType){
+        if(!(displayType instanceof DisplayType)){
+            throw new Error("displayType is not instance of DisplayType");
         }
-        setStyle(element, "display", type.value);
+        setStyle(element, "display", displayType.value);
     }
 
     /**
@@ -1616,29 +1616,29 @@
     /**
     * HTML要素にイベントリスナーを追加します。
     * @param {HTMLElement} element HTML要素
-    * @param {EventType} type イベント種別
+    * @param {EventType} eventType イベント種別
     * @param {Function} listener : Event => {}
-    * @throws {Error} typeの型がEventTypeではない場合
+    * @throws {Error} eventTypeの型がEventTypeではない場合
     */
-    function addEventListener(element, type, listener){
-        if(!(type instanceof EventType)){
-            throw new Error("type is not instance of EventType");
+    function addEventListener(element, eventType, listener){
+        if(!(eventType instanceof EventType)){
+            throw new Error("eventType is not instance of EventType");
         }
-        element.addEventListener(type.value, listener, false);
+        element.addEventListener(eventType.value, listener, false);
     }
 
     /**
     * HTML要素からイベントリスナーを削除します。
     * @param {HTMLElement} element HTML要素
-    * @param {EventType} type イベント種別
+    * @param {EventType} eventType イベント種別
     * @param {Function} listener : Event => {}
-    * @throws {Error} typeの型がEventTypeではない場合
+    * @throws {Error} eventTypeの型がEventTypeではない場合
     */
-    function removeEventListener(element, type, listener){
-        if(!(type instanceof EventType)){
-            throw new Error("type is not instance of EventType");
+    function removeEventListener(element, eventType, listener){
+        if(!(eventType instanceof EventType)){
+            throw new Error("eventType is not instance of EventType");
         }
-        element.removeEventListener(type.value, listener, false);
+        element.removeEventListener(eventType.value, listener, false);
     }
 
     /**

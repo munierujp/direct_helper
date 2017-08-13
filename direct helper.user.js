@@ -452,7 +452,10 @@
     /** イベント種別 */
     const EventTypes = {
         CLICK: new EventType("click"),
-        INPUT: new EventType("input")
+        INPUT: new EventType("input"),
+        KEYDOWN: new EventType("keydown"),
+        KEYPRESS: new EventType("keypress"),
+        KEYUP: new EventType("keyup")
     };
 
     /** フォーム種別クラス */
@@ -950,22 +953,22 @@
     * ユーザーアイコンの拡大機能を実行します。
     */
     function doExpandUserIcon(){
-        const CUSTOM_MODAL_Z = 9999;
+        const CUSTOM_MODAL_Z_INDEX = 9999;
 
         const userDialog = document.getElementById("user-dialog-basic-profile");
         const icon = userDialog.querySelector('.prof-icon-large');
         setStyle(icon, "cursor", "zoom-in");
-        const image = icon.querySelector('img');
 
-        //アイコンクリック時に拡大
+        //アイコンクリック時に拡大画像を表示
         addEventListener(icon, EventTypes.CLICK, () => {
+            const image = icon.querySelector('img');
             const backgroundImage = image.style["background-image"];
             const url = backgroundImage.match(/url\("(.+)"\)/)[1];
 
             //モーダルで背景を暗くする
             const modal = document.querySelector('.modal-backdrop');
-            const modalZ = modal.style["z-index"];
-            setStyle(modal, "z-index", CUSTOM_MODAL_Z);
+            const modalZIndex = modal.style["z-index"];
+            setStyle(modal, "z-index", CUSTOM_MODAL_Z_INDEX);
 
             //拡大画像エリアを作成
             const expandedImageArea = createElement(ElementTypes.DIV, {
@@ -979,7 +982,7 @@
                 "display": "flex",
                 "align-items": "center",
                 "justify-content": "center",
-                "z-index": CUSTOM_MODAL_Z + 1,
+                "z-index": CUSTOM_MODAL_Z_INDEX + 1,
                 "cursor": "zoom-out "
             });
 
@@ -991,15 +994,31 @@
                 "max-height": "100%"
             });
             expandedImageArea.appendChild(expandedImage);
-
-            //拡大画像エリアクリック時に削除
-            addEventListener(expandedImageArea, EventTypes.CLICK, () => {
-                document.body.removeChild(expandedImageArea);
-                setStyle(modal, "z-index", modalZ);
-            });
             document.body.appendChild(expandedImageArea);
+
+            const closeExpandedImage = () => {
+                document.body.removeChild(expandedImageArea);
+                setStyle(modal, "z-index", modalZIndex);
+            };
+
+            const onKeyup = event => {
+                if(event.key == "Escape"){
+                    closeExpandedImage();
+                    removeEventListener(document, EventTypes.KEYUP, onKeyup);
+                }
+            };
+
+            //拡大画像エリアクリック時に拡大画像エリアを削除
+            addEventListener(expandedImageArea, EventTypes.CLICK, () => {
+                closeExpandedImage();
+                removeEventListener(document, EventTypes.KEYUP, onKeyup);
+            });
+
+            //Escapeキー押下時に拡大画像エリアを削除
+            addEventListener(document, EventTypes.KEYUP, onKeyup);
         });
     }
+    addEventListener(document, EventTypes.KEYUP, e => console.log(e));
 
     /**
     * マルチビューのレスポンシブ化機能を実行します。
@@ -1570,6 +1589,52 @@
             throw new Error("type is not instance of EventType");
         }
         element.addEventListener(type.value, listener, false);
+    }
+
+    /**
+    * HTML要素からイベントリスナーを削除します。
+    * @param {HTMLElement} element HTML要素
+    * @param {EventType} type イベント種別
+    * @param {Function} listener イベントリスナー
+    * @throws {Error} typeの型がEventTypeではない場合
+    */
+    function removeEventListener(element, type, listener){
+        if(!(type instanceof EventType)){
+            throw new Error("type is not instance of EventType");
+        }
+        element.removeEventListener(type.value, listener, false);
+    }
+
+    /**
+    * HTML要素に1回限定のイベントリスナーを追加します。
+    * @param {HTMLElement} element HTML要素
+    * @param {EventType} type イベント種別
+    * @param {Function} listener イベントリスナー
+    * @throws {Error} typeの型がEventTypeではない場合
+    */
+    function addEventListenerOnce(element, type, listener){
+        if(!(type instanceof EventType)){
+            throw new Error("type is not instance of EventType");
+        }
+        element.addEventListener(type.value, listener, {
+            once: true
+        });
+    }
+
+    /**
+    * HTML要素から1回限定のイベントリスナーを削除します。
+    * @param {HTMLElement} element HTML要素
+    * @param {EventType} type イベント種別
+    * @param {Function} listener イベントリスナー
+    * @throws {Error} typeの型がEventTypeではない場合
+    */
+    function removeEventListenerOnce(element, type, listener){
+        if(!(type instanceof EventType)){
+            throw new Error("type is not instance of EventType");
+        }
+        element.removeEventListener(type.value, listener, {
+            once: true
+        });
     }
 
     /**

@@ -21,7 +21,9 @@ direct helperは、ビジネス用チャットツール[direct](https://direct4b
 
 ## インストール方法
 ### Tampermonkey
-ユーティリティ画面で`tampermonkey_scripts.zip`ファイルをインポートしてください。
+* [direct helper.user.js](https://github.com/munierujp/direct_helper/raw/master/direct%20helper.user.js)  
+上記リンクをクリックすると、インストール画面が表示されます。  
+表示されない場合は、ユーティリティ画面で`direct helper.user.js`ファイルをインポートしてください。
 
 ### その他
 ググってください。

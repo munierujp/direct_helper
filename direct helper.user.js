@@ -1291,8 +1291,13 @@
     * @param {Node} messageBodyArea メッセージ本文エリア
     * @param {MessageType} messageType メッセージ種別
     * @return {String} メッセージの本文
+    * @throws {Error} messageTypeの型がMessageTypeではない場合
     */
     function getMessageBody(messageBodyArea, messageType){
+        if(!(messageType instanceof MessageType)){
+            throw new Error("messageType is not instance of MessageType");
+        }
+
         if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
             const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
             const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;

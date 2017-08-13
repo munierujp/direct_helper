@@ -409,8 +409,12 @@
     class Message{
         /**
         * @param {Talk} talk トーク
+        * @throws {Error} talkの型がTalkではない場合
         */
         constructor(talk){
+            if(!(talk instanceof Talk)){
+                throw new Error("talk is not instance of Talk");
+            }
             this.talk = talk;
         }
     }

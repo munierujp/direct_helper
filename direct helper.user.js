@@ -413,7 +413,7 @@
         */
         constructor(talk){
             if(!(talk instanceof Talk)){
-                throw new Error("talk is not instance of Talk");
+                throw new Error(talk + " is not instance of Talk");
             }
             this.talk = talk;
         }
@@ -1295,7 +1295,7 @@
     */
     function getMessageBody(messageBodyArea, messageType){
         if(!(messageType instanceof MessageType)){
-            throw new Error("messageType is not instance of MessageType");
+            throw new Error(messageType + " is not instance of MessageType");
         }
 
         if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
@@ -1370,7 +1370,7 @@
     */
     function logMessage(message){
         if(!(message instanceof Message)){
-            throw new Error("message is not instance of Message");
+            throw new Error(message + " is not instance of Message");
         }
 
         const header = replace(settings.custom_log_message_header, [
@@ -1500,7 +1500,7 @@
      */
     function observeNode(target, observeMode, observer){
         if(!(observeMode instanceof ObserveMode)){
-            throw new Error("observeMode is not instance of ObserveMode");
+            throw new Error(observeMode + " is not instance of ObserveMode");
         }
         new MutationObserver(observer).observe(target, observeMode.value);
     }
@@ -1554,7 +1554,7 @@
     */
     function createElement(elementType, attributes, styles){
         if(!(elementType instanceof ElementType)){
-            throw new Error("elementType is not instance of ElementType");
+            throw new Error(elementType + " is not instance of ElementType");
         }
         const element = document.createElement(elementType.value);
         Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
@@ -1589,7 +1589,7 @@
     */
     function setDisplay(element, displayType){
         if(!(displayType instanceof DisplayType)){
-            throw new Error("displayType is not instance of DisplayType");
+            throw new Error(displayType + " is not instance of DisplayType");
         }
         setStyle(element, "display", displayType.value);
     }
@@ -1622,7 +1622,7 @@
     */
     function addEventListener(element, eventType, listener){
         if(!(eventType instanceof EventType)){
-            throw new Error("eventType is not instance of EventType");
+            throw new Error(eventType + " is not instance of EventType");
         }
         element.addEventListener(eventType.value, listener, false);
     }
@@ -1636,7 +1636,7 @@
     */
     function removeEventListener(element, eventType, listener){
         if(!(eventType instanceof EventType)){
-            throw new Error("eventType is not instance of EventType");
+            throw new Error(eventType + " is not instance of EventType");
         }
         element.removeEventListener(eventType.value, listener, false);
     }

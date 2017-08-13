@@ -3,7 +3,7 @@
 // @namespace    https://github.com/munierujp/direct_helper
 // @version      1.3
 // @description  directに便利な機能を追加します。
-// @author       Munieru
+// @author      @munieru_jp
 // @match       https://*.direct4b.com/home*
 // @grant        none
 // ==/UserScript==

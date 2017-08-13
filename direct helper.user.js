@@ -3,7 +3,7 @@
 // @namespace    https://github.com/munierujp/direct_helper
 // @version      1.3
 // @description  directに便利な機能を追加します。
-// @author      @munieru_jp
+// @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
 // @grant        none
 // ==/UserScript==
@@ -452,7 +452,10 @@
     /** イベント種別 */
     const EventTypes = {
         CLICK: new EventType("click"),
-        INPUT: new EventType("input")
+        INPUT: new EventType("input"),
+        KEYDOWN: new EventType("keydown"),
+        KEYPRESS: new EventType("keypress"),
+        KEYUP: new EventType("keyup")
     };
 
     /** フォーム種別クラス */
@@ -480,6 +483,20 @@
     const FileTypes = {
         IMAGE: new FileType("msg-thumb-cover"),
         OTHER: new FileType()
+    };
+
+    /** キー種別クラス */
+    class KeyType{
+        /**
+        * @param {String} key キー
+        */
+        constructor(key){
+            this.key = key;
+        }
+    }
+    /** キー種別 */
+    const KeyTypes = {
+        ESCAPE: new KeyType("Escape")
     };
 
     /** スタンプ種別クラス */
@@ -514,6 +531,7 @@
         EventTypes,
         FileTypes,
         FormTypes,
+        KeyTypes,
         MessageTypes,
         ObserveModes,
         StampTypes,
@@ -791,7 +809,7 @@
                         return input.checked;
                 }
             }).get();
-            changeButton.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
+            changeButton.disabled = equalsInputValuesToSettings(inputKeyInputValues, settings);
             setDisplay(message, DisplayTypes.NONE);
         };
         Iterator.of(inputKeyInputs).forEach((key, input) => {
@@ -939,7 +957,7 @@
     * @param {Object} settings 設定
     * @return {Boolean} すべて等しければtrue、それ以外はfalse
     */
-    function equalsInputValueToSettings(inputKeyInputValues, settings){
+    function equalsInputValuesToSettings(inputKeyInputValues, settings){
         return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
             const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
             return inputValue == settingValue;
@@ -950,27 +968,27 @@
     * ユーザーアイコンの拡大機能を実行します。
     */
     function doExpandUserIcon(){
-        const CUSTOM_MODAL_Z = 9999;
+        const CUSTOM_MODAL_Z_INDEX = 9999;
 
         const userDialog = document.getElementById("user-dialog-basic-profile");
         const icon = userDialog.querySelector('.prof-icon-large');
         setStyle(icon, "cursor", "zoom-in");
-        const image = icon.querySelector('img');
 
-        //アイコンクリック時に拡大
+        //アイコンクリック時に拡大画像を表示
         addEventListener(icon, EventTypes.CLICK, () => {
+            const image = icon.querySelector('img');
             const backgroundImage = image.style["background-image"];
             const url = backgroundImage.match(/url\("(.+)"\)/)[1];
 
             //モーダルで背景を暗くする
             const modal = document.querySelector('.modal-backdrop');
-            const modalZ = modal.style["z-index"];
-            setStyle(modal, "z-index", CUSTOM_MODAL_Z);
+            const modalZIndex = modal.style["z-index"];
+            setStyle(modal, "z-index", CUSTOM_MODAL_Z_INDEX);
 
             //拡大画像エリアを作成
             const expandedImageArea = createElement(ElementTypes.DIV, {
                 id: HTML_ID_PREFIX + "expanded-user-icon"
-            },{
+            }, {
                 "position": "fixed",
                 "top": 0,
                 "left": 0,
@@ -979,7 +997,7 @@
                 "display": "flex",
                 "align-items": "center",
                 "justify-content": "center",
-                "z-index": CUSTOM_MODAL_Z + 1,
+                "z-index": CUSTOM_MODAL_Z_INDEX + 1,
                 "cursor": "zoom-out "
             });
 
@@ -991,13 +1009,39 @@
                 "max-height": "100%"
             });
             expandedImageArea.appendChild(expandedImage);
-
-            //拡大画像エリアクリック時に削除
-            addEventListener(expandedImageArea, EventTypes.CLICK, () => {
-                document.body.removeChild(expandedImageArea);
-                setStyle(modal, "z-index", modalZ);
-            });
             document.body.appendChild(expandedImageArea);
+
+            const addKeyupListener = listener => addEventListener(document, EventTypes.KEYUP, listener);
+            const removeKeyupListener = listener => removeEventListener(document, EventTypes.KEYUP, listener);
+
+            const closeExpandedImage = () => {
+                document.body.removeChild(expandedImageArea);
+                setStyle(modal, "z-index", modalZIndex);
+            };
+
+            const onEscapeKeyup = event => {
+                if(event.key == KeyTypes.ESCAPE.key){
+                    closeExpandedImage();
+                    removeKeyupListener(onEscapeKeyup);
+                }
+            };
+
+            //拡大画像エリアクリック時に拡大画像を閉じる
+            addEventListener(expandedImageArea, EventTypes.CLICK, event => {
+                closeExpandedImage();
+                removeKeyupListener(onEscapeKeyup);
+
+                //拡大画像エリアクリック後にEscapeキー押下時にユーザーダイアログを閉じる
+                addKeyupListener(event => {
+                    if(event.key == KeyTypes.ESCAPE.key){
+                        const userModal = document.getElementById("user-modal");
+                        userModal.click();
+                    }
+                });
+            });
+
+            //Escapeキー押下時に拡大画像エリアを閉じる
+            addKeyupListener(onEscapeKeyup);
         });
     }
 
@@ -1079,7 +1123,7 @@
     * メッセージの監視機能を実行します。
     */
     function doWatchMessage(){
-        const talkIdTalk = {};
+        const talkIdTalks = {};
         const observingTalkIds = [];
 
         //トーク一覧に子ノード追加時、トーク関連処理を実行
@@ -1116,20 +1160,20 @@
                     const talk = new Talk(talkId, talkName);
                     const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
                     talk.isRead = talkIsRead;
-                    talkIdTalk[talkId] = talk;
+                    talkIdTalks[talkId] = talk;
                 });
             });
         });
 
         //トークの追加を監視
-        observeAddingTalk(talkIdTalk);
+        observeAddingTalk(talkIdTalks);
     }
 
     /**
     * トークの追加を監視します。
-    * @param {Object} talkIdTalk
+    * @param {Object} talkIdTalks
     */
-    function observeAddingTalk(talkIdTalk){
+    function observeAddingTalk(talkIdTalks){
         //メッセージ監視開始ログを表示
         const observeStartDate = new Date();
         const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
@@ -1145,7 +1189,7 @@
                 talkAreas.forEach(talkArea => {
                     //トークを生成
                     const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
-                    const talk = talkIdTalk[talkId];
+                    const talk = talkIdTalks[talkId];
 
                     //メッセージの追加を監視
                     observeAddingMessage(talkArea, talk);
@@ -1264,7 +1308,7 @@
         //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
         const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
         const messageMenu = messageText.querySelector('.msg-menu-container');
-        Optional.ofAbsentable(messageMenu).ifPresent(m => messageText.removeChild(m));
+        Optional.ofAbsentable(messageMenu).ifPresent(messageMenu => messageText.removeChild(messageMenu));
         return messageText.textContent;
     }
 
@@ -1442,7 +1486,7 @@
      * ノードの変更を監視します。
      * @param {Node} target 監視対象ノード
      * @param {ObserveMode} mode 監視モード
-     * @param {Function} observer オブザーブ関数:mutations => {...}
+     * @param {Function} observer : mutations => {...}
      * @throws {Error} modeの型がObserveModeではない場合
      */
     function observeNode(target, mode, observer){
@@ -1562,7 +1606,7 @@
     * HTML要素にイベントリスナーを追加します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} type イベント種別
-    * @param {Function} listener イベントリスナー
+    * @param {Function} listener : Event => {}
     * @throws {Error} typeの型がEventTypeではない場合
     */
     function addEventListener(element, type, listener){
@@ -1570,6 +1614,20 @@
             throw new Error("type is not instance of EventType");
         }
         element.addEventListener(type.value, listener, false);
+    }
+
+    /**
+    * HTML要素からイベントリスナーを削除します。
+    * @param {HTMLElement} element HTML要素
+    * @param {EventType} type イベント種別
+    * @param {Function} listener : Event => {}
+    * @throws {Error} typeの型がEventTypeではない場合
+    */
+    function removeEventListener(element, type, listener){
+        if(!(type instanceof EventType)){
+            throw new Error("type is not instance of EventType");
+        }
+        element.removeEventListener(type.value, listener, false);
     }
 
     /**

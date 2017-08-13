@@ -1018,7 +1018,6 @@
             addEventListener(document, EventTypes.KEYUP, onKeyup);
         });
     }
-    addEventListener(document, EventTypes.KEYUP, e => console.log(e));
 
     /**
     * マルチビューのレスポンシブ化機能を実行します。

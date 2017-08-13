@@ -791,7 +791,7 @@
                         return input.checked;
                 }
             }).get();
-            changeButton.disabled = equalsInputValueToSettings(inputKeyInputValues, settings);
+            changeButton.disabled = equalsInputValuesToSettings(inputKeyInputValues, settings);
             setDisplay(message, DisplayTypes.NONE);
         };
         Iterator.of(inputKeyInputs).forEach((key, input) => {
@@ -939,7 +939,7 @@
     * @param {Object} settings 設定
     * @return {Boolean} すべて等しければtrue、それ以外はfalse
     */
-    function equalsInputValueToSettings(inputKeyInputValues, settings){
+    function equalsInputValuesToSettings(inputKeyInputValues, settings){
         return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
             const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
             return inputValue == settingValue;
@@ -1079,7 +1079,7 @@
     * メッセージの監視機能を実行します。
     */
     function doWatchMessage(){
-        const talkIdTalk = {};
+        const talkIdTalks = {};
         const observingTalkIds = [];
 
         //トーク一覧に子ノード追加時、トーク関連処理を実行
@@ -1116,20 +1116,20 @@
                     const talk = new Talk(talkId, talkName);
                     const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
                     talk.isRead = talkIsRead;
-                    talkIdTalk[talkId] = talk;
+                    talkIdTalks[talkId] = talk;
                 });
             });
         });
 
         //トークの追加を監視
-        observeAddingTalk(talkIdTalk);
+        observeAddingTalk(talkIdTalks);
     }
 
     /**
     * トークの追加を監視します。
-    * @param {Object} talkIdTalk
+    * @param {Object} talkIdTalks
     */
-    function observeAddingTalk(talkIdTalk){
+    function observeAddingTalk(talkIdTalks){
         //メッセージ監視開始ログを表示
         const observeStartDate = new Date();
         const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
@@ -1145,7 +1145,7 @@
                 talkAreas.forEach(talkArea => {
                     //トークを生成
                     const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
-                    const talk = talkIdTalk[talkId];
+                    const talk = talkIdTalks[talkId];
 
                     //メッセージの追加を監視
                     observeAddingMessage(talkArea, talk);

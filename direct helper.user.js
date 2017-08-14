@@ -409,11 +409,11 @@
     class Message{
         /**
         * @param {Talk} talk トーク
-        * @throws {Error} talkの型がTalkではない場合
+        * @throws {TypeError} talkの型がTalkではない場合
         */
         constructor(talk){
             if(!(talk instanceof Talk)){
-                throw new Error(talk + " is not instance of Talk");
+                throw new TypeError(talk + " is not instance of Talk");
             }
             this.talk = talk;
         }
@@ -1291,11 +1291,11 @@
     * @param {Node} messageBodyArea メッセージ本文エリア
     * @param {MessageType} messageType メッセージ種別
     * @return {String} メッセージの本文
-    * @throws {Error} messageTypeの型がMessageTypeではない場合
+    * @throws {TypeError} messageTypeの型がMessageTypeではない場合
     */
     function getMessageBody(messageBodyArea, messageType){
         if(!(messageType instanceof MessageType)){
-            throw new Error(messageType + " is not instance of MessageType");
+            throw new TypeError(messageType + " is not instance of MessageType");
         }
 
         if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
@@ -1366,11 +1366,11 @@
     /**
     * メッセージをコンソールに出力します。
     * @param {Message} message メッセージ
-    * @throws {Error} messageの型がMessageではない場合
+    * @throws {TypeError} messageの型がMessageではない場合
     */
     function logMessage(message){
         if(!(message instanceof Message)){
-            throw new Error(message + " is not instance of Message");
+            throw new TypeError(message + " is not instance of Message");
         }
 
         const header = replace(settings.custom_log_message_header, [
@@ -1496,11 +1496,11 @@
      * @param {Node} target 監視対象ノード
      * @param {ObserveMode} observeMode 監視モード
      * @param {Function} observer : mutations => {...}
-     * @throws {Error} observeModeの型がObserveModeではない場合
+     * @throws {TypeError} observeModeの型がObserveModeではない場合
      */
     function observeNode(target, observeMode, observer){
         if(!(observeMode instanceof ObserveMode)){
-            throw new Error(observeMode + " is not instance of ObserveMode");
+            throw new TypeError(observeMode + " is not instance of ObserveMode");
         }
         new MutationObserver(observer).observe(target, observeMode.value);
     }
@@ -1521,7 +1521,7 @@
     * @param {Object} [styles] スタイル
     * @param {String} text テキスト
     * @return {HTMLElement} HTML要素
-    * @throws {Error} elementTypeの型がElementTypeではない場合
+    * @throws {TypeError} elementTypeの型がElementTypeではない場合
     */
     function createElementWithText(elementType, text, attributes, styles){
         const element = createElement(elementType, attributes, styles);
@@ -1536,7 +1536,7 @@
     * @param {Object} [styles] スタイル
     * @param {String} html HTML
     * @return {HTMLElement} HTML要素
-    * @throws {Error} elementTypeの型がElementTypeではない場合
+    * @throws {TypeError} elementTypeの型がElementTypeではない場合
     */
     function createElementWithHTML(elementType, html, attributes, styles){
         const element = createElement(elementType, attributes, styles);
@@ -1550,11 +1550,11 @@
     * @param {Object} [attributes] 属性
     * @param {Object} [styles] スタイル
     * @return {HTMLElement} HTML要素
-    * @throws {Error} elementTypeの型がElementTypeではない場合
+    * @throws {TypeError} elementTypeの型がElementTypeではない場合
     */
     function createElement(elementType, attributes, styles){
         if(!(elementType instanceof ElementType)){
-            throw new Error(elementType + " is not instance of ElementType");
+            throw new TypeError(elementType + " is not instance of ElementType");
         }
         const element = document.createElement(elementType.value);
         Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
@@ -1585,11 +1585,11 @@
     * HTML要素にディスプレイ属性を設定します。
     * @param {HTMLElement} element HTML要素
     * @param {DisplayType} displayType ディスプレイ種別
-    * @throws {Error} displayTypeの型がDisplayTypeではない場合
+    * @throws {TypeError} displayTypeの型がDisplayTypeではない場合
     */
     function setDisplay(element, displayType){
         if(!(displayType instanceof DisplayType)){
-            throw new Error(displayType + " is not instance of DisplayType");
+            throw new TypeError(displayType + " is not instance of DisplayType");
         }
         setStyle(element, "display", displayType.value);
     }
@@ -1618,11 +1618,11 @@
     * @param {HTMLElement} element HTML要素
     * @param {EventType} eventType イベント種別
     * @param {Function} listener : Event => {}
-    * @throws {Error} eventTypeの型がEventTypeではない場合
+    * @throws {TypeError} eventTypeの型がEventTypeではない場合
     */
     function addEventListener(element, eventType, listener){
         if(!(eventType instanceof EventType)){
-            throw new Error(eventType + " is not instance of EventType");
+            throw new TypeError(eventType + " is not instance of EventType");
         }
         element.addEventListener(eventType.value, listener, false);
     }
@@ -1632,11 +1632,11 @@
     * @param {HTMLElement} element HTML要素
     * @param {EventType} eventType イベント種別
     * @param {Function} listener : Event => {}
-    * @throws {Error} eventTypeの型がEventTypeではない場合
+    * @throws {TypeError} eventTypeの型がEventTypeではない場合
     */
     function removeEventListener(element, eventType, listener){
         if(!(eventType instanceof EventType)){
-            throw new Error(eventType + " is not instance of EventType");
+            throw new TypeError(eventType + " is not instance of EventType");
         }
         element.removeEventListener(eventType.value, listener, false);
     }

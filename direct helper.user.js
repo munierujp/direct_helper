@@ -462,6 +462,14 @@
         KEYUP: new EventType("keyup")
     };
 
+    /** ファイル種別クラス */
+    class FileType extends HasValue{}
+    /** ファイル種別 */
+    const FileTypes = {
+        IMAGE: new FileType("msg-thumb-cover"),
+        OTHER: new FileType()
+    };
+
     /** フォーム種別クラス */
     class FormType{}
     /** フォーム種別 */
@@ -469,24 +477,6 @@
         CHECKBOX: new FormType(),
         TEXT: new FormType(),
         TEXT_ARRAY: new FormType()
-    };
-
-    /** メッセージ種別クラス */
-    class MessageType extends HasValue{}
-    /** メッセージ種別 */
-    const MessageTypes = {
-        FILE: new MessageType("msg-type-file"),
-        FILE_AND_TEXT: new MessageType("msg-type-textMultipleFile"),
-        STAMP: new MessageType("msg-type-stamp"),
-        TEXT: new MessageType("msg-type-text")
-    };
-
-    /** ファイル種別クラス */
-    class FileType extends HasValue{}
-    /** ファイル種別 */
-    const FileTypes = {
-        IMAGE: new FileType("msg-thumb-cover"),
-        OTHER: new FileType()
     };
 
     /** キー種別クラス */
@@ -503,12 +493,15 @@
         ESCAPE: new KeyType("Escape")
     };
 
-    /** スタンプ種別クラス */
-    class StampType extends HasValue{}
-    /** スタンプ種別 */
-    const StampTypes = {
-        NO_TEXT: new StampType("no-text"),
-        WITH_TEXT: new StampType("stamp-with-text-body")
+    /** メッセージ種別クラス */
+    class MessageType extends HasValue{}
+    /** メッセージ種別 */
+    const MessageTypes = {
+        DELETED: new MessageType("msg-type-deleted"),
+        FILE: new MessageType("msg-type-file"),
+        FILE_AND_TEXT: new MessageType("msg-type-textMultipleFile"),
+        STAMP: new MessageType("msg-type-stamp"),
+        TEXT: new MessageType("msg-type-text")
     };
 
     /** 監視モードクラス */
@@ -517,6 +510,14 @@
     const ObserveModes = {
         ATTRIBUTES: new ObserveMode({attributes: true}),
         CHILD_LIST: new ObserveMode({childList: true})
+    };
+
+    /** スタンプ種別クラス */
+    class StampType extends HasValue{}
+    /** スタンプ種別 */
+    const StampTypes = {
+        NO_TEXT: new StampType("no-text"),
+        WITH_TEXT: new StampType("stamp-with-text-body")
     };
 
     /** ユーザー種別クラス */
@@ -1258,6 +1259,39 @@
     }
 
     /**
+    * メッセージ種別を取得します。
+    * メッセージ種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {MessageType} メッセージ種別
+    */
+    function getMessageType(classList){
+        const messageTypes = Object.values(MessageTypes).filter(messageType => classList.contains(messageType.value));
+        return messageTypes.length == 1 ? messageTypes[0] : undefined;
+    }
+
+    /**
+    * ファイル種別を取得します。
+    * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {FileType} ファイル種別
+    */
+    function getFileType(classList){
+        const fileTypes = Object.values(FileTypes).filter(fileType => classList.contains(fileType.value));
+        return fileTypes.length == 1 ? fileTypes[0] : undefined;
+    }
+
+    /**
+    * スタンプ種別を取得します。
+    * スタンプ種別が存在しないまたは複数ある場合はundefinedを返します。
+    * @param {DOMTokenList} classList クラスリスト
+    * @return {StampType} スタンプ種別
+    */
+    function getStampType(classList){
+        const stampTypes = Object.values(StampTypes).filter(stampType => classList.contains(stampType.value));
+        return stampTypes.length == 1 ? stampTypes[0] : undefined;
+    }
+
+    /**
     * メッセージの投稿日時を取得します。
     * @param {Node} messageArea メッセージエリア
     * @return {Date} メッセージの投稿日時
@@ -1319,39 +1353,6 @@
         const messageMenu = messageText.querySelector('.msg-menu-container');
         Optional.ofAbsentable(messageMenu).ifPresent(messageMenu => messageText.removeChild(messageMenu));
         return messageText.textContent;
-    }
-
-    /**
-    * メッセージ種別を取得します。
-    * メッセージ種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
-    * @return {MessageType} メッセージ種別
-    */
-    function getMessageType(classList){
-        const messageTypes = Object.values(MessageTypes).filter(messageType => classList.contains(messageType.value));
-        return messageTypes.length == 1 ? messageTypes[0] : undefined;
-    }
-
-    /**
-    * ファイル種別を取得します。
-    * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
-    * @return {FileType} ファイル種別
-    */
-    function getFileType(classList){
-        const fileTypes = Object.values(FileTypes).filter(fileType => classList.contains(fileType.value));
-        return fileTypes.length == 1 ? fileTypes[0] : undefined;
-    }
-
-    /**
-    * スタンプ種別を取得します。
-    * スタンプ種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
-    * @return {StampType} スタンプ種別
-    */
-    function getStampType(classList){
-        const stampTypes = Object.values(StampTypes).filter(stampType => classList.contains(stampType.value));
-        return stampTypes.length == 1 ? stampTypes[0] : undefined;
     }
 
     /**

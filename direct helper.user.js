@@ -552,7 +552,8 @@
     const LOCAL_STORAGE_SETTINGS_KEY = "direct_helper_settings";
 
     /** 設定画面説明 */
-    const SETTING_DESCRIPTION = "以下はdirect helperの設定です。設定変更後はページをリロードしてください。";
+    const SETTING_DESCRIPTION = `以下はdirect helperの設定です。設定変更後はページをリロードしてください。<br>
+詳しい使用方法は<a href="https://github.com/munierujp/direct_helper/blob/master/README.md" target="_blank">readme</a>を参照してください。`;
 
     /** ユーザーダイアログ設定データ */
     const USER_DIALOG_SETTING_DATA = {

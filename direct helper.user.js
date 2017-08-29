@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.3
+// @version      1.4
 // @description  directに便利な機能を追加します。
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
@@ -505,14 +505,6 @@
         TEXT: new MessageType("msg-type-text")
     };
 
-    /** 監視モードクラス */
-    class ObserveMode extends HasValue{}
-    /** 監視モード */
-    const ObserveModes = {
-        ATTRIBUTES: new ObserveMode({attributes: true}),
-        CHILD_LIST: new ObserveMode({childList: true})
-    };
-
     /** スタンプ種別クラス */
     class StampType extends HasValue{}
     /** スタンプ種別 */
@@ -539,7 +531,6 @@
         FormTypes,
         KeyTypes,
         MessageTypes,
-        ObserveModes,
         StampTypes,
         UserTypes
     ];
@@ -578,6 +569,13 @@
         title: "メッセージ入力",
         description: "メッセージ入力欄の動作を変更します。",
         inputKeyDatas: {
+            confirm_send_message_button: {
+                type: FormTypes.CHECKBOX,
+                key: "confirm_send_message_button",
+                name: "送信ボタンの確認",
+                default: true,
+                description: "送信ボタンによるメッセージ送信前に確認します。"
+            },
             show_message_count: {
                 type: FormTypes.CHECKBOX,
                 key: "show_message_count",
@@ -720,6 +718,7 @@
 
     /** 機能リスト（実行順） */
     const SETTINGS_KEY_ACTIONS = {
+        confirm_send_message_button: doConfirmSendMessageButton,
         expand_user_icon: doExpandUserIcon,
         responsive_multi_view: doResponsiveMultiView,
         show_message_count: doShowMessageCount,
@@ -972,6 +971,48 @@
     }
 
     /**
+    * 送信ボタンの確認機能を実行します。
+    */
+    function doConfirmSendMessageButton(){
+        const sendForms = document.querySelectorAll('.form-send');
+        sendForms.forEach(sendForm => {
+            const textArea = sendForm.querySelector('.form-send-text');
+            const sendButtonArea = sendForm.querySelector('.form-send-button-group');
+            const sendButton = sendForm.querySelector('.form-send-button');
+
+            //ダミー送信ボタンを作成
+            const dummySendButton = deepCloneNode(sendButton);
+            dummySendButton.disabled = true;
+            sendButtonArea.appendChild(dummySendButton);
+
+            //送信ボタンを非表示化
+            setDisplay(sendButton, DisplayTypes.NONE);
+
+            //文字入力時にダミー送信ボタンをクリック可能化
+            addEventListener(textArea, EventTypes.INPUT, () => dummySendButton.disabled = textArea.value === "");
+
+            //添付ファイル追加時にダミー送信ボタンをクリック可能化
+            const fileArea = sendForm.querySelector('.staged-files');
+            observeStyle(fileArea, mutations => {
+                mutations.forEach(mutation => {
+                    const display = fileArea.style.display;
+                    dummySendButton.disabled = display == "none";
+                });
+            });
+
+            //ダミー送信ボタンクリック時に確認ダイアログを表示
+            addEventListener(dummySendButton, EventTypes.CLICK, () => {
+                if(window.confirm("本当に送信しますか？")){
+                    //送信ボタンをクリック
+                    sendButton.click();
+                }else{
+                    //なにもしない
+                }
+            });
+        });
+    }
+
+    /**
     * ユーザーアイコンの拡大機能を実行します。
     */
     function doExpandUserIcon(){
@@ -1060,8 +1101,8 @@
         const talkPanes = multiPane.querySelectorAll('.talk-pane');
         talkPanes.forEach(talkPane => {
             //トークペインのclass属性変更時、表示を切り替え
-            observeNode(talkPane, ObserveModes.ATTRIBUTES, mutations => {
-                mutations.filter(mutation => mutation.attributeName == "class").forEach(mutation => {
+            observeClassName(talkPane, mutations => {
+				mutations.forEach(mutation => {
                     const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
                     const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
 
@@ -1135,7 +1176,7 @@
 
         //トーク一覧に子ノード追加時、トーク関連処理を実行
         const talks = document.getElementById("talks");
-        observeNode(talks, ObserveModes.CHILD_LIST, mutations => {
+        observeChildList(talks, mutations => {
             //デフォルト監視対象を監視対象に追加
             if(settings.watch_default_observe_talk === true){
                 //既読デフォルト監視トークIDリストの作成
@@ -1190,7 +1231,7 @@
 
         //メッセージエリアに子ノード追加時、トーク関連処理を実行
         const messagesArea = document.getElementById("messages");
-        observeNode(messagesArea, ObserveModes.CHILD_LIST, mutations => {
+        observeChildList(messagesArea, mutations => {
             mutations.forEach(mutation => {
                 const talkAreas = mutation.addedNodes;
                 talkAreas.forEach(talkArea => {
@@ -1222,7 +1263,7 @@
 
         //リアルメッセージエリアに子ノード追加時、メッセージ関連処理を実行
         const realMessageArea = talkArea.querySelector('.real-msgs');
-        observeNode(realMessageArea, ObserveModes.CHILD_LIST, mutations => {
+        observeChildList(realMessageArea, mutations => {
             mutations.forEach(mutation => {
                 Array.from(mutation.addedNodes).filter(node => node.className == "msg").forEach(messageArea => {
                     //メッセージを生成
@@ -1495,18 +1536,56 @@
     }
 
     /**
+     * ノードのclass属性の変更を監視します。
+     * @param {Node} target 監視対象ノード
+     * @param {Function} observer : mutations => {...}
+     */
+    function observeClassName(target, observer){
+        observeAttribute(target, ["class"], observer);
+    }
+
+    /**
+     * ノードのスタイル属性の変更を監視します。
+     * @param {Node} target 監視対象ノード
+     * @param {Function} observer : mutations => {...}
+     */
+    function observeStyle(target, observer){
+        observeAttribute(target, ["style"], observer);
+    }
+
+    /**
+     * ノードの属性の変更を監視します。
+     * @param {Node} target 監視対象ノード
+     * @param {String} names 属性名配列
+     * @param {Function} observer : mutations => {...}
+     */
+    function observeAttribute(target, names, observer){
+		observeNode(target, observer, {
+			attributes: true,
+            attributeFilter: names
+        });
+    }
+
+    /**
+     * ノードの子ノード追加を監視します。
+     * @param {Node} target 監視対象ノード
+     * @param {Function} observer : mutations => {...}
+     */
+    function observeChildList(target, observer){
+       observeNode(target, observer, {
+			childList: true
+		});
+    }
+
+    /**
      * ノードの変更を監視します。
      * @param {Node} target 監視対象ノード
-     * @param {ObserveMode} observeMode 監視モード
      * @param {Function} observer : mutations => {...}
-     * @throws {TypeError} observeModeの型がObserveModeではない場合
+	 * @param {Object} [options] 監視オプション
      */
-    function observeNode(target, observeMode, observer){
-        if(!(observeMode instanceof ObserveMode)){
-            throw new TypeError(observeMode + " is not instance of ObserveMode");
-        }
-        new MutationObserver(observer).observe(target, observeMode.value);
-    }
+	function observeNode(target, observer, options){
+        new MutationObserver(observer).observe(target, options);
+	}
 
     /**
     * ノードの深い複製を返します。

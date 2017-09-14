@@ -1382,11 +1382,10 @@
         if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
             const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
             const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-            if(messageType == MessageTypes.FILE){
+            if(messageType == MessageTypes.FILE_AND_TEXT && !messageBodyArea.classList.contains("no-text")){
+				return prefix + messageBodyArea.querySelector('.msg-thumbs-text').textContent;
+			}else{
 				return prefix;
-            }else{
-                const text = messageBodyArea.querySelector('.msg-thumbs-text');
-                return prefix + text.textContent;
 			}
         }else if(messageType == MessageTypes.STAMP){
             const stampType = getStampType(messageBodyArea.classList);

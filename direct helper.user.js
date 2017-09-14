@@ -913,7 +913,7 @@
                 break;
         }
         return inputForm;
-    }
+	}
 
     /**
     * 設定画面の項目要素を作成します。
@@ -1213,15 +1213,6 @@
             });
         });
 
-        //トークの追加を監視
-        observeAddingTalk(talkIdTalks);
-    }
-
-    /**
-    * トークの追加を監視します。
-    * @param {Object} talkIdTalks
-    */
-    function observeAddingTalk(talkIdTalks){
         //メッセージ監視開始ログを表示
         const observeStartDate = new Date();
         const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
@@ -1229,29 +1220,48 @@
         ]);
         console.info(settings.log_label, observeStartMessage);
 
-        //メッセージエリアに子ノード追加時、トーク関連処理を実行
+		//トークエリアの追加を監視
+		observeAddingTalkArea(talkIdTalks, talkArea => {
+			//トークを生成
+			const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
+			const talk = talkIdTalks[talkId];
+
+			//メッセージの追加を監視
+			observeAddingMessage(talkArea, talk, messageArea => {
+				//メッセージを生成
+				const message = createMessage(messageArea, talk);
+
+				//メッセージをコンソールに出力
+				if(message.time > observeStartDate || settings.show_past_message === true){
+					logMessage(message);
+				}
+			});
+		});
+	}
+
+    /**
+    * トークエリアの追加を監視します。
+    * @param {Object} talkIdTalks
+    * @param {Function} processer : talkArea => {...}
+    */
+    function observeAddingTalkArea(talkIdTalks, processer){
+        //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
         const messagesArea = document.getElementById("messages");
         observeChildList(messagesArea, mutations => {
             mutations.forEach(mutation => {
                 const talkAreas = mutation.addedNodes;
-                talkAreas.forEach(talkArea => {
-                    //トークを生成
-                    const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
-                    const talk = talkIdTalks[talkId];
-
-                    //メッセージの追加を監視
-                    observeAddingMessage(talkArea, talk);
-                });
+                talkAreas.forEach(talkArea => processer(talkArea));
             });
         });
     }
 
     /**
-    * メッセージの追加を監視します。
+    * メッセージエリアの追加を監視します。
     * @param {Node} talkArea トークエリア
     * @param {Talk} talk トーク
+    * @param {Function} processer : messageArea => {...}
     */
-    function observeAddingMessage(talkArea, talk){
+    function observeAddingMessage(talkArea, talk, processer){
         //トーク監視開始ログを表示
         const observeStartDate = new Date();
         const observeStartMessage = replace(settings.custom_log_start_observe_talk, [
@@ -1264,18 +1274,12 @@
         //リアルメッセージエリアに子ノード追加時、メッセージ関連処理を実行
         const realMessageArea = talkArea.querySelector('.real-msgs');
         observeChildList(realMessageArea, mutations => {
-            mutations.forEach(mutation => {
-                Array.from(mutation.addedNodes).filter(node => node.className == "msg").forEach(messageArea => {
-                    //メッセージを生成
-                    const message = createMessage(messageArea, talk);
-
-                    //メッセージをコンソールに出力
-                    if(message.time > observeStartDate || settings.show_past_message === true){
-                        logMessage(message);
-                    }
-                });
-            });
-        });
+			mutations.forEach(mutation => {
+				Array.from(mutation.addedNodes)
+					.filter(node => node.className == "msg")
+					.forEach(messageArea => processer(messageArea));
+			});
+		});
     }
 
     /**
@@ -1378,12 +1382,11 @@
         if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
             const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
             const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-            if(messageType == MessageTypes.FILE){
-                return prefix;
-            }else{
-                const text = messageBodyArea.querySelector('.msg-thumbs-text');
-                return prefix + text.textContent;
-            }
+            if(messageType == MessageTypes.FILE_AND_TEXT && !messageBodyArea.classList.contains("no-text")){
+				return prefix + messageBodyArea.querySelector('.msg-thumbs-text').textContent;
+			}else{
+				return prefix;
+			}
         }else if(messageType == MessageTypes.STAMP){
             const stampType = getStampType(messageBodyArea.classList);
             if(stampType == StampTypes.NO_TEXT){

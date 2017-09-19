@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.4
+// @version      1.5
 // @description  directに便利な機能を追加します。
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
@@ -564,6 +564,29 @@
 		}
 	};
 
+	/** トーク設定データ */
+	const TALK_SETTING_DATA = {
+		key: "talk-settings",
+		title: "トーク",
+		description: "トークの動作を変更します。",
+		inputKeyDatas: {
+			change_thumbnail_size: {
+				type: FormTypes.CHECKBOX,
+				key: "change_thumbnail_size",
+				name: "サムネイルサイズの変更",
+				default: true,
+				description: "画像のサムネイルサイズを変更します。"
+			},
+			thumbnail_size: {
+				type: FormTypes.NUMBER,
+				key: "thumbnail_size",
+				name: "サムネイルサイズ",
+				default: 600,
+				description: "画像のサムネイルサイズ（px）を入力してください。"
+			}
+		}
+	}
+
 	/** メッセージ入力設定データ */
 	const INPUT_MESSAGE_SETTING_DATA = {
 		key: "input-message-settings",
@@ -711,6 +734,7 @@
 	/** 設定データリスト（描画順） */
 	const SETTING_DATAS = [
 		USER_DIALOG_SETTING_DATA,
+		TALK_SETTING_DATA,
 		INPUT_MESSAGE_SETTING_DATA,
 		MULTI_VIEW_SETTING_DATA,
 		WATCH_MESSAGE_SETTING_DATA,
@@ -719,6 +743,7 @@
 
 	/** 機能リスト（実行順） */
 	const SETTINGS_KEY_ACTIONS = {
+		change_thumbnail_size: doChangeThumbnailSize,
 		confirm_send_message_button: doConfirmSendMessageButton,
 		expand_user_icon: doExpandUserIcon,
 		responsive_multi_view: doResponsiveMultiView,
@@ -990,6 +1015,25 @@
 		return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
 			const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
 			return inputValue == settingValue;
+		});
+	}
+
+	/**
+	* サムネイルサイズの変更機能を実行します。
+	*/
+	function doChangeThumbnailSize(){
+		//トークエリアの追加を監視
+		observeAddingTalkArea(talkArea => {
+			//メッセージの追加を監視
+			observeAddingMessageArea(talkArea, messageArea => {
+				const messageAreaChild = messageArea.querySelector('div:first-child');
+				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
+				const messageType = getMessageType(messageBodyArea.classList);
+				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
+					const thumbnail = messageArea.querySelector('.msg-text-contained-thumb');
+					setStyle(thumbnail, "width", settings.thumbnail_size + "px");
+				}
+			});
 		});
 	}
 

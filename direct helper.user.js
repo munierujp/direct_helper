@@ -475,6 +475,7 @@
 	/** フォーム種別 */
 	const FormTypes = {
 		CHECKBOX: new FormType(),
+		NUMBER: new FormType(),
 		TEXT: new FormType(),
 		TEXT_ARRAY: new FormType()
 	};
@@ -793,6 +794,7 @@
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
+				case FormTypes.NUMBER:
 					input.value = settings[key];
 					break;
 				case FormTypes.CHECKBOX:
@@ -810,6 +812,7 @@
 				switch(inputData.type){
 					case FormTypes.TEXT:
 					case FormTypes.TEXT_ARRAY:
+					case FormTypes.NUMBER:
 						return input.value;
 					case FormTypes.CHECKBOX:
 						return input.checked;
@@ -823,6 +826,7 @@
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
+				case FormTypes.NUMBER:
 					addEventListener(input, EventTypes.INPUT, onChangeValue);
 					break;
 				case FormTypes.CHECKBOX:
@@ -837,6 +841,7 @@
 				const inputData = inputKeyDatas[key];
 				switch(inputData.type){
 					case FormTypes.TEXT:
+					case FormTypes.NUMBER:
 						settings[key] = input.value;
 						break;
 					case FormTypes.TEXT_ARRAY:
@@ -864,9 +869,7 @@
 			class: "form-group"
 		});
 
-        switch(inputData.type){
-            case FormTypes.TEXT:
-            case FormTypes.TEXT_ARRAY:
+		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
 			const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
 				class: "control-label"
 			});
@@ -887,8 +890,29 @@
 				});
 				inputForm.appendChild(annotation);
 			});
-                break;
-            case FormTypes.CHECKBOX:
+		}else if(inputData.type == FormTypes.NUMBER){
+			const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+				class: "control-label"
+			});
+			inputForm.appendChild(inputLabel);
+			const inputArea = createElement(ElementTypes.DIV, {
+				class: "controls"
+			});
+			const input = createElement(ElementTypes.INPUT, {
+				type: "number",
+				id: HTML_ID_PREFIX + inputData.key,
+				class: "form-control",
+				name: "status"
+			});
+			inputArea.appendChild(input);
+			inputForm.appendChild(inputArea);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => {
+				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
+					class: "annotation"
+				});
+				inputForm.appendChild(annotation);
+			});
+		}else if(inputData.type == FormTypes.CHECKBOX){
 			const checkboxArea = createElement(ElementTypes.DIV, {
 				class: "checkbox"
 			});
@@ -910,7 +934,6 @@
 			});
 
 			inputForm.appendChild(checkboxArea);
-                break;
 		}
 		return inputForm;
 	}

@@ -564,11 +564,11 @@
 		}
 	};
 
-	/** トーク設定データ */
-	const TALK_SETTING_DATA = {
+	/** 画像設定データ */
+	const IMAGE_SETTING_DATA = {
 		key: "talk-settings",
-		title: "トーク",
-		description: "トークの動作を変更します。",
+		title: "画像",
+		description: "画像の動作を変更します。",
 		inputKeyDatas: {
 			change_thumbnail_size: {
 				type: FormTypes.CHECKBOX,
@@ -585,7 +585,7 @@
 				description: "画像のサムネイルサイズ（px）を入力してください。"
 			}
 		}
-	}
+	};
 
 	/** メッセージ入力設定データ */
 	const INPUT_MESSAGE_SETTING_DATA = {
@@ -734,7 +734,7 @@
 	/** 設定データリスト（描画順） */
 	const SETTING_DATAS = [
 		USER_DIALOG_SETTING_DATA,
-		TALK_SETTING_DATA,
+		IMAGE_SETTING_DATA,
 		INPUT_MESSAGE_SETTING_DATA,
 		MULTI_VIEW_SETTING_DATA,
 		WATCH_MESSAGE_SETTING_DATA,

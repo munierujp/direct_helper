@@ -11,6 +11,16 @@
 (function(){
 	'use strict';
 
+	/** 値保持クラス */
+	class HasValue{
+		/**
+        * @param {Object} value 値
+        */
+		constructor(value){
+			this.value = value;
+		}
+	}
+
 	/** オプショナル */
 	class Optional{
 		/**
@@ -419,13 +429,30 @@
 		}
 	}
 
-	/** 値保持クラス */
-	class HasValue{
+	/** トークエリア */
+	class TalkArea extends HasValue{
 		/**
+        * TalkAreaを生成します。
         * @param {Object} value 値
+        * @return {TalkArea} TalkArea
         */
-		constructor(value){
-			this.value = value;
+		static of(value){
+			return new this(value);
+		}
+
+		/**
+		* メッセージエリアの追加を監視します。
+		* @param {Function} processer : messageArea => {...}
+		*/
+		observeAddingMessageArea(processer){
+			const realMessageArea = this.value.querySelector('.real-msgs');
+			observeChildList(realMessageArea, mutations => {
+				mutations.forEach(mutation => {
+					Array.from(mutation.addedNodes)
+						.filter(node => node.className == "msg")
+						.forEach(messageArea => processer(messageArea));
+				});
+			});
 		}
 	}
 
@@ -1025,13 +1052,13 @@
 		//トークエリアの追加を監視
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
-			observeAddingMessageArea(talkArea, messageArea => {
+			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				const messageAreaChild = messageArea.querySelector('div:first-child');
 				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
 				const messageType = getMessageType(messageBodyArea.classList);
 				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-					const thumbnail = messageArea.querySelector('.msg-text-contained-thumb');
-					setStyle(thumbnail, "width", settings.thumbnail_size + "px");
+					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
+					setStyle(thumbnailArea, "width", settings.thumbnail_size + "px");
 				}
 			});
 		});
@@ -1302,7 +1329,7 @@
 			console.info(settings.log_label, observeStartMessage);
 
 			//メッセージの追加を監視
-			observeAddingMessageArea(talkArea, messageArea => {
+			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				//メッセージを生成
 				const message = createMessage(messageArea, talk);
 
@@ -1325,23 +1352,6 @@
 			mutations.forEach(mutation => {
 				const talkAreas = mutation.addedNodes;
 				talkAreas.forEach(talkArea => processer(talkArea));
-			});
-		});
-	}
-
-	/**
-    * トークエリアに対するメッセージエリアの追加を監視します。
-    * @param {Node} talkArea トークエリア
-    * @param {Function} processer : messageArea => {...}
-    */
-	function observeAddingMessageArea(talkArea, processer){
-		//リアルメッセージエリアに子ノード追加時、メッセージ関連処理を実行
-		const realMessageArea = talkArea.querySelector('.real-msgs');
-		observeChildList(realMessageArea, mutations => {
-			mutations.forEach(mutation => {
-				Array.from(mutation.addedNodes)
-					.filter(node => node.className == "msg")
-					.forEach(messageArea => processer(messageArea));
 			});
 		});
 	}

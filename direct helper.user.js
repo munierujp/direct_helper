@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.5
+// @version      1.6
 // @description  directに便利な機能を追加します。
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
@@ -10,6 +10,16 @@
 
 (function(){
 	'use strict';
+
+	/** 値保持クラス */
+	class HasValue{
+		/**
+        * @param {Object} value 値
+        */
+		constructor(value){
+			this.value = value;
+		}
+	}
 
 	/** オプショナル */
 	class Optional{
@@ -419,13 +429,30 @@
 		}
 	}
 
-	/** 値保持クラス */
-	class HasValue{
+	/** トークエリア */
+	class TalkArea extends HasValue{
 		/**
+        * TalkAreaを生成します。
         * @param {Object} value 値
+        * @return {TalkArea} TalkArea
         */
-		constructor(value){
-			this.value = value;
+		static of(value){
+			return new this(value);
+		}
+
+		/**
+		* メッセージエリアの追加を監視します。
+		* @param {Function} processer : messageArea => {...}
+		*/
+		observeAddingMessageArea(processer){
+			const realMessageArea = this.value.querySelector('.real-msgs');
+			observeChildList(realMessageArea, mutations => {
+				mutations.forEach(mutation => {
+					Array.from(mutation.addedNodes)
+						.filter(node => node.className == "msg")
+						.forEach(messageArea => processer(messageArea));
+				});
+			});
 		}
 	}
 
@@ -564,11 +591,11 @@
 		}
 	};
 
-	/** トーク設定データ */
-	const TALK_SETTING_DATA = {
+	/** 画像設定データ */
+	const IMAGE_SETTING_DATA = {
 		key: "talk-settings",
-		title: "トーク",
-		description: "トークの動作を変更します。",
+		title: "画像",
+		description: "画像の動作を変更します。",
 		inputKeyDatas: {
 			change_thumbnail_size: {
 				type: FormTypes.CHECKBOX,
@@ -583,9 +610,23 @@
 				name: "サムネイルサイズ",
 				default: 600,
 				description: "画像のサムネイルサイズ（px）を入力してください。"
+			},
+			blur_thumbnail: {
+				type: FormTypes.CHECKBOX,
+				key: "blur_thumbnail",
+				name: "サムネイル画像をぼかす",
+				default: true,
+				description: "サムネイル画像にブラー効果をかけてぼかします。"
+			},
+			thumbnail_blur_grade: {
+				type: FormTypes.NUMBER,
+				key: "thumbnail_blur_grade",
+				name: "ぼかし度",
+				default: 10,
+				description: "サムネイル画像のぼかし度（px）を入力してください。"
 			}
 		}
-	}
+	};
 
 	/** メッセージ入力設定データ */
 	const INPUT_MESSAGE_SETTING_DATA = {
@@ -734,7 +775,7 @@
 	/** 設定データリスト（描画順） */
 	const SETTING_DATAS = [
 		USER_DIALOG_SETTING_DATA,
-		TALK_SETTING_DATA,
+		IMAGE_SETTING_DATA,
 		INPUT_MESSAGE_SETTING_DATA,
 		MULTI_VIEW_SETTING_DATA,
 		WATCH_MESSAGE_SETTING_DATA,
@@ -743,6 +784,7 @@
 
 	/** 機能リスト（実行順） */
 	const SETTINGS_KEY_ACTIONS = {
+		blur_thumbnail: doBlurThumbnail,
 		change_thumbnail_size: doChangeThumbnailSize,
 		confirm_send_message_button: doConfirmSendMessageButton,
 		expand_user_icon: doExpandUserIcon,
@@ -1019,19 +1061,41 @@
 	}
 
 	/**
+	* サムネイル画像をぼかす機能を実行します。
+	*/
+	function doBlurThumbnail(){
+		//トークエリアの追加を監視
+		observeAddingTalkArea(talkArea => {
+			//メッセージの追加を監視
+			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
+				const messageAreaChild = messageArea.querySelector('div:first-child');
+				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
+				const messageType = getMessageType(messageBodyArea.classList);
+				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
+					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
+					const thumbnails = thumbnailArea.querySelectorAll('img');
+					thumbnails.forEach(thumbnail => {
+						setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)");
+					});
+				}
+			});
+		});
+	}
+
+	/**
 	* サムネイルサイズの変更機能を実行します。
 	*/
 	function doChangeThumbnailSize(){
 		//トークエリアの追加を監視
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
-			observeAddingMessageArea(talkArea, messageArea => {
+			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				const messageAreaChild = messageArea.querySelector('div:first-child');
 				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
 				const messageType = getMessageType(messageBodyArea.classList);
 				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-					const thumbnail = messageArea.querySelector('.msg-text-contained-thumb');
-					setStyle(thumbnail, "width", settings.thumbnail_size + "px");
+					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
+					setStyle(thumbnailArea, "width", settings.thumbnail_size + "px");
 				}
 			});
 		});
@@ -1302,7 +1366,7 @@
 			console.info(settings.log_label, observeStartMessage);
 
 			//メッセージの追加を監視
-			observeAddingMessageArea(talkArea, messageArea => {
+			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				//メッセージを生成
 				const message = createMessage(messageArea, talk);
 
@@ -1325,23 +1389,6 @@
 			mutations.forEach(mutation => {
 				const talkAreas = mutation.addedNodes;
 				talkAreas.forEach(talkArea => processer(talkArea));
-			});
-		});
-	}
-
-	/**
-    * トークエリアに対するメッセージエリアの追加を監視します。
-    * @param {Node} talkArea トークエリア
-    * @param {Function} processer : messageArea => {...}
-    */
-	function observeAddingMessageArea(talkArea, processer){
-		//リアルメッセージエリアに子ノード追加時、メッセージ関連処理を実行
-		const realMessageArea = talkArea.querySelector('.real-msgs');
-		observeChildList(realMessageArea, mutations => {
-			mutations.forEach(mutation => {
-				Array.from(mutation.addedNodes)
-					.filter(node => node.className == "msg")
-					.forEach(messageArea => processer(messageArea));
 			});
 		});
 	}

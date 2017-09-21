@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.5
+// @version      1.6
 // @description  directに便利な機能を追加します。
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
@@ -610,6 +610,20 @@
 				name: "サムネイルサイズ",
 				default: 600,
 				description: "画像のサムネイルサイズ（px）を入力してください。"
+			},
+			blur_thumbnail: {
+				type: FormTypes.CHECKBOX,
+				key: "blur_thumbnail",
+				name: "サムネイル画像をぼかす",
+				default: true,
+				description: "サムネイル画像にブラー効果をかけてぼかします。"
+			},
+			thumbnail_blur_grade: {
+				type: FormTypes.NUMBER,
+				key: "thumbnail_blur_grade",
+				name: "ぼかし度",
+				default: 10,
+				description: "サムネイル画像のぼかし度（px）を入力してください。"
 			}
 		}
 	};
@@ -770,6 +784,7 @@
 
 	/** 機能リスト（実行順） */
 	const SETTINGS_KEY_ACTIONS = {
+		blur_thumbnail: doBlurThumbnail,
 		change_thumbnail_size: doChangeThumbnailSize,
 		confirm_send_message_button: doConfirmSendMessageButton,
 		expand_user_icon: doExpandUserIcon,
@@ -1042,6 +1057,28 @@
 		return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
 			const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
 			return inputValue == settingValue;
+		});
+	}
+
+	/**
+	* サムネイル画像をぼかす機能を実行します。
+	*/
+	function doBlurThumbnail(){
+		//トークエリアの追加を監視
+		observeAddingTalkArea(talkArea => {
+			//メッセージの追加を監視
+			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
+				const messageAreaChild = messageArea.querySelector('div:first-child');
+				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
+				const messageType = getMessageType(messageBodyArea.classList);
+				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
+					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
+					const thumbnails = thumbnailArea.querySelectorAll('img');
+					thumbnails.forEach(thumbnail => {
+						setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)");
+					});
+				}
+			});
 		});
 	}
 

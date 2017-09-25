@@ -609,7 +609,8 @@
 				key: "thumbnail_size",
 				name: "サムネイルサイズ",
 				default: 600,
-				description: "画像のサムネイルサイズ（px）を入力してください。"
+				description: "画像のサムネイルサイズ（px）を入力してください。",
+				parentKey: "change_thumbnail_size"
 			},
 			blur_thumbnail: {
 				type: FormTypes.CHECKBOX,
@@ -622,8 +623,9 @@
 				type: FormTypes.NUMBER,
 				key: "thumbnail_blur_grade",
 				name: "ぼかし度",
-				default: 10,
-				description: "サムネイル画像のぼかし度（px）を入力してください。"
+				default: 0,
+				description: "サムネイル画像のぼかし度（px）を入力してください。",
+				parentKey: "blur_thumbnail"
 			}
 		}
 	};
@@ -685,21 +687,24 @@
 				key: "show_past_message",
 				name: "過去メッセージの表示",
 				default: false,
-				description: "監視開始以前のメッセージを表示します。"
+				description: "監視開始以前のメッセージを表示します。",
+				parentKey: "watch_message"
 			},
 			watch_default_observe_talk: {
 				type: FormTypes.CHECKBOX,
 				key: "watch_default_observe_talk",
 				name: "デフォルト監視対象の自動監視",
 				default: true,
-				description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。"
+				description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
+				parentKey: "watch_message"
 			},
 			default_observe_talk_ids: {
 				type: FormTypes.TEXT_ARRAY,
 				key: "default_observe_talk_ids",
 				name: "デフォルト監視トークID",
 				default: [],
-				description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。'
+				description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
+				parentKey: "watch_default_observe_talk"
 			}
 		}
 	};
@@ -751,21 +756,21 @@
 			custom_log_start_observe_messages: {
 				type: FormTypes.TEXT,
 				key: "custom_log_start_observe_messages",
-				name: "カスタムログ：メッセージ監視開始文",
+				name: "メッセージ監視開始文",
 				default: "<time> メッセージの監視を開始します。",
 				description: "&lt;time&gt;:監視開始日時"
 			},
 			custom_log_start_observe_talk: {
 				type: FormTypes.TEXT,
 				key: "custom_log_start_observe_talk",
-				name: "カスタムログ：トーク監視開始文",
+				name: "トーク監視開始文",
 				default: "<time> [<talkName>]の監視を開始します。",
 				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時"
 			},
 			custom_log_message_header: {
 				type: FormTypes.TEXT,
 				key: "custom_log_message_header",
-				name: "カスタムログ：メッセージヘッダー",
+				name: "メッセージヘッダー",
 				default: "<time> [<talkName>] <userName>",
 				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名"
 			}
@@ -868,6 +873,17 @@
 					input.checked = settings[key];
 					break;
 			}
+
+			//親が無効な場合、子の値を変更不可能化
+			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
+				const parentData = inputKeyDatas[parentKey];
+				if(parentData.type == FormTypes.CHECKBOX){
+					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
+					if(parentInput.checked === false){
+						input.disabled = true;
+					}
+				}
+			});
 		});
 
 		//値変更時に変更ボタンをクリック可能化
@@ -900,6 +916,21 @@
 					addEventListener(input, EventTypes.CLICK, onChangeValue);
 					break;
 			}
+
+			//親が無効な場合、子の値を変更不可能化
+			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
+				const parentData = inputKeyDatas[parentKey];
+				if(parentData.type == FormTypes.CHECKBOX){
+					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
+					addEventListener(parentInput, EventTypes.CLICK, () => {
+						if(parentInput.checked === true){
+							input.disabled = false;
+						}else{
+							input.disabled = true;
+						}
+					});
+				}
+			});
 		});
 
 		//変更ボタンクリック時に設定を更新
@@ -1074,9 +1105,7 @@
 				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
 					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
 					const thumbnails = thumbnailArea.querySelectorAll('img');
-					thumbnails.forEach(thumbnail => {
-						setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)");
-					});
+					thumbnails.forEach(thumbnail => setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)"));
 				}
 			});
 		});

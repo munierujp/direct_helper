@@ -622,7 +622,7 @@
 				type: FormTypes.NUMBER,
 				key: "thumbnail_blur_grade",
 				name: "ぼかし度",
-				default: 10,
+				default: 0,
 				description: "サムネイル画像のぼかし度（px）を入力してください。"
 			}
 		}

@@ -1074,9 +1074,7 @@
 				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
 					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
 					const thumbnails = thumbnailArea.querySelectorAll('img');
-					thumbnails.forEach(thumbnail => {
-						setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)");
-					});
+					thumbnails.forEach(thumbnail => setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)"));
 				}
 			});
 		});

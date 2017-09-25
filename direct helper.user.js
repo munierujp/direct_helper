@@ -751,21 +751,21 @@
 			custom_log_start_observe_messages: {
 				type: FormTypes.TEXT,
 				key: "custom_log_start_observe_messages",
-				name: "カスタムログ：メッセージ監視開始文",
+				name: "メッセージ監視開始文",
 				default: "<time> メッセージの監視を開始します。",
 				description: "&lt;time&gt;:監視開始日時"
 			},
 			custom_log_start_observe_talk: {
 				type: FormTypes.TEXT,
 				key: "custom_log_start_observe_talk",
-				name: "カスタムログ：トーク監視開始文",
+				name: "トーク監視開始文",
 				default: "<time> [<talkName>]の監視を開始します。",
 				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時"
 			},
 			custom_log_message_header: {
 				type: FormTypes.TEXT,
 				key: "custom_log_message_header",
-				name: "カスタムログ：メッセージヘッダー",
+				name: "メッセージヘッダー",
 				default: "<time> [<talkName>] <userName>",
 				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名"
 			}

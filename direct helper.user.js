@@ -578,15 +578,15 @@
 	/** ユーザーダイアログ設定データ */
 	const USER_DIALOG_SETTING_DATA = {
 		key: "user-dialog-settings",
-		title: "ユーザーダイアログ",
+		name: "ユーザーダイアログ",
 		description: "ユーザーダイアログの動作を変更します。",
-		inputKeyDatas: {
+		items: {
 			expand_user_icon: {
-				type: FormTypes.CHECKBOX,
 				key: "expand_user_icon",
 				name: "ユーザーアイコンの拡大",
-				default: true,
-				description: "ユーザーアイコンをクリックで拡大表示します。"
+				description: "ユーザーアイコンをクリックで拡大表示します。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			}
 		}
 	};
@@ -594,37 +594,37 @@
 	/** 画像設定データ */
 	const IMAGE_SETTING_DATA = {
 		key: "talk-settings",
-		title: "画像",
+		name: "画像",
 		description: "画像の動作を変更します。",
-		inputKeyDatas: {
+		items: {
 			change_thumbnail_size: {
-				type: FormTypes.CHECKBOX,
 				key: "change_thumbnail_size",
 				name: "サムネイルサイズの変更",
-				default: true,
-				description: "画像のサムネイルサイズを変更します。"
+				description: "画像のサムネイルサイズを変更します。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			},
 			thumbnail_size: {
-				type: FormTypes.NUMBER,
 				key: "thumbnail_size",
 				name: "サムネイルサイズ",
-				default: 600,
 				description: "画像のサムネイルサイズ（px）を入力してください。",
+				type: FormTypes.NUMBER,
+				default: 600,
 				parentKey: "change_thumbnail_size"
 			},
 			blur_thumbnail: {
-				type: FormTypes.CHECKBOX,
 				key: "blur_thumbnail",
 				name: "サムネイル画像をぼかす",
-				default: true,
-				description: "サムネイル画像にブラー効果をかけてぼかします。"
+				description: "サムネイル画像にブラー効果をかけてぼかします。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			},
 			thumbnail_blur_grade: {
-				type: FormTypes.NUMBER,
 				key: "thumbnail_blur_grade",
 				name: "ぼかし度",
-				default: 0,
 				description: "サムネイル画像のぼかし度（px）を入力してください。",
+				type: FormTypes.NUMBER,
+				default: 0,
 				parentKey: "blur_thumbnail"
 			}
 		}
@@ -633,22 +633,22 @@
 	/** メッセージ入力設定データ */
 	const INPUT_MESSAGE_SETTING_DATA = {
 		key: "input-message-settings",
-		title: "メッセージ入力",
+		name: "メッセージ入力",
 		description: "メッセージ入力欄の動作を変更します。",
-		inputKeyDatas: {
+		items: {
 			confirm_send_message_button: {
-				type: FormTypes.CHECKBOX,
 				key: "confirm_send_message_button",
 				name: "送信ボタンの確認",
-				default: true,
-				description: "送信ボタンによるメッセージ送信前に確認します。"
+				description: "送信ボタンによるメッセージ送信前に確認します。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			},
 			show_message_count: {
-				type: FormTypes.CHECKBOX,
 				key: "show_message_count",
 				name: "入力文字数の表示",
-				default: true,
-				description: "入力文字数をカウントダウン形式で表示します。"
+				description: "入力文字数をカウントダウン形式で表示します。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			}
 		}
 	};
@@ -656,15 +656,15 @@
 	/** マルチビュー設定データ */
 	const MULTI_VIEW_SETTING_DATA = {
 		key: "multi-view-settings",
-		title: "マルチビュー",
+		name: "マルチビュー",
 		description: "マルチビューの動作を変更します。",
-		inputKeyDatas: {
+		items: {
 			responsive_multi_view: {
-				type: FormTypes.CHECKBOX,
 				key: "responsive_multi_view",
 				name: "マルチビューのレスポンシブ化",
-				default: true,
-				description: "選択状態に応じてマルチビューのカラム数を動的に変更します。"
+				description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			}
 		}
 	};
@@ -672,38 +672,38 @@
 	/** メッセージ監視設定データ */
 	const WATCH_MESSAGE_SETTING_DATA = {
 		key: "message-watching-settings",
-		title: "メッセージ監視",
+		name: "メッセージ監視",
 		description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
-		inputKeyDatas: {
+		items: {
 			watch_message: {
-				type: FormTypes.CHECKBOX,
 				key: "watch_message",
 				name: "メッセージの監視",
-				default: true,
-				description: "メッセージを監視してコンソールに出力します。"
+				description: "メッセージを監視してコンソールに出力します。",
+				type: FormTypes.CHECKBOX,
+				default: true
 			},
 			show_past_message: {
-				type: FormTypes.CHECKBOX,
 				key: "show_past_message",
 				name: "過去メッセージの表示",
-				default: false,
 				description: "監視開始以前のメッセージを表示します。",
+				type: FormTypes.CHECKBOX,
+				default: false,
 				parentKey: "watch_message"
 			},
 			watch_default_observe_talk: {
-				type: FormTypes.CHECKBOX,
 				key: "watch_default_observe_talk",
 				name: "デフォルト監視対象の自動監視",
-				default: true,
 				description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
+				type: FormTypes.CHECKBOX,
+				default: true,
 				parentKey: "watch_message"
 			},
 			default_observe_talk_ids: {
-				type: FormTypes.TEXT_ARRAY,
 				key: "default_observe_talk_ids",
 				name: "デフォルト監視トークID",
-				default: [],
 				description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
+				type: FormTypes.TEXT_ARRAY,
+				default: [],
 				parentKey: "watch_default_observe_talk"
 			}
 		}
@@ -712,67 +712,67 @@
 	/** ログ設定データ */
 	const LOG_SETTING_DATA = {
 		key: "log-settings",
-		title: "ログ",
+		name: "ログ",
 		description: "ログの表示形式をカスタマイズします。",
-		inputKeyDatas: {
+		items: {
 			log_label: {
-				type: FormTypes.TEXT,
 				key: "log_label",
 				name: "ログラベル",
-				default: "",
-				description: "コンソールでのフィルター用の文字列です。"
+				description: "コンソールでのフィルター用の文字列です。",
+				type: FormTypes.TEXT,
+				default: ""
 			},
 			user_name_system: {
 				type: FormTypes.TEXT,
+				name: "システムユーザー名",
 				key: "user_name_system",
-				default: "システム",
-				name: "システムユーザー名"
+				default: "システム"
 			},
 			log_stamp: {
-				type: FormTypes.TEXT,
 				key: "log_stamp",
-				default: "[スタンプ]",
-				name: "スタンプログ"
+				name: "スタンプログ",
+				type: FormTypes.TEXT,
+				default: "[スタンプ]"
 			},
 			log_image: {
-				type: FormTypes.TEXT,
 				key: "log_image",
-				default: "[画像]",
-				name: "画像ログ"
+				name: "画像ログ",
+				type: FormTypes.TEXT,
+				default: "[画像]"
 			},
 			log_file: {
-				type: FormTypes.TEXT,
 				key: "log_file",
-				default: "[ファイル]",
-				name: "ファイルログ"
+				name: "ファイルログ",
+				type: FormTypes.TEXT,
+				default: "[ファイル]"
 			},
 			date_format: {
-				type: FormTypes.TEXT,
 				key: "date_format",
 				name: "日付フォーマット",
-				default: "yyyy/M/d(e) HH:mm:ss",
-				description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss"
+				description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
+				type: FormTypes.TEXT,
+				default: "yyyy/M/d(e) HH:mm:ss"
 			},
 			custom_log_start_observe_messages: {
-				type: FormTypes.TEXT,
 				key: "custom_log_start_observe_messages",
 				name: "メッセージ監視開始文",
-				default: "<time> メッセージの監視を開始します。",
-				description: "&lt;time&gt;:監視開始日時"
+				description: "&lt;time&gt;:監視開始日時",
+				type: FormTypes.TEXT,
+				default: "<time> メッセージの監視を開始します。"
 			},
 			custom_log_start_observe_talk: {
-				type: FormTypes.TEXT,
 				key: "custom_log_start_observe_talk",
 				name: "トーク監視開始文",
-				default: "<time> [<talkName>]の監視を開始します。",
-				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時"
+				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
+				type: FormTypes.TEXT,
+				default: "<time> [<talkName>]の監視を開始します。"
 			},
 			custom_log_message_header: {
-				type: FormTypes.TEXT,
 				key: "custom_log_message_header",
 				name: "メッセージヘッダー",
-				default: "<time> [<talkName>] <userName>",
-				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名"
+				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
+				type: FormTypes.TEXT,
+				default: "<time> [<talkName>] <userName>"
 			}
 		}
 	};
@@ -820,7 +820,7 @@
 
 		//未設定項目にデフォルト値を設定
 		SETTING_DATAS.forEach(settingData => {
-			Iterator.of(settingData.inputKeyDatas)
+			Iterator.of(settingData.items)
 				.filter(key => settings[key] === undefined)
 				.forEach((key, inputData) => settings[key] = inputData.default);
 		});
@@ -853,7 +853,7 @@
     */
 	function appendSettingSection(settingPage, settiongData){
 		//設定項目の作成
-		const inputKeyDatas = settiongData.inputKeyDatas;
+		const inputKeyDatas = settiongData.items;
 		const inputKeyForms = Iterator.of(inputKeyDatas).value((key, data) => createSettingInputFormElement(data)).get();
 		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
 		settingPage.appendChild(section);
@@ -1047,7 +1047,7 @@
 			class: "c-section",
 			id: HTML_ID_PREFIX + settingData.key
 		});
-		const header = createElementWithHTML(ElementTypes.DIV, settingData.title, {
+		const header = createElementWithHTML(ElementTypes.DIV, settingData.name, {
 			class: "c-section__heading"
 		});
 		section.appendChild(header);

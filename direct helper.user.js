@@ -19,6 +19,15 @@
 		constructor(value){
 			this.value = value;
 		}
+
+		/**
+        * HasValueオブジェクトを生成します。
+        * @param {Object} value 値
+        * @return {HasValue} HasValueオブジェクト
+        */
+		static of(value){
+			return new this(value);
+		}
 	}
 
 	/** オプショナル */
@@ -403,6 +412,18 @@
 		}
 	}
 
+	/** ラジオボタンリスト */
+	class RadioButtons extends HasValue{
+		/**
+		* チェックされているボタンを返します。
+		* チェックされているボタンがない場合、undefinedを返します。
+		* @return {HTMLElement} ラジオボタン要素
+		*/
+		findChecked(){
+			return Array.from(this.value).find(input => input.checked === true);
+		}
+	}
+
 	/** トーク */
 	class Talk{
 		/**
@@ -431,15 +452,6 @@
 
 	/** トークエリア */
 	class TalkArea extends HasValue{
-		/**
-        * TalkAreaを生成します。
-        * @param {Object} value 値
-        * @return {TalkArea} TalkArea
-        */
-		static of(value){
-			return new this(value);
-		}
-
 		/**
 		* メッセージエリアの追加を監視します。
 		* @param {Function} processer : messageArea => {...}
@@ -503,6 +515,7 @@
 	const FormTypes = {
 		CHECKBOX: new FormType(),
 		NUMBER: new FormType(),
+		RADIOBUTTON: new FormType(),
 		TEXT: new FormType(),
 		TEXT_ARRAY: new FormType()
 	};
@@ -863,14 +876,19 @@
 		const inputKeyInputs = Iterator.of(inputKeyForms).value(key => document.getElementById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, input) => {
 			const inputData = inputKeyDatas[key];
+			const value =  settings[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-					input.value = settings[key];
+					input.value = value;
 					break;
 				case FormTypes.CHECKBOX:
-					input.checked = settings[key];
+					input.checked = value;
+					break;
+				case FormTypes.RADIOBUTTON:
+					const button = document.getElementById(HTML_ID_PREFIX + value);
+					button.checked = true;
 					break;
 			}
 
@@ -879,8 +897,18 @@
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
 					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
-					if(parentInput.checked === false){
-						input.disabled = true;
+					const parentIsUnchecked =  parentInput.checked === false;
+					switch(inputData.type){
+						case FormTypes.TEXT:
+						case FormTypes.TEXT_ARRAY:
+						case FormTypes.NUMBER:
+						case FormTypes.CHECKBOX:
+							input.disabled = parentIsUnchecked;
+							break;
+						case FormTypes.RADIOBUTTON:
+							const buttons = input.querySelectorAll('input');
+							buttons.forEach(button => button.disabled = parentIsUnchecked);
+							break;
 					}
 				}
 			});
@@ -899,6 +927,11 @@
 						return input.value;
 					case FormTypes.CHECKBOX:
 						return input.checked;
+					case FormTypes.RADIOBUTTON:
+						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
+						const checkedButton = RadioButtons.of(buttons).findChecked();
+						return checkedButton.id.replace(HTML_ID_PREFIX, "");
+						break;
 				}
 			}).get();
 			changeButton.disabled = equalsInputValuesToSettings(inputKeyInputValues, settings);
@@ -915,6 +948,10 @@
 				case FormTypes.CHECKBOX:
 					addEventListener(input, EventTypes.CLICK, onChangeValue);
 					break;
+				case FormTypes.RADIOBUTTON:
+					const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
+					buttons.forEach(button => addEventListener(button, EventTypes.CLICK, onChangeValue));
+					break;
 			}
 
 			//親が無効な場合、子の値を変更不可能化
@@ -923,10 +960,18 @@
 				if(parentData.type == FormTypes.CHECKBOX){
 					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
 					addEventListener(parentInput, EventTypes.CLICK, () => {
-						if(parentInput.checked === true){
-							input.disabled = false;
-						}else{
-							input.disabled = true;
+						const parentIsUnchecked =  parentInput.checked === false;
+						switch(inputData.type){
+							case FormTypes.TEXT:
+							case FormTypes.TEXT_ARRAY:
+							case FormTypes.NUMBER:
+							case FormTypes.CHECKBOX:
+								input.disabled = parentIsUnchecked;
+								break;
+							case FormTypes.RADIOBUTTON:
+								const buttons = input.querySelectorAll('input');
+								buttons.forEach(button => button.disabled = parentIsUnchecked);
+								break;
 						}
 					});
 				}
@@ -948,6 +993,11 @@
 					case FormTypes.CHECKBOX:
 						settings[key] = input.checked;
 						break;
+					case FormTypes.RADIOBUTTON:
+						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
+						const checkedButton = RadioButtons.of(buttons).findChecked();
+						settings[key] = checkedButton.id.replace(HTML_ID_PREFIX, "");
+						break;
 				}
 			});
 
@@ -963,15 +1013,14 @@
     * @return {HTMLElement} 入力フォーム要素
     */
 	function createSettingInputFormElement(inputData){
-		const inputForm = createElement(ElementTypes.DIV, {
-			class: "form-group"
-		});
-
 		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
-			const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group"
+			});
+			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
 				class: "control-label"
 			});
-			inputForm.appendChild(inputLabel);
+			inputForm.appendChild(label);
 			const inputArea = createElement(ElementTypes.DIV, {
 				class: "controls"
 			});
@@ -988,11 +1037,15 @@
 				});
 				inputForm.appendChild(annotation);
 			});
+			return inputForm;
 		}else if(inputData.type == FormTypes.NUMBER){
-			const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group"
+			});
+			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
 				class: "control-label"
 			});
-			inputForm.appendChild(inputLabel);
+			inputForm.appendChild(label);
 			const inputArea = createElement(ElementTypes.DIV, {
 				class: "controls"
 			});
@@ -1010,19 +1063,23 @@
 				});
 				inputForm.appendChild(annotation);
 			});
+			return inputForm;
 		}else if(inputData.type == FormTypes.CHECKBOX){
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group"
+			});
 			const checkboxArea = createElement(ElementTypes.DIV, {
 				class: "checkbox"
 			});
-			const checkboxLabel = createElement(ElementTypes.LABEL);
+			const label = createElement(ElementTypes.LABEL);
 			const checkbox = createElement(ElementTypes.INPUT, {
 				id: HTML_ID_PREFIX + inputData.key,
 				type: "checkbox"
 			});
-			checkboxLabel.appendChild(checkbox);
+			label.appendChild(checkbox);
 			const labelText = document.createTextNode(inputData.name);
-			checkboxLabel.appendChild(labelText);
-			checkboxArea.appendChild(checkboxLabel);
+			label.appendChild(labelText);
+			checkboxArea.appendChild(label);
 
 			Optional.ofAbsentable(inputData.description).ifPresent(description => {
 				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
@@ -1032,8 +1089,51 @@
 			});
 
 			inputForm.appendChild(checkboxArea);
+			return inputForm;
+		}else if(inputData.type == FormTypes.RADIOBUTTON){
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group",
+				id: HTML_ID_PREFIX + inputData.key
+			});
+			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+				class: "control-label"
+			});
+			inputForm.appendChild(label);
+
+			Optional.ofAbsentable(inputData.description).ifPresent(description => {
+				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
+					class: "annotation"
+				});
+				inputForm.appendChild(annotation);
+			});
+
+			const buttons = inputData.buttons;
+			buttons.forEach(button => {
+				const radioButtonArea = createElement(ElementTypes.DIV, {
+					class: "radio"
+				});
+				const label = createElement(ElementTypes.LABEL);
+				const input = createElement(ElementTypes.INPUT, {
+					type: "radio",
+					name: HTML_ID_PREFIX + inputData.key,
+					id: HTML_ID_PREFIX + button.key
+				});
+				label.appendChild(input);
+				const labelText = document.createTextNode(button.name);
+				label.appendChild(labelText);
+				radioButtonArea.appendChild(label);
+
+				Optional.ofAbsentable(button.description).ifPresent(description => {
+					const annotation = createElementWithHTML(ElementTypes.DIV, description, {
+						class: "annotation"
+					});
+					radioButtonArea.appendChild(annotation);
+				});
+
+				inputForm.appendChild(radioButtonArea);
+			});
+			return inputForm;
 		}
-		return inputForm;
 	}
 
 	/**

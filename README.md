@@ -95,6 +95,14 @@ directの環境設定画面から、各種設定を変更できます。
 |`<userName>`|ユーザー名|
 
 ## 解説
+### Optional
+独自のOptionalクラスを定義して使用しています。  
+cf. [munierujp/Optional.js](https://github.com/munierujp/Optional.js)
+
+### Iterator
+独自のIteratorクラスを定義して使用しています。  
+cf. [munierujp/Iterator.js](https://github.com/munierujp/Iterator.js)
+
 ### 設定の保存
 ブラウザのローカルストレージ上にJSON形式で各種設定を保存しています。  
 デフォルトのキーは`direct_helper_settings`です。

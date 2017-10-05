@@ -1,4 +1,4 @@
-﻿# direct helper
+﻿﻿# direct helper
 ![サンプル画像](sample.png)
 
 direct helperは、ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプトです。
@@ -116,7 +116,7 @@ DOM構造や挙動は、可能な限りオリジナルのものを再現して�
 |description|String|-|説明|
 |items|Object|-|設定項目|
 
-##### item
+##### items
 |プロパティ|型|必須|内容|
 |---|---|---|---|
 |key|String|○|キー|
@@ -127,7 +127,7 @@ DOM構造や挙動は、可能な限りオリジナルのものを再現して�
 |parentKey|String|-|親キー|
 |buttons|Object|-|ラジオボタン|
 
-#### button
+#### buttons
 |プロパティ|型|必須|内容|
 |---|---|---|---|
 |key|String|○|キー|

@@ -468,7 +468,7 @@
 		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DATA.description);
 		settingPage.appendChild(description);
 
-		SETTING_DATA.sections.forEach(settiongData => appendSettingSection(settingPage, settiongData));
+		SETTING_DATA.sections.forEach(section => appendSettingSection(settingPage, section));
 	}
 
 	/**

@@ -461,7 +461,7 @@
 			class: "page-title-glyphicon glyphicon glyphicon-cog"
 		});
 		pageTitle.appendChild(pageTitleIcon);
-		const pageTitleName = document.createTextNode(" " + SETTING_DATA.name);
+		const pageTitleName = createTextNode(" " + SETTING_DATA.name);
 		pageTitle.appendChild(pageTitleName);
 		settingPage.appendChild(pageTitle);
 
@@ -688,7 +688,7 @@
 				type: "checkbox"
 			});
 			label.appendChild(checkbox);
-			const labelText = document.createTextNode(inputData.name);
+			const labelText = createTextNode(inputData.name);
 			label.appendChild(labelText);
 			checkboxArea.appendChild(label);
 
@@ -730,7 +730,7 @@
 					id: HTML_ID_PREFIX + button.key
 				});
 				label.appendChild(input);
-				const labelText = document.createTextNode(button.name);
+				const labelText = createTextNode(button.name);
 				label.appendChild(labelText);
 				radioButtonArea.appendChild(label);
 
@@ -1496,6 +1496,15 @@
 		Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
 		Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
 		return element;
+	}
+
+	/**
+    * テキストノードを作成します。
+    * @param {String} text テキスト
+    * @return {Text} テキストノード
+	*/
+	function createTextNode(text){
+		return document.createTextNode(text);
 	}
 
 	/**

@@ -6,8 +6,8 @@
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
 // @grant        none
-// @require https://cdn.rawgit.com/munierujp/Optional.js/master/Optional.min.js
-// @require https://cdn.rawgit.com/munierujp/Iterator.js/master/Iterator.min.js
+// @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
+// @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
 // ==/UserScript==
 
 (function(){

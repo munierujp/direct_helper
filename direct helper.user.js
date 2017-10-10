@@ -54,7 +54,7 @@
 			this.id = id;
 			this.name = name;
 		}
-	}
+			}
 
 	/** メッセージ */
 	class Message{
@@ -479,13 +479,13 @@
 	function appendSettingSection(settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).value((key, data) => createSettingInputFormElement(data)).get();
+		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
 		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
 		settingPage.appendChild(section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).value(key => document.getElementById(HTML_ID_PREFIX + key)).get();
+		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, input) => {
 			const inputData = inputKeyDatas[key];
 			const value = settings[key];
@@ -530,7 +530,7 @@
 		const changeButton = section.querySelector('.btn');
 		const message = section.querySelector('.success');
 		const onChangeValue = () => {
-			const inputKeyInputValues = Iterator.of(inputKeyInputs).value((key, input) => {
+			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, input) => {
 				const inputData = inputKeyDatas[key];
 				switch(inputData.type){
 					case FormTypes.TEXT:

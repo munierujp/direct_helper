@@ -1,11 +1,11 @@
 ﻿﻿# direct helper
 ![サンプル画像](sample.png)
 
-direct helperは、ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプトです。
+ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
 
 ## インストール方法
 ### ユーザースクリプトマネージャーをインストール
-ユーザースクリプトを実行するために、以下のいずれかのユーザースクリプトマネージャーをインストールしてください。  
+ユーザースクリプトを実行するために、以下のいずれかのユーザースクリプトマネージャーをインストールしてください。
 
 * [Greasemonkey](http://www.greasespot.net)
 * [Tampermonkey](https://tampermonkey.net/)
@@ -16,11 +16,11 @@ direct helperは、ChromeのTampermonkeyで動作確認をしています。
 ### スクリプトをインストール
 * [direct helper.user.js](https://github.com/munierujp/direct_helper/raw/master/direct%20helper.user.js)
 
-上記ファイルをスクリプトマネージャーにインストールしてください。  
+上記ファイルをスクリプトマネージャーにインストールしてください。
 Tampermonkeyの場合、リンクをクリックするとインストール画面が表示されます。
 
 ## 使用方法
-direct helperが有効なとき、directの環境設定画面末尾にdirect helpr用の設定項目が追加されます。  
+direct helperが有効なとき、directの環境設定画面末尾にdirect helpr用の設定項目が追加されます。
 使用したい機能の設定をオンにすることで、その機能が有効になります。
 
 ## 機能
@@ -46,7 +46,7 @@ direct helperが有効なとき、directの環境設定画面末尾にdirect hel
 #### マルチビューのレスポンシブ化
 選択状態に応じてマルチビューのカラム数を動的に変更します。
 
-### メッセージ監視  
+### メッセージ監視
 メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。
 
 ## 設定
@@ -54,7 +54,7 @@ directの環境設定画面から、各種設定を変更できます。
 
 ### ログ
 #### 日付フォーマット
-日付フォーマットには、以下のパターン文字を使用可能です。  
+日付フォーマットには、以下のパターン文字を使用可能です。
 パターン文字はJavaの[DateTimeFormatter](https://docs.oracle.com/javase/jp/8/docs/api/java/time/format/DateTimeFormatter.html#patterns)に基いています。
 
 |文字|内容|
@@ -96,23 +96,23 @@ directの環境設定画面から、各種設定を変更できます。
 
 ## 解説
 ### Optional
-独自のOptionalクラスを定義して使用しています。  
+独自のOptionalクラスを定義して使用しています。
 cf. [munierujp/Optional.js](https://github.com/munierujp/Optional.js)
 
 ### Iterator
-独自のIteratorクラスを定義して使用しています。  
+独自のIteratorクラスを定義して使用しています。
 cf. [munierujp/Iterator.js](https://github.com/munierujp/Iterator.js)
 
 ### 設定の保存
-ブラウザのローカルストレージ上にJSON形式で各種設定を保存しています。  
+ブラウザのローカルストレージ上にJSON形式で各種設定を保存しています。
 デフォルトのキーは`direct_helper_settings`です。
 
 ### 設定画面の描画
-環境設定画面のDOMを書き換えることで、direct helper用の設定項目を追加しています。  
+環境設定画面のDOMを書き換えることで、direct helper用の設定項目を追加しています。
 DOM構造や挙動は、可能な限りオリジナルのものを再現しています。
 
-### 設定項目の定義  
-設定項目はソースコード上に定数オブジェクトとして定義しており、容易に追加可能な設計になっています。  
+### 設定項目の定義
+設定項目はソースコード上に定数オブジェクトとして定義しており、容易に追加可能な設計になっています。
 以下の仕様に従って追加することで、設定関連処理を自動的に行ないます。
 
 #### 仕様

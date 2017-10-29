@@ -6,6 +6,8 @@
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
 // @grant        none
+// @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
+// @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
 // ==/UserScript==
 
 (function(){
@@ -19,387 +21,26 @@
 		constructor(value){
 			this.value = value;
 		}
-	}
 
-	/** オプショナル */
-	class Optional{
 		/**
-        * 引数の値を含むオプショナルを生成します。
+        * HasValueオブジェクトを生成します。
         * @param {Object} value 値
-        * @return {Optional} オプショナル
-        */
-		constructor(value){
-			this.value = value;
-		}
-
-		/**
-        * 空のオプショナルを生成します。
-        * @return {Optional} 空のオプショナル
-        */
-		static empty(){
-			return new this(null);
-		}
-
-		/**
-        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
-        * それ以外の場合は例外をスローします。
-        * @param {Object} value 値
-        * @return {Optional} オプショナル
-        * @throws {Error} valueがnullまたはundefinedの場合
+        * @return {HasValue} HasValueオブジェクト
         */
 		static of(value){
-			if(value === null || value === undefined){
-				throw new Error("value is null or undefined");
-			}
 			return new this(value);
-		}
-
-		/**
-        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Object} value 値
-        * @return {Optional} オプショナル
-        */
-		static ofAbsentable(value){
-			return (value !== null && value !== undefined) ? this.of(value) : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、trueの場合は自身を返します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Function} matcher : value => Boolean
-        * @return {Optional} オプショナル
-        */
-		filter(matcher){
-			return (this.isPresent() && matcher(this.value)) ? this : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、新しい中身からなるオプショナルを生成します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Function} mapper : value => newValue
-        * @return {Optional} オプショナル
-        */
-		map(mapper){
-			return this.isPresent() ? Optional.ofAbsentable(mapper(this.value)) : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、結果を返します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Function} mapper : value => newValue
-        * @return {Optional} オプショナル
-        */
-		flatMap(mapper){
-			return this.isPresent() ? mapper(this.value) : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、自身を返します。
-        * それ以外の場合はそのまま自身を返します。
-        * @param {Function} processer : value => {...}
-        * @return {Optional} 自身
-        */
-		ifPresent(processer){
-			if(this.isPresent()){
-				processer(this.value);
-			}
-			return this;
-		}
-
-		/**
-        * オプショナルの中身が存在しない場合は引数の関数を実行し、自身を返します。
-        * それ以外の場合はそのまま自身を返します。
-        * @param {Function} processer : () => {...}
-        * @return {Optional} 自身
-        */
-		ifAbsent(processer){
-			if(this.isAbsent()){
-				processer();
-			}
-			return this;
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は例外をスローします。
-        * @return {Object} オプショナルの中身
-        * @throws {Error} オプショナルの中身が空の場合
-        */
-		get(){
-			if(this.isAbsent()){
-				throw new Error("this is empty");
-			}
-			return this.value;
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は引数の値を返します。
-        * @param {Object} other 値
-        * @return {Object} オプショナルの中身
-        */
-		orElse(other){
-			return this.isPresent() ? this.value : other;
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は引数の関数を実行した結果を返します。
-        * @param {Function} getter : () => other
-        * @return {Object} オプショナルの中身
-        */
-		orElseGet(getter){
-			return this.isPresent() ? this.value : getter();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は引数の関数を実行した結果をスローします。
-        * @param {Function} supplier : () => Error
-        * @return {Object} オプショナルの中身
-        * @throws {Error} オプショナルの中身が空の場合
-        */
-		orElseThrow(supplier){
-			if(this.isAbsent()){
-				throw supplier();
-			}
-			return this.value;
-		}
-
-		/**
-        * オプショナルの中身が存在するかどうかを判定します。
-        * @return {Boolean} 中身が存在すればtrue、存在しなければfalse
-        */
-		isPresent(){
-			return this.value !== null && this.value !== undefined;
-		}
-
-		/**
-        * オプショナルの中身が存在しないかどうかを判定します。
-        * @return {Boolean} 中身が存在しなければtrue、存在すればfalse
-        */
-		isAbsent(){
-			return this.value === null || this.value === undefined;
-		}
-
-		/**
-        * オプショナルの中身と引数のオプショナルの中身が等しいかどうかを判定します。
-        * @param {Optional} other 他のオプショナル
-        * @return {Boolean} 等しければtrue、等しくなければfalse
-        */
-		equals(other){
-			return other instanceof Optional && this.value === other.value;
 		}
 	}
 
-	/** イテレーター */
-	class Iterator{
+	/** ラジオボタンリスト */
+	class RadioButtons extends HasValue{
 		/**
-        * 引数のオブジェクトからイテレーターを生成します。
-        * @param {Object} object オブジェクト
-        * @return {Iterator} イテレーター
-        */
-		constructor(object){
-			this.object = object;
-		}
-
-		/**
-        * 空のイテレーターを生成します。
-        * @return {Iterator} 空のイテレーター
-        */
-		static empty(){
-			return new this(null);
-		}
-
-		/**
-        * 引数のオブジェクトからイテレーターを生成します。
-        * @param {Object} object オブジェクト
-        * @return {Iterator} イテレーター
-        */
-		static of(object){
-			return new this(object);
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行し、自身を返します。
-        * @param {Function} processer : (key, value) => {...}
-        * @return {Iterator} 自身
-        */
-		peek(processer){
-			this.forEach(processer);
-			return this;
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行し、条件を満たす要素からなるイテレーターを生成します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Iterator} 条件を満たす要素からなるイテレーター
-        */
-		filter(matcher){
-			if(this.isEmpty()){
-				return this;
-			}
-			const filtered = {};
-			Object.keys(this.object)
-				.filter(key => matcher(key, this.object[key]))
-				.forEach(key => filtered[key] = this.object[key]);
-			return Iterator.of(filtered);
-		}
-
-		/**
-        * 引数の関数を各要素のキーに対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
-        * @param {Function} keyMapper : (key, value) => newKey
-        * @return {Iterator} 新しい要素からなるイテレーター
-        */
-		key(keyMapper){
-			return this.map(keyMapper, (key, value) => value);
-		}
-
-		/**
-        * 引数の関数を各要素の値に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
-        * @param {Function} valueMapper : (key, value) => newValue
-        * @return {Iterator} 新しい要素からなるイテレーター
-        */
-		value(valueMapper){
-			return this.map((key, value) => key, valueMapper);
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
-        * @param {Function} keyMapper : (key, value) => newKey
-        * @param {Function} valueMapper : (key, value) => newValue
-        * @return {Iterator} 新しい要素からなるイテレーター
-        */
-		map(keyMapper, valueMapper){
-			if(this.isEmpty()){
-				return this;
-			}
-			const mapped = {};
-			Object.keys(this.object)
-				.forEach(key => mapped[keyMapper(key, this.object[key])] = valueMapper(key, this.object[key]));
-			return Iterator.of(mapped);
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行します。
-        * @param {Function} processer : (key, value) => {...}
-        */
-		forEach(processer){
-			if(this.isNotEmpty()){
-				Object.keys(this.object)
-					.forEach(key => processer(key, this.object[key]));
-			}
-		}
-
-		/**
-        * イテレーターの中身を取得します。
-        * @return {Object} イテレーターの中身
-        */
-		get(){
-			return this.object;
-		}
-
-		/**
-        * イテレーターの中身のキー配列を返します。
-        * 要素が空の場合、空の配列を返します。
-        * @return {Object[]} イテレーターの中身のキー配列
-        */
-		keys(){
-			return this.isNotEmpty() ? Object.keys(this.object) : [];
-		}
-
-		/**
-        * イテレーターの中身の値配列を返します。
-        * 要素が空の場合、空の配列を返します。
-        * @return {Object[]} イテレーターの中身の値配列
-        */
-		values(){
-			return this.isNotEmpty() ? Object.values(this.object) : [];
-		}
-
-		/**
-        * 引数の条件を満たす要素のキーを返します。
-        * 条件を満たす要素がない場合、undefinedを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Object} 引数の条件を満たす要素があればその値、なければundefined
-        */
-		findKey(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(matcher(key, this.object[key])){
-						return key;
-					}
-				}
-			}
-			return undefined;
-		}
-
-		/**
-        * 引数の条件を満たす要素の値を返します。
-        * 条件を満たす要素がない場合、undefinedを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Object} 引数の条件を満たす要素があればそのキー、なければundefined
-        */
-		find(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(matcher(key, this.object[key])){
-						return this.object[key];
-					}
-				}
-			}
-			return undefined;
-		}
-
-		/**
-        * いずれかの要素が引数の条件を満たすかどうかを判定します。
-        * 要素が空の場合、falseを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Boolean} いずれかの要素が条件を満たせばtrue、それ以外はfalse
-        */
-		some(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(matcher(key, this.object[key])){
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		/**
-        * すべての要素が引数の条件を満たすかどうかを判定します。
-        * 要素が空の場合、trueを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Boolean} すべての要素が条件を満たせばtrue、それ以外はfalse
-        */
-		every(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(!matcher(key, this.object[key])){
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-
-		/**
-        * 要素が空であるかどうかを判定します。
-        * @return {Boolean} 要素が空であればtrue、それ以外はfalse
-        */
-		isEmpty(){
-			return this.object === null || this.value === undefined;
-		}
-
-		/**
-        * 要素が空ではないかどうかを判定します。
-        * @return {Boolean} 要素が空でなければtrue、それ以外はfalse
-        */
-		isNotEmpty(){
-			return this.value !== null && this.value !== undefined;
+		* チェックされているボタンを返します。
+		* チェックされているボタンがない場合、undefinedを返します。
+		* @return {HTMLElement} ラジオボタン要素
+		*/
+		findChecked(){
+			return Array.from(this.value).find(input => input.checked === true);
 		}
 	}
 
@@ -413,7 +54,7 @@
 			this.id = id;
 			this.name = name;
 		}
-	}
+			}
 
 	/** メッセージ */
 	class Message{
@@ -431,19 +72,10 @@
 
 	/** トークエリア */
 	class TalkArea extends HasValue{
-		/**
-        * TalkAreaを生成します。
-        * @param {Object} value 値
-        * @return {TalkArea} TalkArea
-        */
-		static of(value){
-			return new this(value);
-		}
-
-		/**
+	/**
 		* メッセージエリアの追加を監視します。
 		* @param {Function} processer : messageArea => {...}
-		*/
+    */
 		observeAddingMessageArea(processer){
 			const realMessageArea = this.value.querySelector('.real-msgs');
 			observeChildList(realMessageArea, mutations => {
@@ -471,6 +103,7 @@
 	const ElementTypes = {
 		BUTTON: new ElementType("button"),
 		DIV: new ElementType("div"),
+		H3: new ElementType("h3"),
 		HR: new ElementType("hr"),
 		IMG: new ElementType("img"),
 		INPUT: new ElementType("input"),
@@ -503,6 +136,7 @@
 	const FormTypes = {
 		CHECKBOX: new FormType(),
 		NUMBER: new FormType(),
+		RADIOBUTTON: new FormType(),
 		TEXT: new FormType(),
 		TEXT_ARRAY: new FormType()
 	};
@@ -571,221 +205,204 @@
 	/** ローカルストレージ設定キー */
 	const LOCAL_STORAGE_SETTINGS_KEY = "direct_helper_settings";
 
-	/** 設定画面説明 */
-	const SETTING_DESCRIPTION = `以下はdirect helperの設定です。設定変更後はページをリロードしてください。<br>
-詳しい使用方法は<a href="https://github.com/munierujp/direct_helper/blob/master/README.md" target="_blank">readme</a>を参照してください。`;
-
-	/** ユーザーダイアログ設定データ */
-	const USER_DIALOG_SETTING_DATA = {
-		key: "user-dialog-settings",
-		name: "ユーザーダイアログ",
-		description: "ユーザーダイアログの動作を変更します。",
-		items: {
-			expand_user_icon: {
-				key: "expand_user_icon",
-				name: "ユーザーアイコンの拡大",
-				description: "ユーザーアイコンをクリックで拡大表示します。",
-				type: FormTypes.CHECKBOX,
-				default: true
+	/** 設定データ */
+	const SETTING_DATA = {
+		name: "direct helper設定",
+		description: `以下はdirect helperの設定です。設定変更後はページをリロードしてください。<br>
+詳しい使用方法は<a href="https://github.com/munierujp/direct_helper/blob/master/README.md" target="_blank">readme</a>を参照してください。`,
+		sections: [
+			{
+				key: "user-dialog-settings",
+				name: "ユーザーダイアログ",
+				description: "ユーザーダイアログの動作を変更します。",
+				items: {
+					expand_user_icon: {
+						key: "expand_user_icon",
+						name: "ユーザーアイコンの拡大",
+						description: "ユーザーアイコンをクリックで拡大表示します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					}
+				}
+			},
+			{
+				key: "talk-settings",
+				name: "画像",
+				description: "画像の動作を変更します。",
+				items: {
+					change_thumbnail_size: {
+						key: "change_thumbnail_size",
+						name: "サムネイルサイズの変更",
+						description: "画像のサムネイルサイズを変更します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					thumbnail_size: {
+						key: "thumbnail_size",
+						name: "サムネイルサイズ",
+						description: "画像のサムネイルサイズ（px）を入力してください。",
+						type: FormTypes.NUMBER,
+						default: 600,
+						parentKey: "change_thumbnail_size"
+					},
+					blur_thumbnail: {
+						key: "blur_thumbnail",
+						name: "サムネイル画像をぼかす",
+						description: "サムネイル画像にブラー効果をかけてぼかします。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					thumbnail_blur_grade: {
+						key: "thumbnail_blur_grade",
+						name: "ぼかし度",
+						description: "サムネイル画像のぼかし度（px）を入力してください。",
+						type: FormTypes.NUMBER,
+						default: 0,
+						parentKey: "blur_thumbnail"
+					}
+				}
+			},
+			{
+				key: "input-message-settings",
+				name: "メッセージ入力",
+				description: "メッセージ入力欄の動作を変更します。",
+				items: {
+					confirm_send_message_button: {
+						key: "confirm_send_message_button",
+						name: "送信ボタンの確認",
+						description: "送信ボタンによるメッセージ送信前に確認します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					show_message_count: {
+						key: "show_message_count",
+						name: "入力文字数の表示",
+						description: "入力文字数をカウントダウン形式で表示します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					}
+				}
+			},
+			{
+				key: "multi-view-settings",
+				name: "マルチビュー",
+				description: "マルチビューの動作を変更します。",
+				items: {
+					responsive_multi_view: {
+						key: "responsive_multi_view",
+						name: "マルチビューのレスポンシブ化",
+						description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					}
+				}
+			},
+			{
+				key: "message-watching-settings",
+				name: "メッセージ監視",
+				description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
+				items: {
+					watch_message: {
+						key: "watch_message",
+						name: "メッセージの監視",
+						description: "メッセージを監視してコンソールに出力します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					show_past_message: {
+						key: "show_past_message",
+						name: "過去メッセージの表示",
+						description: "監視開始以前のメッセージを表示します。",
+						type: FormTypes.CHECKBOX,
+						default: false,
+						parentKey: "watch_message"
+					},
+					watch_default_observe_talk: {
+						key: "watch_default_observe_talk",
+						name: "デフォルト監視対象の自動監視",
+						description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
+						type: FormTypes.CHECKBOX,
+						default: true,
+						parentKey: "watch_message"
+					},
+					default_observe_talk_ids: {
+						key: "default_observe_talk_ids",
+						name: "デフォルト監視トークID",
+						description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
+						type: FormTypes.TEXT_ARRAY,
+						default: [],
+						parentKey: "watch_default_observe_talk"
+					}
+				}
+			},
+			{
+				key: "log-settings",
+				name: "ログ",
+				description: "ログの表示形式をカスタマイズします。",
+				items: {
+					log_label: {
+						key: "log_label",
+						name: "ログラベル",
+						description: "コンソールでのフィルター用の文字列です。",
+						type: FormTypes.TEXT,
+						default: ""
+					},
+					user_name_system: {
+						type: FormTypes.TEXT,
+						name: "システムユーザー名",
+						key: "user_name_system",
+						default: "システム"
+					},
+					log_stamp: {
+						key: "log_stamp",
+						name: "スタンプログ",
+						type: FormTypes.TEXT,
+						default: "[スタンプ]"
+					},
+					log_image: {
+						key: "log_image",
+						name: "画像ログ",
+						type: FormTypes.TEXT,
+						default: "[画像]"
+					},
+					log_file: {
+						key: "log_file",
+						name: "ファイルログ",
+						type: FormTypes.TEXT,
+						default: "[ファイル]"
+					},
+					date_format: {
+						key: "date_format",
+						name: "日付フォーマット",
+						description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
+						type: FormTypes.TEXT,
+						default: "yyyy/M/d(e) HH:mm:ss"
+					},
+					custom_log_start_observe_messages: {
+						key: "custom_log_start_observe_messages",
+						name: "メッセージ監視開始文",
+						description: "&lt;time&gt;:監視開始日時",
+						type: FormTypes.TEXT,
+						default: "<time> メッセージの監視を開始します。"
+					},
+					custom_log_start_observe_talk: {
+						key: "custom_log_start_observe_talk",
+						name: "トーク監視開始文",
+						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
+						type: FormTypes.TEXT,
+						default: "<time> [<talkName>]の監視を開始します。"
+					},
+					custom_log_message_header: {
+						key: "custom_log_message_header",
+						name: "メッセージヘッダー",
+						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
+						type: FormTypes.TEXT,
+						default: "<time> [<talkName>] <userName>"
+					}
+				}
 			}
-		}
+		]
 	};
-
-	/** 画像設定データ */
-	const IMAGE_SETTING_DATA = {
-		key: "talk-settings",
-		name: "画像",
-		description: "画像の動作を変更します。",
-		items: {
-			change_thumbnail_size: {
-				key: "change_thumbnail_size",
-				name: "サムネイルサイズの変更",
-				description: "画像のサムネイルサイズを変更します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			thumbnail_size: {
-				key: "thumbnail_size",
-				name: "サムネイルサイズ",
-				description: "画像のサムネイルサイズ（px）を入力してください。",
-				type: FormTypes.NUMBER,
-				default: 600,
-				parentKey: "change_thumbnail_size"
-			},
-			blur_thumbnail: {
-				key: "blur_thumbnail",
-				name: "サムネイル画像をぼかす",
-				description: "サムネイル画像にブラー効果をかけてぼかします。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			thumbnail_blur_grade: {
-				key: "thumbnail_blur_grade",
-				name: "ぼかし度",
-				description: "サムネイル画像のぼかし度（px）を入力してください。",
-				type: FormTypes.NUMBER,
-				default: 0,
-				parentKey: "blur_thumbnail"
-			}
-		}
-	};
-
-	/** メッセージ入力設定データ */
-	const INPUT_MESSAGE_SETTING_DATA = {
-		key: "input-message-settings",
-		name: "メッセージ入力",
-		description: "メッセージ入力欄の動作を変更します。",
-		items: {
-			confirm_send_message_button: {
-				key: "confirm_send_message_button",
-				name: "送信ボタンの確認",
-				description: "送信ボタンによるメッセージ送信前に確認します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			show_message_count: {
-				key: "show_message_count",
-				name: "入力文字数の表示",
-				description: "入力文字数をカウントダウン形式で表示します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			}
-		}
-	};
-
-	/** マルチビュー設定データ */
-	const MULTI_VIEW_SETTING_DATA = {
-		key: "multi-view-settings",
-		name: "マルチビュー",
-		description: "マルチビューの動作を変更します。",
-		items: {
-			responsive_multi_view: {
-				key: "responsive_multi_view",
-				name: "マルチビューのレスポンシブ化",
-				description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			}
-		}
-	};
-
-	/** メッセージ監視設定データ */
-	const WATCH_MESSAGE_SETTING_DATA = {
-		key: "message-watching-settings",
-		name: "メッセージ監視",
-		description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
-		items: {
-			watch_message: {
-				key: "watch_message",
-				name: "メッセージの監視",
-				description: "メッセージを監視してコンソールに出力します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			show_past_message: {
-				key: "show_past_message",
-				name: "過去メッセージの表示",
-				description: "監視開始以前のメッセージを表示します。",
-				type: FormTypes.CHECKBOX,
-				default: false,
-				parentKey: "watch_message"
-			},
-			watch_default_observe_talk: {
-				key: "watch_default_observe_talk",
-				name: "デフォルト監視対象の自動監視",
-				description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
-				type: FormTypes.CHECKBOX,
-				default: true,
-				parentKey: "watch_message"
-			},
-			default_observe_talk_ids: {
-				key: "default_observe_talk_ids",
-				name: "デフォルト監視トークID",
-				description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
-				type: FormTypes.TEXT_ARRAY,
-				default: [],
-				parentKey: "watch_default_observe_talk"
-			}
-		}
-	};
-
-	/** ログ設定データ */
-	const LOG_SETTING_DATA = {
-		key: "log-settings",
-		name: "ログ",
-		description: "ログの表示形式をカスタマイズします。",
-		items: {
-			log_label: {
-				key: "log_label",
-				name: "ログラベル",
-				description: "コンソールでのフィルター用の文字列です。",
-				type: FormTypes.TEXT,
-				default: ""
-			},
-			user_name_system: {
-				type: FormTypes.TEXT,
-				name: "システムユーザー名",
-				key: "user_name_system",
-				default: "システム"
-			},
-			log_stamp: {
-				key: "log_stamp",
-				name: "スタンプログ",
-				type: FormTypes.TEXT,
-				default: "[スタンプ]"
-			},
-			log_image: {
-				key: "log_image",
-				name: "画像ログ",
-				type: FormTypes.TEXT,
-				default: "[画像]"
-			},
-			log_file: {
-				key: "log_file",
-				name: "ファイルログ",
-				type: FormTypes.TEXT,
-				default: "[ファイル]"
-			},
-			date_format: {
-				key: "date_format",
-				name: "日付フォーマット",
-				description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
-				type: FormTypes.TEXT,
-				default: "yyyy/M/d(e) HH:mm:ss"
-			},
-			custom_log_start_observe_messages: {
-				key: "custom_log_start_observe_messages",
-				name: "メッセージ監視開始文",
-				description: "&lt;time&gt;:監視開始日時",
-				type: FormTypes.TEXT,
-				default: "<time> メッセージの監視を開始します。"
-			},
-			custom_log_start_observe_talk: {
-				key: "custom_log_start_observe_talk",
-				name: "トーク監視開始文",
-				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
-				type: FormTypes.TEXT,
-				default: "<time> [<talkName>]の監視を開始します。"
-			},
-			custom_log_message_header: {
-				key: "custom_log_message_header",
-				name: "メッセージヘッダー",
-				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
-				type: FormTypes.TEXT,
-				default: "<time> [<talkName>] <userName>"
-			}
-		}
-	};
-
-	/** 設定データリスト（描画順） */
-	const SETTING_DATAS = [
-		USER_DIALOG_SETTING_DATA,
-		IMAGE_SETTING_DATA,
-		INPUT_MESSAGE_SETTING_DATA,
-		MULTI_VIEW_SETTING_DATA,
-		WATCH_MESSAGE_SETTING_DATA,
-		LOG_SETTING_DATA
-	];
 
 	/** 機能リスト（実行順） */
 	const SETTINGS_KEY_ACTIONS = {
@@ -819,8 +436,8 @@
 		const settings = getSettings();
 
 		//未設定項目にデフォルト値を設定
-		SETTING_DATAS.forEach(settingData => {
-			Iterator.of(settingData.items)
+		SETTING_DATA.sections.forEach(section => {
+			Iterator.of(section.items)
 				.filter(key => settings[key] === undefined)
 				.forEach((key, inputData) => settings[key] = inputData.default);
 		});
@@ -834,16 +451,24 @@
 	function drawSettingView(){
 		const settingPage = document.getElementById("environment-page");
 
-		//水平線を描画
 		const hr = createElement(ElementTypes.HR);
 		settingPage.appendChild(hr);
 
-		//説明を描画
-		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DESCRIPTION);
+		const pageTitle = createElement(ElementTypes.H3, {
+			class: "page-title"
+		});
+		const pageTitleIcon = createElement(ElementTypes.SPAN, {
+			class: "page-title-glyphicon glyphicon glyphicon-cog"
+		});
+		pageTitle.appendChild(pageTitleIcon);
+		const pageTitleName = createTextNode(" " + SETTING_DATA.name);
+		pageTitle.appendChild(pageTitleName);
+		settingPage.appendChild(pageTitle);
+
+		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DATA.description);
 		settingPage.appendChild(description);
 
-		//設定項目を描画
-		SETTING_DATAS.forEach(settiongData => appendSettingSection(settingPage, settiongData));
+		SETTING_DATA.sections.forEach(section => appendSettingSection(settingPage, section));
 	}
 
 	/**
@@ -854,23 +479,28 @@
 	function appendSettingSection(settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).value((key, data) => createSettingInputFormElement(data)).get();
+		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
 		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
 		settingPage.appendChild(section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).value(key => document.getElementById(HTML_ID_PREFIX + key)).get();
+		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, input) => {
 			const inputData = inputKeyDatas[key];
+			const value = settings[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-					input.value = settings[key];
+					input.value = value;
 					break;
 				case FormTypes.CHECKBOX:
-					input.checked = settings[key];
+					input.checked = value;
+					break;
+				case FormTypes.RADIOBUTTON:
+					const button = document.getElementById(HTML_ID_PREFIX + value);
+					button.checked = true;
 					break;
 			}
 
@@ -879,8 +509,18 @@
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
 					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
-					if(parentInput.checked === false){
-						input.disabled = true;
+					const parentIsUnchecked = parentInput.checked === false;
+					switch(inputData.type){
+						case FormTypes.TEXT:
+						case FormTypes.TEXT_ARRAY:
+						case FormTypes.NUMBER:
+						case FormTypes.CHECKBOX:
+							input.disabled = parentIsUnchecked;
+							break;
+						case FormTypes.RADIOBUTTON:
+							const buttons = input.querySelectorAll('input');
+							buttons.forEach(button => button.disabled = parentIsUnchecked);
+							break;
 					}
 				}
 			});
@@ -890,7 +530,7 @@
 		const changeButton = section.querySelector('.btn');
 		const message = section.querySelector('.success');
 		const onChangeValue = () => {
-			const inputKeyInputValues = Iterator.of(inputKeyInputs).value((key, input) => {
+			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, input) => {
 				const inputData = inputKeyDatas[key];
 				switch(inputData.type){
 					case FormTypes.TEXT:
@@ -899,6 +539,10 @@
 						return input.value;
 					case FormTypes.CHECKBOX:
 						return input.checked;
+					case FormTypes.RADIOBUTTON:
+						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
+						const checkedButton = RadioButtons.of(buttons).findChecked();
+						return checkedButton.id.replace(HTML_ID_PREFIX, "");
 				}
 			}).get();
 			changeButton.disabled = equalsInputValuesToSettings(inputKeyInputValues, settings);
@@ -915,6 +559,10 @@
 				case FormTypes.CHECKBOX:
 					addEventListener(input, EventTypes.CLICK, onChangeValue);
 					break;
+				case FormTypes.RADIOBUTTON:
+					const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
+					buttons.forEach(button => addEventListener(button, EventTypes.CLICK, onChangeValue));
+					break;
 			}
 
 			//親が無効な場合、子の値を変更不可能化
@@ -923,10 +571,18 @@
 				if(parentData.type == FormTypes.CHECKBOX){
 					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
 					addEventListener(parentInput, EventTypes.CLICK, () => {
-						if(parentInput.checked === true){
-							input.disabled = false;
-						}else{
-							input.disabled = true;
+						const parentIsUnchecked = parentInput.checked === false;
+						switch(inputData.type){
+							case FormTypes.TEXT:
+							case FormTypes.TEXT_ARRAY:
+							case FormTypes.NUMBER:
+							case FormTypes.CHECKBOX:
+								input.disabled = parentIsUnchecked;
+								break;
+							case FormTypes.RADIOBUTTON:
+								const buttons = input.querySelectorAll('input');
+								buttons.forEach(button => button.disabled = parentIsUnchecked);
+								break;
 						}
 					});
 				}
@@ -948,6 +604,11 @@
 					case FormTypes.CHECKBOX:
 						settings[key] = input.checked;
 						break;
+					case FormTypes.RADIOBUTTON:
+						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
+						const checkedButton = RadioButtons.of(buttons).findChecked();
+						settings[key] = checkedButton.id.replace(HTML_ID_PREFIX, "");
+						break;
 				}
 			});
 
@@ -963,15 +624,14 @@
     * @return {HTMLElement} 入力フォーム要素
     */
 	function createSettingInputFormElement(inputData){
-		const inputForm = createElement(ElementTypes.DIV, {
-			class: "form-group"
-		});
-
 		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
-			const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group"
+			});
+			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
 				class: "control-label"
 			});
-			inputForm.appendChild(inputLabel);
+			inputForm.appendChild(label);
 			const inputArea = createElement(ElementTypes.DIV, {
 				class: "controls"
 			});
@@ -988,11 +648,15 @@
 				});
 				inputForm.appendChild(annotation);
 			});
+			return inputForm;
 		}else if(inputData.type == FormTypes.NUMBER){
-			const inputLabel = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group"
+			});
+			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
 				class: "control-label"
 			});
-			inputForm.appendChild(inputLabel);
+			inputForm.appendChild(label);
 			const inputArea = createElement(ElementTypes.DIV, {
 				class: "controls"
 			});
@@ -1010,19 +674,23 @@
 				});
 				inputForm.appendChild(annotation);
 			});
+			return inputForm;
 		}else if(inputData.type == FormTypes.CHECKBOX){
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group"
+			});
 			const checkboxArea = createElement(ElementTypes.DIV, {
 				class: "checkbox"
 			});
-			const checkboxLabel = createElement(ElementTypes.LABEL);
+			const label = createElement(ElementTypes.LABEL);
 			const checkbox = createElement(ElementTypes.INPUT, {
 				id: HTML_ID_PREFIX + inputData.key,
 				type: "checkbox"
 			});
-			checkboxLabel.appendChild(checkbox);
-			const labelText = document.createTextNode(inputData.name);
-			checkboxLabel.appendChild(labelText);
-			checkboxArea.appendChild(checkboxLabel);
+			label.appendChild(checkbox);
+			const labelText = createTextNode(inputData.name);
+			label.appendChild(labelText);
+			checkboxArea.appendChild(label);
 
 			Optional.ofAbsentable(inputData.description).ifPresent(description => {
 				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
@@ -1032,8 +700,51 @@
 			});
 
 			inputForm.appendChild(checkboxArea);
+			return inputForm;
+		}else if(inputData.type == FormTypes.RADIOBUTTON){
+			const inputForm = createElement(ElementTypes.DIV, {
+				class: "form-group",
+				id: HTML_ID_PREFIX + inputData.key
+			});
+			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
+				class: "control-label"
+			});
+			inputForm.appendChild(label);
+
+			Optional.ofAbsentable(inputData.description).ifPresent(description => {
+				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
+					class: "annotation"
+				});
+				inputForm.appendChild(annotation);
+			});
+
+			const buttons = inputData.buttons;
+			buttons.forEach(button => {
+				const radioButtonArea = createElement(ElementTypes.DIV, {
+					class: "radio"
+				});
+				const label = createElement(ElementTypes.LABEL);
+				const input = createElement(ElementTypes.INPUT, {
+					type: "radio",
+					name: HTML_ID_PREFIX + inputData.key,
+					id: HTML_ID_PREFIX + button.key
+				});
+				label.appendChild(input);
+				const labelText = createTextNode(button.name);
+				label.appendChild(labelText);
+				radioButtonArea.appendChild(label);
+
+				Optional.ofAbsentable(button.description).ifPresent(description => {
+					const annotation = createElementWithHTML(ElementTypes.DIV, description, {
+						class: "annotation"
+					});
+					radioButtonArea.appendChild(annotation);
+				});
+
+				inputForm.appendChild(radioButtonArea);
+			});
+			return inputForm;
 		}
-		return inputForm;
 	}
 
 	/**
@@ -1287,14 +998,14 @@
 
 					//アクティブペインがない場合は空ビューを表示
 					if(activeTalkPanes.length === 0){
-						const talkPane =  talkPanes[0];
+						const talkPane = talkPanes[0];
 						setDisplay(talkPane, DisplayTypes.BLOCK);
 						const emptyView = talkPane.querySelector('.empty-view-container-for-timeline');
 						emptyView.classList.remove("hide");
 						const timelineHeader = talkPane.querySelector('.timeline-header');
 						timelineHeader.style["background-color"] = "#ffffff";
 					}else{
-						const talkPane =  talkPanes[0];
+						const talkPane = talkPanes[0];
 						const timelineHeader = talkPane.querySelector('.timeline-header');
 						const talkPaneColor = talkPane.querySelector('.dropdown-toggle').style["background-color"];
 						timelineHeader.style["background-color"] = talkPaneColor;
@@ -1366,7 +1077,7 @@
 					const talkId = talkItem.id;
 					const talkName = talkItem.querySelector('.talk-name-part').textContent;
 					const talk = new Talk(talkId, talkName);
-					const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
+					const talkIsRead = talkItem.querySelector('.corner-badge') === null;
 					talk.isRead = talkIsRead;
 					talkIdTalks[talkId] = talk;
 				});
@@ -1785,6 +1496,15 @@
 		Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
 		Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
 		return element;
+	}
+
+	/**
+    * テキストノードを作成します。
+    * @param {String} text テキスト
+    * @return {Text} テキストノード
+	*/
+	function createTextNode(text){
+		return document.createTextNode(text);
 	}
 
 	/**

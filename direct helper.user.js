@@ -9,6 +9,7 @@
 // @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
 // @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
 // @require https://cdn.rawgit.com/munierujp/Observer.js/d0401132a1276910692fc53ed4012ef5efad25f3/Observer.min.js
+// @require https://cdn.rawgit.com/munierujp/Replacer.js/dd9339ae54d7adfd6a65c54c299f5a485f327521/Replacer.min.js
 // ==/UserScript==
 
 (function(){
@@ -995,9 +996,9 @@
 		}).start();
 
 		//メッセージ監視開始ログを表示
-		const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
-			[/<time>/g, formatDate(new Date(), settings.date_format)]
-		]);
+		const observeStartMessage = Replacer.of(
+				[/<time>/g, formatDate(new Date(), settings.date_format)]
+			).exec(settings.custom_log_start_observe_messages);
 		console.info(settings.log_label, observeStartMessage);
 
 		//トークエリアの追加を監視
@@ -1008,11 +1009,11 @@
 
 			//トーク監視開始ログを表示
 			const observeStartDate = new Date();
-			const observeStartMessage = replace(settings.custom_log_start_observe_talk, [
-				[/<talkId>/g, talk.id],
-				[/<time>/g, formatDate(observeStartDate, settings.date_format)],
-				[/<talkName>/g, talk.name]
-			]);
+			const observeStartMessage = Replacer.of(
+					[/<talkId>/g, talk.id],
+					[/<time>/g, formatDate(observeStartDate, settings.date_format)],
+					[/<talkName>/g, talk.name]
+				).exec(settings.custom_log_start_observe_talk);
 			console.info(settings.log_label, observeStartMessage);
 
 			//メッセージの追加を監視
@@ -1181,12 +1182,12 @@
 			throw new TypeError(message + " is not instance of Message");
 		}
 
-		const header = replace(settings.custom_log_message_header, [
+		const header = Replacer.of(
 			[/<talkId>/g, message.talk.id],
 			[/<time>/g, formatDate(message.time, settings.date_format)],
 			[/<talkName>/g, message.talk.name],
 			[/<userName>/g, message.userName]
-		]);
+		).exec(settings.custom_log_message_header);
 
 		console.group(header);
 		Optional.ofAbsentable(message.stamp)
@@ -1219,18 +1220,6 @@
 	}
 
 	/**
-    * 文字列を複数の条件で置換します。
-    * @param {String} source 文字列
-    * @param {Object[][]} replacers 置換用オブジェクト
-    * @return {String} 置換した文字列
-    */
-	function replace(source, replacers) {
-		let replaced = source;
-		replacers.forEach(replacer => replaced = replaced.replace(replacer[0], replacer[1]));
-		return replaced;
-	}
-
-	/**
     * Dateオブジェクトを指定したパターンでフォーマットします。
     * cf. https://docs.oracle.com/javase/jp/8/docs/api/java/time/format/DateTimeFormatter.html#patterns
     * @param {Date} date Dateオブジェクト
@@ -1247,21 +1236,21 @@
 		const hours = date.getHours();
 		const minutes = date.getMinutes();
 		const seconds = date.getSeconds();
-		return replace(pattern, [
-			[/yyyy/g, year],
-			[/yy/g, year % 100],
-			[/MM/g, zeroPadding(month, 2)],
-			[/M/g, month],
-			[/dd/g, zeroPadding(dayOfMonth, 2)],
-			[/d/g, dayOfMonth],
-			[/e/g, dayOfWeekText],
-			[/HH/g, zeroPadding(hours, 2)],
-			[/H/g, hours],
-			[/mm/g, zeroPadding(minutes, 2)],
-			[/m/g, minutes],
-			[/ss/g, zeroPadding(seconds, 2)],
-			[/s/g, seconds]
-		]);
+		return Replacer.of(
+				[/yyyy/g, year],
+				[/yy/g, year % 100],
+				[/MM/g, zeroPadding(month, 2)],
+				[/M/g, month],
+				[/dd/g, zeroPadding(dayOfMonth, 2)],
+				[/d/g, dayOfMonth],
+				[/e/g, dayOfWeekText],
+				[/HH/g, zeroPadding(hours, 2)],
+				[/H/g, hours],
+				[/mm/g, zeroPadding(minutes, 2)],
+				[/m/g, minutes],
+				[/ss/g, zeroPadding(seconds, 2)],
+				[/s/g, seconds]
+			).exec(pattern);
 	}
 
 	/**

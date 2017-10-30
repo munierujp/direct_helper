@@ -104,6 +104,9 @@ directの環境設定画面から、各種設定を変更できます。
 ### Observer
 自作のライブラリ[Observer.js](https://github.com/munierujp/Observer.js)を使用しています。
 
+### Replacer
+自作のライブラリ[Replacer.js](https://github.com/munierujp/Replacer.js)を使用しています。
+
 ### 設定の保存
 ブラウザのローカルストレージ上にJSON形式で各種設定を保存しています。  
 デフォルトのキーは`direct_helper_settings`です。

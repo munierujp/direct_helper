@@ -6,6 +6,10 @@
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
 // @grant        none
+// @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
+// @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
+// @require https://cdn.rawgit.com/munierujp/Observer.js/d0401132a1276910692fc53ed4012ef5efad25f3/Observer.min.js
+// @require https://cdn.rawgit.com/munierujp/Replacer.js/dd9339ae54d7adfd6a65c54c299f5a485f327521/Replacer.min.js
 // ==/UserScript==
 
 (function(){
@@ -18,388 +22,6 @@
         */
 		constructor(value){
 			this.value = value;
-		}
-	}
-
-	/** オプショナル */
-	class Optional{
-		/**
-        * 引数の値を含むオプショナルを生成します。
-        * @param {Object} value 値
-        * @return {Optional} オプショナル
-        */
-		constructor(value){
-			this.value = value;
-		}
-
-		/**
-        * 空のオプショナルを生成します。
-        * @return {Optional} 空のオプショナル
-        */
-		static empty(){
-			return new this(null);
-		}
-
-		/**
-        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
-        * それ以外の場合は例外をスローします。
-        * @param {Object} value 値
-        * @return {Optional} オプショナル
-        * @throws {Error} valueがnullまたはundefinedの場合
-        */
-		static of(value){
-			if(value === null || value === undefined){
-				throw new Error("value is null or undefined");
-			}
-			return new this(value);
-		}
-
-		/**
-        * 引数の値がnullまたはundefinedではない場合はその値を含むオプショナルを生成します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Object} value 値
-        * @return {Optional} オプショナル
-        */
-		static ofAbsentable(value){
-			return (value !== null && value !== undefined) ? this.of(value) : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、trueの場合は自身を返します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Function} matcher : value => Boolean
-        * @return {Optional} オプショナル
-        */
-		filter(matcher){
-			return (this.isPresent() && matcher(this.value)) ? this : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、新しい中身からなるオプショナルを生成します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Function} mapper : value => newValue
-        * @return {Optional} オプショナル
-        */
-		map(mapper){
-			return this.isPresent() ? Optional.ofAbsentable(mapper(this.value)) : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、結果を返します。
-        * それ以外の場合は空のオプショナルを返します。
-        * @param {Function} mapper : value => newValue
-        * @return {Optional} オプショナル
-        */
-		flatMap(mapper){
-			return this.isPresent() ? mapper(this.value) : Optional.empty();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合は引数の関数を実行し、自身を返します。
-        * それ以外の場合はそのまま自身を返します。
-        * @param {Function} processer : value => {...}
-        * @return {Optional} 自身
-        */
-		ifPresent(processer){
-			if(this.isPresent()){
-				processer(this.value);
-			}
-			return this;
-		}
-
-		/**
-        * オプショナルの中身が存在しない場合は引数の関数を実行し、自身を返します。
-        * それ以外の場合はそのまま自身を返します。
-        * @param {Function} processer : () => {...}
-        * @return {Optional} 自身
-        */
-		ifAbsent(processer){
-			if(this.isAbsent()){
-				processer();
-			}
-			return this;
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は例外をスローします。
-        * @return {Object} オプショナルの中身
-        * @throws {Error} オプショナルの中身が空の場合
-        */
-		get(){
-			if(this.isAbsent()){
-				throw new Error("this is empty");
-			}
-			return this.value;
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は引数の値を返します。
-        * @param {Object} other 値
-        * @return {Object} オプショナルの中身
-        */
-		orElse(other){
-			return this.isPresent() ? this.value : other;
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は引数の関数を実行した結果を返します。
-        * @param {Function} getter : () => other
-        * @return {Object} オプショナルの中身
-        */
-		orElseGet(getter){
-			return this.isPresent() ? this.value : getter();
-		}
-
-		/**
-        * オプショナルの中身が存在する場合はそれを返します。
-        * それ以外の場合は引数の関数を実行した結果をスローします。
-        * @param {Function} supplier : () => Error
-        * @return {Object} オプショナルの中身
-        * @throws {Error} オプショナルの中身が空の場合
-        */
-		orElseThrow(supplier){
-			if(this.isAbsent()){
-				throw supplier();
-			}
-			return this.value;
-		}
-
-		/**
-        * オプショナルの中身が存在するかどうかを判定します。
-        * @return {Boolean} 中身が存在すればtrue、存在しなければfalse
-        */
-		isPresent(){
-			return this.value !== null && this.value !== undefined;
-		}
-
-		/**
-        * オプショナルの中身が存在しないかどうかを判定します。
-        * @return {Boolean} 中身が存在しなければtrue、存在すればfalse
-        */
-		isAbsent(){
-			return this.value === null || this.value === undefined;
-		}
-
-		/**
-        * オプショナルの中身と引数のオプショナルの中身が等しいかどうかを判定します。
-        * @param {Optional} other 他のオプショナル
-        * @return {Boolean} 等しければtrue、等しくなければfalse
-        */
-		equals(other){
-			return other instanceof Optional && this.value === other.value;
-		}
-	}
-
-	/** イテレーター */
-	class Iterator{
-		/**
-        * 引数のオブジェクトからイテレーターを生成します。
-        * @param {Object} object オブジェクト
-        * @return {Iterator} イテレーター
-        */
-		constructor(object){
-			this.object = object;
-		}
-
-		/**
-        * 空のイテレーターを生成します。
-        * @return {Iterator} 空のイテレーター
-        */
-		static empty(){
-			return new this(null);
-		}
-
-		/**
-        * 引数のオブジェクトからイテレーターを生成します。
-        * @param {Object} object オブジェクト
-        * @return {Iterator} イテレーター
-        */
-		static of(object){
-			return new this(object);
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行し、自身を返します。
-        * @param {Function} processer : (key, value) => {...}
-        * @return {Iterator} 自身
-        */
-		peek(processer){
-			this.forEach(processer);
-			return this;
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行し、条件を満たす要素からなるイテレーターを生成します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Iterator} 条件を満たす要素からなるイテレーター
-        */
-		filter(matcher){
-			if(this.isEmpty()){
-				return this;
-			}
-			const filtered = {};
-			Object.keys(this.object)
-				.filter(key => matcher(key, this.object[key]))
-				.forEach(key => filtered[key] = this.object[key]);
-			return Iterator.of(filtered);
-		}
-
-		/**
-        * 引数の関数を各要素のキーに対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
-        * @param {Function} keyMapper : (key, value) => newKey
-        * @return {Iterator} 新しい要素からなるイテレーター
-        */
-		key(keyMapper){
-			return this.map(keyMapper, (key, value) => value);
-		}
-
-		/**
-        * 引数の関数を各要素の値に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
-        * @param {Function} valueMapper : (key, value) => newValue
-        * @return {Iterator} 新しい要素からなるイテレーター
-        */
-		value(valueMapper){
-			return this.map((key, value) => key, valueMapper);
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行し、新しい要素からなるイテレーターを生成します。
-        * @param {Function} keyMapper : (key, value) => newKey
-        * @param {Function} valueMapper : (key, value) => newValue
-        * @return {Iterator} 新しい要素からなるイテレーター
-        */
-		map(keyMapper, valueMapper){
-			if(this.isEmpty()){
-				return this;
-			}
-			const mapped = {};
-			Object.keys(this.object)
-				.forEach(key => mapped[keyMapper(key, this.object[key])] = valueMapper(key, this.object[key]));
-			return Iterator.of(mapped);
-		}
-
-		/**
-        * 引数の関数を各要素に対して一度ずつ実行します。
-        * @param {Function} processer : (key, value) => {...}
-        */
-		forEach(processer){
-			if(this.isNotEmpty()){
-				Object.keys(this.object)
-					.forEach(key => processer(key, this.object[key]));
-			}
-		}
-
-		/**
-        * イテレーターの中身を取得します。
-        * @return {Object} イテレーターの中身
-        */
-		get(){
-			return this.object;
-		}
-
-		/**
-        * イテレーターの中身のキー配列を返します。
-        * 要素が空の場合、空の配列を返します。
-        * @return {Object[]} イテレーターの中身のキー配列
-        */
-		keys(){
-			return this.isNotEmpty() ? Object.keys(this.object) : [];
-		}
-
-		/**
-        * イテレーターの中身の値配列を返します。
-        * 要素が空の場合、空の配列を返します。
-        * @return {Object[]} イテレーターの中身の値配列
-        */
-		values(){
-			return this.isNotEmpty() ? Object.values(this.object) : [];
-		}
-
-		/**
-        * 引数の条件を満たす要素のキーを返します。
-        * 条件を満たす要素がない場合、undefinedを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Object} 引数の条件を満たす要素があればその値、なければundefined
-        */
-		findKey(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(matcher(key, this.object[key])){
-						return key;
-					}
-				}
-			}
-			return undefined;
-		}
-
-		/**
-        * 引数の条件を満たす要素の値を返します。
-        * 条件を満たす要素がない場合、undefinedを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Object} 引数の条件を満たす要素があればそのキー、なければundefined
-        */
-		find(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(matcher(key, this.object[key])){
-						return this.object[key];
-					}
-				}
-			}
-			return undefined;
-		}
-
-		/**
-        * いずれかの要素が引数の条件を満たすかどうかを判定します。
-        * 要素が空の場合、falseを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Boolean} いずれかの要素が条件を満たせばtrue、それ以外はfalse
-        */
-		some(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(matcher(key, this.object[key])){
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		/**
-        * すべての要素が引数の条件を満たすかどうかを判定します。
-        * 要素が空の場合、trueを返します。
-        * @param {Function} matcher : (key, value) => Boolean
-        * @return {Boolean} すべての要素が条件を満たせばtrue、それ以外はfalse
-        */
-		every(matcher){
-			if(this.isNotEmpty()){
-				for(const key in this.object){
-					if(!matcher(key, this.object[key])){
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-
-		/**
-        * 要素が空であるかどうかを判定します。
-        * @return {Boolean} 要素が空であればtrue、それ以外はfalse
-        */
-		isEmpty(){
-			return this.object === null || this.value === undefined;
-		}
-
-		/**
-        * 要素が空ではないかどうかを判定します。
-        * @return {Boolean} 要素が空でなければtrue、それ以外はfalse
-        */
-		isNotEmpty(){
-			return this.value !== null && this.value !== undefined;
 		}
 	}
 
@@ -442,17 +64,17 @@
 
 		/**
 		* メッセージエリアの追加を監視します。
-		* @param {Function} processer : messageArea => {...}
+		* @param {Function} callback : messageArea => {...}
 		*/
-		observeAddingMessageArea(processer){
+		observeAddingMessageArea(callback){
 			const realMessageArea = this.value.querySelector('.real-msgs');
-			observeChildList(realMessageArea, mutations => {
+			Observer.of(realMessageArea).childList().hasChanged(mutations => {
 				mutations.forEach(mutation => {
 					Array.from(mutation.addedNodes)
 						.filter(node => node.className == "msg")
-						.forEach(messageArea => processer(messageArea));
+						.forEach(messageArea => callback(messageArea));
 				});
-			});
+			}).start();
 		}
 	}
 
@@ -854,13 +476,13 @@
 	function appendSettingSection(settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).value((key, data) => createSettingInputFormElement(data)).get();
+		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
 		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
 		settingPage.appendChild(section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).value(key => document.getElementById(HTML_ID_PREFIX + key)).get();
+		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, input) => {
 			const inputData = inputKeyDatas[key];
 			switch(inputData.type){
@@ -890,7 +512,7 @@
 		const changeButton = section.querySelector('.btn');
 		const message = section.querySelector('.success');
 		const onChangeValue = () => {
-			const inputKeyInputValues = Iterator.of(inputKeyInputs).value((key, input) => {
+			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, input) => {
 				const inputData = inputKeyDatas[key];
 				switch(inputData.type){
 					case FormTypes.TEXT:
@@ -1153,12 +775,12 @@
 
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
 			const fileArea = sendForm.querySelector('.staged-files');
-			observeStyle(fileArea, mutations => {
+			Observer.of(fileArea).attributes("style").hasChanged(mutations => {
 				mutations.forEach(mutation => {
 					const display = fileArea.style.display;
 					dummySendButton.disabled = display == "none";
 				});
-			});
+			}).start();
 
 			//ダミー送信ボタンクリック時に確認ダイアログを表示
 			addEventListener(dummySendButton, EventTypes.CLICK, () => {
@@ -1261,7 +883,7 @@
 		const talkPanes = multiPane.querySelectorAll('.talk-pane');
 		talkPanes.forEach(talkPane => {
 			//トークペインのclass属性変更時、表示を切り替え
-			observeClassName(talkPane, mutations => {
+			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
 				mutations.forEach(mutation => {
 					const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
 					const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
@@ -1300,7 +922,7 @@
 						timelineHeader.style["background-color"] = talkPaneColor;
 					}
 				});
-			});
+			}).start();
 		});
 	}
 
@@ -1336,7 +958,7 @@
 
 		//トーク一覧に子ノード追加時、トーク関連処理を実行
 		const talks = document.getElementById("talks");
-		observeChildList(talks, mutations => {
+		Observer.of(talks).childList().hasChanged(mutations => {
 			//デフォルト監視対象を監視対象に追加
 			if(settings.watch_default_observe_talk === true){
 				//既読デフォルト監視トークIDリストの作成
@@ -1371,12 +993,12 @@
 					talkIdTalks[talkId] = talk;
 				});
 			});
-		});
+		}).start();
 
 		//メッセージ監視開始ログを表示
-		const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
-			[/<time>/g, formatDate(new Date(), settings.date_format)]
-		]);
+		const observeStartMessage = Replacer.of(
+				[/<time>/g, formatDate(new Date(), settings.date_format)]
+			).exec(settings.custom_log_start_observe_messages);
 		console.info(settings.log_label, observeStartMessage);
 
 		//トークエリアの追加を監視
@@ -1387,11 +1009,11 @@
 
 			//トーク監視開始ログを表示
 			const observeStartDate = new Date();
-			const observeStartMessage = replace(settings.custom_log_start_observe_talk, [
-				[/<talkId>/g, talk.id],
-				[/<time>/g, formatDate(observeStartDate, settings.date_format)],
-				[/<talkName>/g, talk.name]
-			]);
+			const observeStartMessage = Replacer.of(
+					[/<talkId>/g, talk.id],
+					[/<time>/g, formatDate(observeStartDate, settings.date_format)],
+					[/<talkName>/g, talk.name]
+				).exec(settings.custom_log_start_observe_talk);
 			console.info(settings.log_label, observeStartMessage);
 
 			//メッセージの追加を監視
@@ -1409,17 +1031,17 @@
 
 	/**
     * トークエリアの追加を監視します。
-    * @param {Function} processer : talkArea => {...}
+    * @param {Function} callback : talkArea => {...}
     */
-	function observeAddingTalkArea(processer){
+	function observeAddingTalkArea(callback){
 		//メッセージエリアに子ノード追加時、トークエリア関連処理を実行
 		const messagesArea = document.getElementById("messages");
-		observeChildList(messagesArea, mutations => {
+		Observer.of(messagesArea).childList().hasChanged(mutations => {
 			mutations.forEach(mutation => {
 				const talkAreas = mutation.addedNodes;
-				talkAreas.forEach(talkArea => processer(talkArea));
+				talkAreas.forEach(talkArea => callback(talkArea));
 			});
-		});
+		}).start();
 	}
 
 	/**
@@ -1560,12 +1182,12 @@
 			throw new TypeError(message + " is not instance of Message");
 		}
 
-		const header = replace(settings.custom_log_message_header, [
+		const header = Replacer.of(
 			[/<talkId>/g, message.talk.id],
 			[/<time>/g, formatDate(message.time, settings.date_format)],
 			[/<talkName>/g, message.talk.name],
 			[/<userName>/g, message.userName]
-		]);
+		).exec(settings.custom_log_message_header);
 
 		console.group(header);
 		Optional.ofAbsentable(message.stamp)
@@ -1598,18 +1220,6 @@
 	}
 
 	/**
-    * 文字列を複数の条件で置換します。
-    * @param {String} source 文字列
-    * @param {Object[][]} replacers 置換用オブジェクト
-    * @return {String} 置換した文字列
-    */
-	function replace(source, replacers) {
-		let replaced = source;
-		replacers.forEach(replacer => replaced = replaced.replace(replacer[0], replacer[1]));
-		return replaced;
-	}
-
-	/**
     * Dateオブジェクトを指定したパターンでフォーマットします。
     * cf. https://docs.oracle.com/javase/jp/8/docs/api/java/time/format/DateTimeFormatter.html#patterns
     * @param {Date} date Dateオブジェクト
@@ -1626,21 +1236,21 @@
 		const hours = date.getHours();
 		const minutes = date.getMinutes();
 		const seconds = date.getSeconds();
-		return replace(pattern, [
-			[/yyyy/g, year],
-			[/yy/g, year % 100],
-			[/MM/g, zeroPadding(month, 2)],
-			[/M/g, month],
-			[/dd/g, zeroPadding(dayOfMonth, 2)],
-			[/d/g, dayOfMonth],
-			[/e/g, dayOfWeekText],
-			[/HH/g, zeroPadding(hours, 2)],
-			[/H/g, hours],
-			[/mm/g, zeroPadding(minutes, 2)],
-			[/m/g, minutes],
-			[/ss/g, zeroPadding(seconds, 2)],
-			[/s/g, seconds]
-		]);
+		return Replacer.of(
+				[/yyyy/g, year],
+				[/yy/g, year % 100],
+				[/MM/g, zeroPadding(month, 2)],
+				[/M/g, month],
+				[/dd/g, zeroPadding(dayOfMonth, 2)],
+				[/d/g, dayOfMonth],
+				[/e/g, dayOfWeekText],
+				[/HH/g, zeroPadding(hours, 2)],
+				[/H/g, hours],
+				[/mm/g, zeroPadding(minutes, 2)],
+				[/m/g, minutes],
+				[/ss/g, zeroPadding(seconds, 2)],
+				[/s/g, seconds]
+			).exec(pattern);
 	}
 
 	/**
@@ -1676,58 +1286,6 @@
     */
 	function stringToArray(string){
 		return string !== "" ? string.split(",") : [];
-	}
-
-	/**
-     * ノードのclass属性の変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeClassName(target, observer){
-		observeAttribute(target, ["class"], observer);
-	}
-
-	/**
-     * ノードのスタイル属性の変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeStyle(target, observer){
-		observeAttribute(target, ["style"], observer);
-	}
-
-	/**
-     * ノードの属性の変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {String} names 属性名配列
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeAttribute(target, names, observer){
-		observeNode(target, observer, {
-			attributes: true,
-			attributeFilter: names
-		});
-	}
-
-	/**
-     * ノードの子ノード追加を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeChildList(target, observer){
-		observeNode(target, observer, {
-			childList: true
-		});
-	}
-
-	/**
-     * ノードの変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-	 * @param {Object} [options] 監視オプション
-     */
-	function observeNode(target, observer, options){
-		new MutationObserver(observer).observe(target, options);
 	}
 
 	/**

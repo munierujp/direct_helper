@@ -96,7 +96,10 @@ directの環境設定画面から、各種設定を変更できます。
 
 ## 解説
 ### Optional
-自作のライブラリ[Optional.js](https://github.com/munierujp/Optional.js)を使用しています。  
+自作のライブラリ[Optional.js](https://github.com/munierujp/Optional.js)を使用しています。
+
+### Iterator
+自作のライブラリ[Iterator.js](https://github.com/munierujp/Iterator.js)を使用しています。
 
 ### 設定の保存
 ブラウザのローカルストレージ上にJSON形式で各種設定を保存しています。  

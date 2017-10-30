@@ -8,6 +8,7 @@
 // @grant        none
 // @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
 // @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
+// @require https://cdn.rawgit.com/munierujp/Observer.js/d0401132a1276910692fc53ed4012ef5efad25f3/Observer.min.js
 // ==/UserScript==
 
 (function(){
@@ -62,17 +63,17 @@
 
 		/**
 		* メッセージエリアの追加を監視します。
-		* @param {Function} processer : messageArea => {...}
+		* @param {Function} callback : messageArea => {...}
 		*/
-		observeAddingMessageArea(processer){
+		observeAddingMessageArea(callback){
 			const realMessageArea = this.value.querySelector('.real-msgs');
-			observeChildList(realMessageArea, mutations => {
+			Observer.of(realMessageArea).childList().hasChanged(mutations => {
 				mutations.forEach(mutation => {
 					Array.from(mutation.addedNodes)
 						.filter(node => node.className == "msg")
-						.forEach(messageArea => processer(messageArea));
+						.forEach(messageArea => callback(messageArea));
 				});
-			});
+			}).start();
 		}
 	}
 
@@ -773,12 +774,12 @@
 
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
 			const fileArea = sendForm.querySelector('.staged-files');
-			observeStyle(fileArea, mutations => {
+			Observer.of(fileArea).attributes("style").hasChanged(mutations => {
 				mutations.forEach(mutation => {
 					const display = fileArea.style.display;
 					dummySendButton.disabled = display == "none";
 				});
-			});
+			}).start();
 
 			//ダミー送信ボタンクリック時に確認ダイアログを表示
 			addEventListener(dummySendButton, EventTypes.CLICK, () => {
@@ -881,7 +882,7 @@
 		const talkPanes = multiPane.querySelectorAll('.talk-pane');
 		talkPanes.forEach(talkPane => {
 			//トークペインのclass属性変更時、表示を切り替え
-			observeClassName(talkPane, mutations => {
+			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
 				mutations.forEach(mutation => {
 					const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
 					const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
@@ -920,7 +921,7 @@
 						timelineHeader.style["background-color"] = talkPaneColor;
 					}
 				});
-			});
+			}).start();
 		});
 	}
 
@@ -956,7 +957,7 @@
 
 		//トーク一覧に子ノード追加時、トーク関連処理を実行
 		const talks = document.getElementById("talks");
-		observeChildList(talks, mutations => {
+		Observer.of(talks).childList().hasChanged(mutations => {
 			//デフォルト監視対象を監視対象に追加
 			if(settings.watch_default_observe_talk === true){
 				//既読デフォルト監視トークIDリストの作成
@@ -991,7 +992,7 @@
 					talkIdTalks[talkId] = talk;
 				});
 			});
-		});
+		}).start();
 
 		//メッセージ監視開始ログを表示
 		const observeStartMessage = replace(settings.custom_log_start_observe_messages, [
@@ -1029,17 +1030,17 @@
 
 	/**
     * トークエリアの追加を監視します。
-    * @param {Function} processer : talkArea => {...}
+    * @param {Function} callback : talkArea => {...}
     */
-	function observeAddingTalkArea(processer){
+	function observeAddingTalkArea(callback){
 		//メッセージエリアに子ノード追加時、トークエリア関連処理を実行
 		const messagesArea = document.getElementById("messages");
-		observeChildList(messagesArea, mutations => {
+		Observer.of(messagesArea).childList().hasChanged(mutations => {
 			mutations.forEach(mutation => {
 				const talkAreas = mutation.addedNodes;
-				talkAreas.forEach(talkArea => processer(talkArea));
+				talkAreas.forEach(talkArea => callback(talkArea));
 			});
-		});
+		}).start();
 	}
 
 	/**
@@ -1296,58 +1297,6 @@
     */
 	function stringToArray(string){
 		return string !== "" ? string.split(",") : [];
-	}
-
-	/**
-     * ノードのclass属性の変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeClassName(target, observer){
-		observeAttribute(target, ["class"], observer);
-	}
-
-	/**
-     * ノードのスタイル属性の変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeStyle(target, observer){
-		observeAttribute(target, ["style"], observer);
-	}
-
-	/**
-     * ノードの属性の変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {String} names 属性名配列
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeAttribute(target, names, observer){
-		observeNode(target, observer, {
-			attributes: true,
-			attributeFilter: names
-		});
-	}
-
-	/**
-     * ノードの子ノード追加を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-     */
-	function observeChildList(target, observer){
-		observeNode(target, observer, {
-			childList: true
-		});
-	}
-
-	/**
-     * ノードの変更を監視します。
-     * @param {Node} target 監視対象ノード
-     * @param {Function} observer : mutations => {...}
-	 * @param {Object} [options] 監視オプション
-     */
-	function observeNode(target, observer, options){
-		new MutationObserver(observer).observe(target, options);
 	}
 
 	/**

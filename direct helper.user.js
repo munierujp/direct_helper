@@ -23,6 +23,15 @@
 		constructor(value){
 			this.value = value;
 		}
+
+		/**
+        * HasValueオブジェクトを生成します。
+        * @param {Object} value 値
+        * @return {HasValue} HasValueオブジェクト
+        */
+		static of(value){
+			return new this(value);
+		}
 	}
 
 	/** トーク */
@@ -53,15 +62,6 @@
 
 	/** トークエリア */
 	class TalkArea extends HasValue{
-		/**
-        * TalkAreaを生成します。
-        * @param {Object} value 値
-        * @return {TalkArea} TalkArea
-        */
-		static of(value){
-			return new this(value);
-		}
-
 		/**
 		* メッセージエリアの追加を監視します。
 		* @param {Function} callback : messageArea => {...}

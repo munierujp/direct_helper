@@ -105,6 +105,7 @@
 	const ElementTypes = {
 		BUTTON: new ElementType("button"),
 		DIV: new ElementType("div"),
+		H3: new ElementType("h3"),
 		HR: new ElementType("hr"),
 		IMG: new ElementType("img"),
 		INPUT: new ElementType("input"),
@@ -205,6 +206,9 @@
 
 	/** ローカルストレージ設定キー */
 	const LOCAL_STORAGE_SETTINGS_KEY = "direct_helper_settings";
+
+	/** 設定名 */
+	const SETTING_NAME = "direct helper設定";
 
 	/** 設定画面説明 */
 	const SETTING_DESCRIPTION = `以下はdirect helperの設定です。設定変更後はページをリロードしてください。<br>
@@ -469,15 +473,23 @@
 	function drawSettingView(){
 		const settingPage = document.getElementById("environment-page");
 
-		//水平線を描画
 		const hr = createElement(ElementTypes.HR);
 		settingPage.appendChild(hr);
 
-		//説明を描画
+		const pageTitle = createElement(ElementTypes.H3, {
+			class: "page-title"
+		});
+		const pageTitleIcon = createElement(ElementTypes.SPAN, {
+			class: "page-title-glyphicon glyphicon glyphicon-cog"
+		});
+		pageTitle.appendChild(pageTitleIcon);
+		const pageTitleName = document.createTextNode(" " + SETTING_NAME);
+		pageTitle.appendChild(pageTitleName);
+		settingPage.appendChild(pageTitle);
+
 		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DESCRIPTION);
 		settingPage.appendChild(description);
 
-		//設定項目を描画
 		SETTING_DATAS.forEach(settiongData => appendSettingSection(settingPage, settiongData));
 	}
 

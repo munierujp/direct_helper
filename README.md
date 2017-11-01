@@ -1,7 +1,7 @@
 ﻿# direct helper
 ![サンプル画像](sample.png)
 
-ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト。
+ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
 
 ## インストール方法
 ### ユーザースクリプトマネージャーをインストール

@@ -490,7 +490,7 @@
 		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, input) => {
 			const inputData = inputKeyDatas[key];
-			const value =  settings[key];
+			const value = settings[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
@@ -1000,14 +1000,14 @@
 
 					//アクティブペインがない場合は空ビューを表示
 					if(activeTalkPanes.length === 0){
-						const talkPane =  talkPanes[0];
+						const talkPane = talkPanes[0];
 						setDisplay(talkPane, DisplayTypes.BLOCK);
 						const emptyView = talkPane.querySelector('.empty-view-container-for-timeline');
 						emptyView.classList.remove("hide");
 						const timelineHeader = talkPane.querySelector('.timeline-header');
 						timelineHeader.style["background-color"] = "#ffffff";
 					}else{
-						const talkPane =  talkPanes[0];
+						const talkPane = talkPanes[0];
 						const timelineHeader = talkPane.querySelector('.timeline-header');
 						const talkPaneColor = talkPane.querySelector('.dropdown-toggle').style["background-color"];
 						timelineHeader.style["background-color"] = talkPaneColor;
@@ -1079,7 +1079,7 @@
 					const talkId = talkItem.id;
 					const talkName = talkItem.querySelector('.talk-name-part').textContent;
 					const talk = new Talk(talkId, talkName);
-					const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
+					const talkIsRead = talkItem.querySelector('.corner-badge') === null;
 					talk.isRead = talkIsRead;
 					talkIdTalks[talkId] = talk;
 				});

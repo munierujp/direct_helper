@@ -1,7 +1,7 @@
 ﻿# direct helper
 ![サンプル画像](sample.png)
 
-ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト。
+ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
 
 ## インストール方法
 ### ユーザースクリプトマネージャーをインストール
@@ -120,13 +120,20 @@ DOM構造や挙動は、可能な限りオリジナルのものを再現して�
 以下の仕様に従って追加することで、設定関連処理を自動的に行ないます。
 
 #### 仕様
-##### root
+##### SETTING_DATA
+|プロパティ|型|必須|内容|
+|---|---|---|---|
+|name|String|○|名前|
+|description|String|○|説明|
+|sections|Object[]|○|設定セクション|
+
+##### section
 |プロパティ|型|必須|内容|
 |---|---|---|---|
 |key|String|○|キー|
 |name|String|○|名前|
 |description|String|-|説明|
-|items|Object|-|設定項目|
+|items|Object|-|設定アイテム|
 
 ##### items
 |プロパティ|型|必須|内容|

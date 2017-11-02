@@ -223,7 +223,7 @@
 						name: "ユーザーアイコンの拡大",
 						description: "ユーザーアイコンをクリックで拡大表示します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					}
 				}
 			},
@@ -237,14 +237,14 @@
 						name: "サムネイルサイズの変更",
 						description: "画像のサムネイルサイズを変更します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					thumbnail_size: {
 						key: "thumbnail_size",
 						name: "サムネイルサイズ",
 						description: "画像のサムネイルサイズ（px）を入力してください。",
 						type: FormTypes.NUMBER,
-						default: 600,
+						defaultValue: 600,
 						parentKey: "change_thumbnail_size"
 					},
 					blur_thumbnail: {
@@ -252,14 +252,14 @@
 						name: "サムネイル画像をぼかす",
 						description: "サムネイル画像にブラー効果をかけてぼかします。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					thumbnail_blur_grade: {
 						key: "thumbnail_blur_grade",
 						name: "ぼかし度",
 						description: "サムネイル画像のぼかし度（px）を入力してください。",
 						type: FormTypes.NUMBER,
-						default: 0,
+						defaultValue: 0,
 						parentKey: "blur_thumbnail"
 					}
 				}
@@ -274,14 +274,14 @@
 						name: "送信ボタンの確認",
 						description: "送信ボタンによるメッセージ送信前に確認します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					show_message_count: {
 						key: "show_message_count",
 						name: "入力文字数の表示",
 						description: "入力文字数をカウントダウン形式で表示します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					}
 				}
 			},
@@ -295,7 +295,7 @@
 						name: "マルチビューのレスポンシブ化",
 						description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					}
 				}
 			},
@@ -309,14 +309,14 @@
 						name: "メッセージの監視",
 						description: "メッセージを監視してコンソールに出力します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					show_past_message: {
 						key: "show_past_message",
 						name: "過去メッセージの表示",
 						description: "監視開始以前のメッセージを表示します。",
 						type: FormTypes.CHECKBOX,
-						default: false,
+						defaultValue: false,
 						parentKey: "watch_message"
 					},
 					watch_default_observe_talk: {
@@ -324,7 +324,7 @@
 						name: "デフォルト監視対象の自動監視",
 						description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
 						type: FormTypes.CHECKBOX,
-						default: true,
+						defaultValue: true,
 						parentKey: "watch_message"
 					},
 					default_observe_talk_ids: {
@@ -332,7 +332,7 @@
 						name: "デフォルト監視トークID",
 						description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
 						type: FormTypes.TEXT_ARRAY,
-						default: [],
+						defaultValue: [],
 						parentKey: "watch_default_observe_talk"
 					}
 				}
@@ -347,59 +347,59 @@
 						name: "ログラベル",
 						description: "コンソールでのフィルター用の文字列です。",
 						type: FormTypes.TEXT,
-						default: ""
+						defaultValue: ""
 					},
 					user_name_system: {
 						type: FormTypes.TEXT,
 						name: "システムユーザー名",
 						key: "user_name_system",
-						default: "システム"
+						defaultValue: "システム"
 					},
 					log_stamp: {
 						key: "log_stamp",
 						name: "スタンプログ",
 						type: FormTypes.TEXT,
-						default: "[スタンプ]"
+						defaultValue: "[スタンプ]"
 					},
 					log_image: {
 						key: "log_image",
 						name: "画像ログ",
 						type: FormTypes.TEXT,
-						default: "[画像]"
+						defaultValue: "[画像]"
 					},
 					log_file: {
 						key: "log_file",
 						name: "ファイルログ",
 						type: FormTypes.TEXT,
-						default: "[ファイル]"
+						defaultValue: "[ファイル]"
 					},
 					date_format: {
 						key: "date_format",
 						name: "日付フォーマット",
 						description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
 						type: FormTypes.TEXT,
-						default: "yyyy/M/d(e) HH:mm:ss"
+						defaultValue: "yyyy/M/d(e) HH:mm:ss"
 					},
 					custom_log_start_observe_messages: {
 						key: "custom_log_start_observe_messages",
 						name: "メッセージ監視開始文",
 						description: "&lt;time&gt;:監視開始日時",
 						type: FormTypes.TEXT,
-						default: "<time> メッセージの監視を開始します。"
+						defaultValue: "<time> メッセージの監視を開始します。"
 					},
 					custom_log_start_observe_talk: {
 						key: "custom_log_start_observe_talk",
 						name: "トーク監視開始文",
 						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
 						type: FormTypes.TEXT,
-						default: "<time> [<talkName>]の監視を開始します。"
+						defaultValue: "<time> [<talkName>]の監視を開始します。"
 					},
 					custom_log_message_header: {
 						key: "custom_log_message_header",
 						name: "メッセージヘッダー",
 						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
 						type: FormTypes.TEXT,
-						default: "<time> [<talkName>] <userName>"
+						defaultValue: "<time> [<talkName>] <userName>"
 					}
 				}
 			}
@@ -441,7 +441,7 @@
 		SETTING_DATA.sections.forEach(section => {
 			Iterator.of(section.items)
 				.filter(key => settings[key] === undefined)
-				.forEach((key, inputData) => settings[key] = inputData.default);
+				.forEach((key, inputData) => settings[key] = inputData.defaultValue);
 		});
 
 		setSettings(settings);

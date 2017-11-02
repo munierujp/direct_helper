@@ -207,224 +207,204 @@
 	/** ローカルストレージ設定キー */
 	const LOCAL_STORAGE_SETTINGS_KEY = "direct_helper_settings";
 
-	/** 設定名 */
-	const SETTING_NAME = "direct helper設定";
-
-	/** 設定画面説明 */
-	const SETTING_DESCRIPTION = `以下はdirect helperの設定です。設定変更後はページをリロードしてください。<br>
-詳しい使用方法は<a href="https://github.com/munierujp/direct_helper/blob/master/README.md" target="_blank">readme</a>を参照してください。`;
-
-	/** ユーザーダイアログ設定データ */
-	const USER_DIALOG_SETTING_DATA = {
-		key: "user-dialog-settings",
-		name: "ユーザーダイアログ",
-		description: "ユーザーダイアログの動作を変更します。",
-		items: {
-			expand_user_icon: {
-				key: "expand_user_icon",
-				name: "ユーザーアイコンの拡大",
-				description: "ユーザーアイコンをクリックで拡大表示します。",
-				type: FormTypes.CHECKBOX,
-				default: true
+	/** 設定データ */
+	const SETTING_DATA = {
+		name: "direct helper設定",
+		description: `以下はdirect helperの設定です。設定変更後はページをリロードしてください。<br>
+詳しい使用方法は<a href="https://github.com/munierujp/direct_helper/blob/master/README.md" target="_blank">readme</a>を参照してください。`,
+		sections: [
+			{
+				key: "user-dialog-settings",
+				name: "ユーザーダイアログ",
+				description: "ユーザーダイアログの動作を変更します。",
+				items: {
+					expand_user_icon: {
+						key: "expand_user_icon",
+						name: "ユーザーアイコンの拡大",
+						description: "ユーザーアイコンをクリックで拡大表示します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					}
+				}
+			},
+			{
+				key: "talk-settings",
+				name: "画像",
+				description: "画像の動作を変更します。",
+				items: {
+					change_thumbnail_size: {
+						key: "change_thumbnail_size",
+						name: "サムネイルサイズの変更",
+						description: "画像のサムネイルサイズを変更します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					thumbnail_size: {
+						key: "thumbnail_size",
+						name: "サムネイルサイズ",
+						description: "画像のサムネイルサイズ（px）を入力してください。",
+						type: FormTypes.NUMBER,
+						default: 600,
+						parentKey: "change_thumbnail_size"
+					},
+					blur_thumbnail: {
+						key: "blur_thumbnail",
+						name: "サムネイル画像をぼかす",
+						description: "サムネイル画像にブラー効果をかけてぼかします。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					thumbnail_blur_grade: {
+						key: "thumbnail_blur_grade",
+						name: "ぼかし度",
+						description: "サムネイル画像のぼかし度（px）を入力してください。",
+						type: FormTypes.NUMBER,
+						default: 0,
+						parentKey: "blur_thumbnail"
+					}
+				}
+			},
+			{
+				key: "input-message-settings",
+				name: "メッセージ入力",
+				description: "メッセージ入力欄の動作を変更します。",
+				items: {
+					confirm_send_message_button: {
+						key: "confirm_send_message_button",
+						name: "送信ボタンの確認",
+						description: "送信ボタンによるメッセージ送信前に確認します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					show_message_count: {
+						key: "show_message_count",
+						name: "入力文字数の表示",
+						description: "入力文字数をカウントダウン形式で表示します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					}
+				}
+			},
+			{
+				key: "multi-view-settings",
+				name: "マルチビュー",
+				description: "マルチビューの動作を変更します。",
+				items: {
+					responsive_multi_view: {
+						key: "responsive_multi_view",
+						name: "マルチビューのレスポンシブ化",
+						description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					}
+				}
+			},
+			{
+				key: "message-watching-settings",
+				name: "メッセージ監視",
+				description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
+				items: {
+					watch_message: {
+						key: "watch_message",
+						name: "メッセージの監視",
+						description: "メッセージを監視してコンソールに出力します。",
+						type: FormTypes.CHECKBOX,
+						default: true
+					},
+					show_past_message: {
+						key: "show_past_message",
+						name: "過去メッセージの表示",
+						description: "監視開始以前のメッセージを表示します。",
+						type: FormTypes.CHECKBOX,
+						default: false,
+						parentKey: "watch_message"
+					},
+					watch_default_observe_talk: {
+						key: "watch_default_observe_talk",
+						name: "デフォルト監視対象の自動監視",
+						description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
+						type: FormTypes.CHECKBOX,
+						default: true,
+						parentKey: "watch_message"
+					},
+					default_observe_talk_ids: {
+						key: "default_observe_talk_ids",
+						name: "デフォルト監視トークID",
+						description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
+						type: FormTypes.TEXT_ARRAY,
+						default: [],
+						parentKey: "watch_default_observe_talk"
+					}
+				}
+			},
+			{
+				key: "log-settings",
+				name: "ログ",
+				description: "ログの表示形式をカスタマイズします。",
+				items: {
+					log_label: {
+						key: "log_label",
+						name: "ログラベル",
+						description: "コンソールでのフィルター用の文字列です。",
+						type: FormTypes.TEXT,
+						default: ""
+					},
+					user_name_system: {
+						type: FormTypes.TEXT,
+						name: "システムユーザー名",
+						key: "user_name_system",
+						default: "システム"
+					},
+					log_stamp: {
+						key: "log_stamp",
+						name: "スタンプログ",
+						type: FormTypes.TEXT,
+						default: "[スタンプ]"
+					},
+					log_image: {
+						key: "log_image",
+						name: "画像ログ",
+						type: FormTypes.TEXT,
+						default: "[画像]"
+					},
+					log_file: {
+						key: "log_file",
+						name: "ファイルログ",
+						type: FormTypes.TEXT,
+						default: "[ファイル]"
+					},
+					date_format: {
+						key: "date_format",
+						name: "日付フォーマット",
+						description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
+						type: FormTypes.TEXT,
+						default: "yyyy/M/d(e) HH:mm:ss"
+					},
+					custom_log_start_observe_messages: {
+						key: "custom_log_start_observe_messages",
+						name: "メッセージ監視開始文",
+						description: "&lt;time&gt;:監視開始日時",
+						type: FormTypes.TEXT,
+						default: "<time> メッセージの監視を開始します。"
+					},
+					custom_log_start_observe_talk: {
+						key: "custom_log_start_observe_talk",
+						name: "トーク監視開始文",
+						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
+						type: FormTypes.TEXT,
+						default: "<time> [<talkName>]の監視を開始します。"
+					},
+					custom_log_message_header: {
+						key: "custom_log_message_header",
+						name: "メッセージヘッダー",
+						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
+						type: FormTypes.TEXT,
+						default: "<time> [<talkName>] <userName>"
+					}
+				}
 			}
-		}
+		]
 	};
-
-	/** 画像設定データ */
-	const IMAGE_SETTING_DATA = {
-		key: "talk-settings",
-		name: "画像",
-		description: "画像の動作を変更します。",
-		items: {
-			change_thumbnail_size: {
-				key: "change_thumbnail_size",
-				name: "サムネイルサイズの変更",
-				description: "画像のサムネイルサイズを変更します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			thumbnail_size: {
-				key: "thumbnail_size",
-				name: "サムネイルサイズ",
-				description: "画像のサムネイルサイズ（px）を入力してください。",
-				type: FormTypes.NUMBER,
-				default: 600,
-				parentKey: "change_thumbnail_size"
-			},
-			blur_thumbnail: {
-				key: "blur_thumbnail",
-				name: "サムネイル画像をぼかす",
-				description: "サムネイル画像にブラー効果をかけてぼかします。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			thumbnail_blur_grade: {
-				key: "thumbnail_blur_grade",
-				name: "ぼかし度",
-				description: "サムネイル画像のぼかし度（px）を入力してください。",
-				type: FormTypes.NUMBER,
-				default: 0,
-				parentKey: "blur_thumbnail"
-			}
-		}
-	};
-
-	/** メッセージ入力設定データ */
-	const INPUT_MESSAGE_SETTING_DATA = {
-		key: "input-message-settings",
-		name: "メッセージ入力",
-		description: "メッセージ入力欄の動作を変更します。",
-		items: {
-			confirm_send_message_button: {
-				key: "confirm_send_message_button",
-				name: "送信ボタンの確認",
-				description: "送信ボタンによるメッセージ送信前に確認します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			show_message_count: {
-				key: "show_message_count",
-				name: "入力文字数の表示",
-				description: "入力文字数をカウントダウン形式で表示します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			}
-		}
-	};
-
-	/** マルチビュー設定データ */
-	const MULTI_VIEW_SETTING_DATA = {
-		key: "multi-view-settings",
-		name: "マルチビュー",
-		description: "マルチビューの動作を変更します。",
-		items: {
-			responsive_multi_view: {
-				key: "responsive_multi_view",
-				name: "マルチビューのレスポンシブ化",
-				description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			}
-		}
-	};
-
-	/** メッセージ監視設定データ */
-	const WATCH_MESSAGE_SETTING_DATA = {
-		key: "message-watching-settings",
-		name: "メッセージ監視",
-		description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
-		items: {
-			watch_message: {
-				key: "watch_message",
-				name: "メッセージの監視",
-				description: "メッセージを監視してコンソールに出力します。",
-				type: FormTypes.CHECKBOX,
-				default: true
-			},
-			show_past_message: {
-				key: "show_past_message",
-				name: "過去メッセージの表示",
-				description: "監視開始以前のメッセージを表示します。",
-				type: FormTypes.CHECKBOX,
-				default: false,
-				parentKey: "watch_message"
-			},
-			watch_default_observe_talk: {
-				key: "watch_default_observe_talk",
-				name: "デフォルト監視対象の自動監視",
-				description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
-				type: FormTypes.CHECKBOX,
-				default: true,
-				parentKey: "watch_message"
-			},
-			default_observe_talk_ids: {
-				key: "default_observe_talk_ids",
-				name: "デフォルト監視トークID",
-				description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
-				type: FormTypes.TEXT_ARRAY,
-				default: [],
-				parentKey: "watch_default_observe_talk"
-			}
-		}
-	};
-
-	/** ログ設定データ */
-	const LOG_SETTING_DATA = {
-		key: "log-settings",
-		name: "ログ",
-		description: "ログの表示形式をカスタマイズします。",
-		items: {
-			log_label: {
-				key: "log_label",
-				name: "ログラベル",
-				description: "コンソールでのフィルター用の文字列です。",
-				type: FormTypes.TEXT,
-				default: ""
-			},
-			user_name_system: {
-				type: FormTypes.TEXT,
-				name: "システムユーザー名",
-				key: "user_name_system",
-				default: "システム"
-			},
-			log_stamp: {
-				key: "log_stamp",
-				name: "スタンプログ",
-				type: FormTypes.TEXT,
-				default: "[スタンプ]"
-			},
-			log_image: {
-				key: "log_image",
-				name: "画像ログ",
-				type: FormTypes.TEXT,
-				default: "[画像]"
-			},
-			log_file: {
-				key: "log_file",
-				name: "ファイルログ",
-				type: FormTypes.TEXT,
-				default: "[ファイル]"
-			},
-			date_format: {
-				key: "date_format",
-				name: "日付フォーマット",
-				description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
-				type: FormTypes.TEXT,
-				default: "yyyy/M/d(e) HH:mm:ss"
-			},
-			custom_log_start_observe_messages: {
-				key: "custom_log_start_observe_messages",
-				name: "メッセージ監視開始文",
-				description: "&lt;time&gt;:監視開始日時",
-				type: FormTypes.TEXT,
-				default: "<time> メッセージの監視を開始します。"
-			},
-			custom_log_start_observe_talk: {
-				key: "custom_log_start_observe_talk",
-				name: "トーク監視開始文",
-				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
-				type: FormTypes.TEXT,
-				default: "<time> [<talkName>]の監視を開始します。"
-			},
-			custom_log_message_header: {
-				key: "custom_log_message_header",
-				name: "メッセージヘッダー",
-				description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
-				type: FormTypes.TEXT,
-				default: "<time> [<talkName>] <userName>"
-			}
-		}
-	};
-
-	/** 設定データリスト（描画順） */
-	const SETTING_DATAS = [
-		USER_DIALOG_SETTING_DATA,
-		IMAGE_SETTING_DATA,
-		INPUT_MESSAGE_SETTING_DATA,
-		MULTI_VIEW_SETTING_DATA,
-		WATCH_MESSAGE_SETTING_DATA,
-		LOG_SETTING_DATA
-	];
 
 	/** 機能リスト（実行順） */
 	const SETTINGS_KEY_ACTIONS = {
@@ -458,8 +438,8 @@
 		const settings = getSettings();
 
 		//未設定項目にデフォルト値を設定
-		SETTING_DATAS.forEach(settingData => {
-			Iterator.of(settingData.items)
+		SETTING_DATA.sections.forEach(section => {
+			Iterator.of(section.items)
 				.filter(key => settings[key] === undefined)
 				.forEach((key, inputData) => settings[key] = inputData.default);
 		});
@@ -483,14 +463,14 @@
 			class: "page-title-glyphicon glyphicon glyphicon-cog"
 		});
 		pageTitle.appendChild(pageTitleIcon);
-		const pageTitleName = document.createTextNode(" " + SETTING_NAME);
+		const pageTitleName = document.createTextNode(" " + SETTING_DATA.name);
 		pageTitle.appendChild(pageTitleName);
 		settingPage.appendChild(pageTitle);
 
-		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DESCRIPTION);
+		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DATA.description);
 		settingPage.appendChild(description);
 
-		SETTING_DATAS.forEach(settiongData => appendSettingSection(settingPage, settiongData));
+		SETTING_DATA.sections.forEach(section => appendSettingSection(settingPage, section));
 	}
 
 	/**

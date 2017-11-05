@@ -1031,7 +1031,7 @@
 			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新
-            $textArea.on("input.direct_helper.doShowMessageCount", () => {
+            $textArea.on("input.direct_helper.doShowMessageCount.onInputText", () => {
                 const valueLength = $textArea.val().length;
                 $counter.text(maxLength - valueLength);
             });

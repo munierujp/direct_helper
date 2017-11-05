@@ -970,47 +970,45 @@
     * マルチビューのレスポンシブ化機能を実行します。
     */
 	function doResponsiveMultiView(){
-		const multiPane = document.getElementById("talk-panes-multi");
-		const talkPanes = multiPane.querySelectorAll('.talk-pane');
-		talkPanes.forEach(talkPane => {
+		const $talkPanes = $('#talk-panes-multi .talk-pane');
+        const $firstTalkPane = $talkPanes.first();
+        const $firstTimelineHeader = $firstTalkPane.find('.timeline-header');
+        const firstTalkPaneColor = $firstTimelineHeader.css("background-color");
+
+		$talkPanes.each((i, talkPane) => {
 			//トークペインのclass属性変更時、表示を切り替え
 			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
 				mutations.forEach(mutation => {
-					const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
-					const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
-
 					//アクティブペインを外側から表示
-					activeTalkPanes.forEach(talkPane => {
-						setDisplay(talkPane, DisplayTypes.BLOCK);
-						const timelinebody = talkPane.querySelector('.timeline-body');
-						setDisplay(timelinebody, DisplayTypes.BLOCK);
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						const timelineFotter = talkPane.querySelector('.timeline-footer');
-						const timelineBodyHeight = talkPane.clientHeight - timelineHeader.clientHeight - timelineFotter.clientHeight;
-						setStyle(timelinebody, "height", timelineBodyHeight + "px");
-						timelinebody.scrollTop = timelinebody.scrollHeight;
+					const $activeTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("has-send-form"));
+					$activeTalkPanes.each((i, talkPane) => {
+                        const $talkPane = $(talkPane);
+                        $talkPane.show();
+						const $timelinebody = $talkPane.find('.timeline-body');
+                        $timelinebody.show();
+						const $timelineHeader = $talkPane.find('.timeline-header');
+						const $timelineFotter = $talkPane.find('.timeline-footer');
+						$timelinebody.height($talkPane.prop("clientHeight") - $timelineHeader.prop("clientHeight") - $timelineFotter.prop("clientHeight"));
+						$timelinebody.scrollTop($timelinebody.prop("scrollHeight"));
 					});
 
 					//非アクティブペインを内側から非表示
-					inactiveTalkPanes.forEach(talkPane => {
-						const timelinebody = talkPane.querySelector('.timeline-body');
-						setDisplay(timelinebody, DisplayTypes.NONE);
-						setDisplay(talkPane, DisplayTypes.NONE);
+					const $inactiveTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("no-send-form"));
+					$inactiveTalkPanes.each((i, talkPane) => {
+                        const $talkPane = $(talkPane);
+						const $timelinebody = $talkPane.find('.timeline-body');
+                        $timelinebody.hide();
+                        $talkPane.hide();
 					});
 
-					//アクティブペインがない場合は空ビューを表示
-					if(activeTalkPanes.length === 0){
-						const talkPane = talkPanes[0];
-						setDisplay(talkPane, DisplayTypes.BLOCK);
-						const emptyView = talkPane.querySelector('.empty-view-container-for-timeline');
-						emptyView.classList.remove("hide");
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						timelineHeader.style["background-color"] = "#ffffff";
+					//アクティブペインがない場合は1番目のペインの空ビューを表示
+					if($activeTalkPanes.length === 0){
+                        $firstTalkPane.show();
+						const $emptyView = $firstTalkPane.find('.empty-view-container-for-timeline');
+						$emptyView.removeClass("hide");
+						$firstTimelineHeader.css("background-color", "#ffffff");
 					}else{
-						const talkPane = talkPanes[0];
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						const talkPaneColor = talkPane.querySelector('.dropdown-toggle').style["background-color"];
-						timelineHeader.style["background-color"] = talkPaneColor;
+						$firstTimelineHeader.css("background-color", firstTalkPaneColor);
 					}
 				});
 			}).start();

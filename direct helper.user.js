@@ -1021,16 +1021,20 @@
     * 入力文字数の表示機能を実行します。
     */
 	function doShowMessageCount(){
-		$('.form-send').each((i, form) => {
-			const $textArea = $(form).find('.form-send-text');
+		$('.form-send').each((i, sendForm) => {
+			const $textArea = $(sendForm).find('.form-send-text');
 			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
 			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
-			$(form).find('.form-send-button-group').prepend($counter);
+            const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
+			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新
-            $textArea.on("input", () => $counter.html(maxLength - $textArea.val().length));
+            $textArea.on("input", () => {
+                const valueLength = $textArea.val().length;
+                $counter.text(maxLength - valueLength);
+            });
 		});
 	}
 

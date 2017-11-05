@@ -970,7 +970,8 @@
     * マルチビューのレスポンシブ化機能を実行します。
     */
 	function doResponsiveMultiView(){
-		const $talkPanes = $('#talk-panes-multi .talk-pane');
+        const $multiPaneArea = $('#talk-panes-multi');
+		const $talkPanes = $multiPaneArea.find('.talk-pane');
         const $firstTalkPane = $talkPanes.first();
         const $firstTimelineHeader = $firstTalkPane.find('.timeline-header');
         const firstTalkPaneColor = $firstTimelineHeader.css("background-color");

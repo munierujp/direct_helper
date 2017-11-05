@@ -1026,7 +1026,7 @@
 			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
-			const $counter = $(`<label id="${HTML_ID_PREFIX + "message-count"}" style="margin-right:8px">${maxLength}</label>`);
+			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
 			$(form).find('.form-send-button-group').prepend($counter);
 
 			//文字入力時にカウンターの値を更新

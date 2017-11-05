@@ -847,37 +847,40 @@
     * 送信ボタンの確認機能を実行します。
     */
 	function doConfirmSendMessageButton(){
-		const sendForms = document.querySelectorAll('.form-send');
-		sendForms.forEach(sendForm => {
-			const textArea = sendForm.querySelector('.form-send-text');
-			const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-			const sendButton = sendForm.querySelector('.form-send-button');
+		$('.form-send').each((i, sendForm) => {
+            const $sendForm = $(sendForm);
 
 			//ダミー送信ボタンを作成
-			const dummySendButton = deepCloneNode(sendButton);
-			dummySendButton.disabled = true;
-			sendButtonArea.appendChild(dummySendButton);
+			const $sendButton = $sendForm.find('.form-send-button');
+			const $dummySendButton = $sendButton.clone();
+			$dummySendButton.prop("disabled", true);
+			const $sendButtonGroup = $sendForm.find('.form-send-button-group');
+			$sendButtonGroup.append($dummySendButton);
 
 			//送信ボタンを非表示化
-			setDisplay(sendButton, DisplayTypes.NONE);
+			$sendButton.hide();
 
 			//文字入力時にダミー送信ボタンをクリック可能化
-			addEventListener(textArea, EventTypes.INPUT, () => dummySendButton.disabled = textArea.value === "");
+			const $textArea = $sendForm.find('.form-send-text');
+            $textArea.on("input.direct_helper.doConfirmSendMessageButton.onInputText", () => {
+                const textAreaIsEmpty = $textArea.val() === "";
+                $dummySendButton.prop("disabled", textAreaIsEmpty);
+            });
 
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
-			const fileArea = sendForm.querySelector('.staged-files');
-			Observer.of(fileArea).attributes("style").hasChanged(mutations => {
-				mutations.forEach(mutation => {
-					const display = fileArea.style.display;
-					dummySendButton.disabled = display == "none";
-				});
-			}).start();
+            $sendForm.find('.staged-files').each((i, fileArea) => {
+                Observer.of(fileArea).attributes("style").hasChanged(mutations => {
+                    mutations.forEach(mutation => {
+                        const fileAreaIsEmpty = $(fileArea).is(':hidden');
+                        $dummySendButton.prop("disabled", fileAreaIsEmpty);
+                    });
+                }).start();
+            });
 
 			//ダミー送信ボタンクリック時に確認ダイアログを表示
-			addEventListener(dummySendButton, EventTypes.CLICK, () => {
+            $dummySendButton.on("click.direct_helper.doConfirmSendMessageButton.onClickDummySendButton", () => {
 				if(window.confirm("本当に送信しますか？")){
-					//送信ボタンをクリック
-					sendButton.click();
+					$sendButton.click();
 				}else{
 					//なにもしない
 				}

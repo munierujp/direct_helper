@@ -1026,7 +1026,7 @@
 			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
-			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
+			const $counter = $(`<label style="margin-right:8px">${maxLength}</label>`);
             const $sendButtonGroup = $sendForm.find('.form-send-button-group');
 			$sendButtonGroup.prepend($counter);
 

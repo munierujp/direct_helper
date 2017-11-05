@@ -890,79 +890,72 @@
     */
 	function doExpandUserIcon(){
 		const CUSTOM_MODAL_Z_INDEX = 9999;
+        const addEscapeKeyupListener =  listener => $(document).on("keyup.direct_helper.doExpandUserIcon.onEscapeKeyup", listener);
+        const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper.doExpandUserIcon.onEscapeKeyup");
 
-		const userDialog = document.getElementById("user-dialog-basic-profile");
-		const icon = userDialog.querySelector('.prof-icon-large');
-		setStyle(icon, "cursor", "zoom-in");
+		const $userDialog = $('#user-dialog-basic-profile');
+		const $icon = $userDialog.find('.prof-icon-large');
+		$icon.css("cursor", "zoom-in");
 
 		//アイコンクリック時に拡大画像を表示
-		addEventListener(icon, EventTypes.CLICK, () => {
-			const image = icon.querySelector('img');
-			const backgroundImage = image.style["background-image"];
+        $icon.on("click.direct_helper.doExpandUserIcon.onClickIcon",  () => {
+			const $image = $icon.find('img');
+            const backgroundImage = $image.css("background-image");
 			const url = backgroundImage.match(/url\("(.+)"\)/)[1];
 
 			//モーダルで背景を暗くする
-			const modal = document.querySelector('.modal-backdrop');
-			const modalZIndex = modal.style["z-index"];
-			setStyle(modal, "z-index", CUSTOM_MODAL_Z_INDEX);
+			const $modal = $('.modal-backdrop');
+			const modalZIndex = $modal.css("z-index");
+			$modal.css("z-index", CUSTOM_MODAL_Z_INDEX);
 
 			//拡大画像エリアを作成
-			const expandedImageArea = createElement(ElementTypes.DIV, {
-				id: HTML_ID_PREFIX + "expanded-user-icon"
-			}, {
-				"position": "fixed",
-				"top": 0,
-				"left": 0,
-				"width": "100%",
-				"height": "100%",
-				"display": "flex",
-				"align-items": "center",
-				"justify-content": "center",
-				"z-index": CUSTOM_MODAL_Z_INDEX + 1,
-				"cursor": "zoom-out "
-			});
+            const $expandedImageArea = $(`<div></div>`).css({
+                "position": "fixed",
+                "top": 0,
+                "left": 0,
+                "width": "100%",
+                "height": "100%",
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "z-index": CUSTOM_MODAL_Z_INDEX + 1,
+                "cursor": "zoom-out "
+            });
 
 			//拡大画像を作成
-			const expandedImage = createElement(ElementTypes.IMG, {
-				src: url
-			}, {
-				"max-width": "100%",
-				"max-height": "100%"
-			});
-			expandedImageArea.appendChild(expandedImage);
-			document.body.appendChild(expandedImageArea);
-
-			const addKeyupListener = listener => addEventListener(document, EventTypes.KEYUP, listener);
-			const removeKeyupListener = listener => removeEventListener(document, EventTypes.KEYUP, listener);
+            const $expandedImage = $(`<img src="${url}">`).css({
+                "max-width": "100%",
+                "max-height": "100%"
+            });
+			$expandedImageArea.append($expandedImage);
+			$('body').append($expandedImageArea);
 
 			const closeExpandedImage = () => {
-				document.body.removeChild(expandedImageArea);
-				setStyle(modal, "z-index", modalZIndex);
+				$expandedImageArea.remove();
+				$modal.css("z-index", modalZIndex);
 			};
 
-			const onEscapeKeyup = event => {
+			//Escapeキー押下時に拡大画像エリアを閉じる
+            addEscapeKeyupListener(event => {
 				if(event.key == KeyTypes.ESCAPE.key){
 					closeExpandedImage();
-					removeKeyupListener(onEscapeKeyup);
+                    removeEscapeKeyupListener();
 				}
-			};
+			});
 
 			//拡大画像エリアクリック時に拡大画像を閉じる
-			addEventListener(expandedImageArea, EventTypes.CLICK, event => {
+			$expandedImageArea.on("click.direct_helper.doExpandUserIcon.onClickExpandedImageArea", () => {
 				closeExpandedImage();
-				removeKeyupListener(onEscapeKeyup);
+                removeEscapeKeyupListener();
 
 				//拡大画像エリアクリック後にEscapeキー押下時にユーザーダイアログを閉じる
-				addKeyupListener(event => {
+                addEscapeKeyupListener(event => {
 					if(event.key == KeyTypes.ESCAPE.key){
-						const userModal = document.getElementById("user-modal");
-						userModal.click();
+                         const $userModal = $('#user-modal');
+						$userModal.click();
 					}
 				});
 			});
-
-			//Escapeキー押下時に拡大画像エリアを閉じる
-			addKeyupListener(onEscapeKeyup);
 		});
 	}
 

@@ -1021,12 +1021,13 @@
     */
 	function doShowMessageCount(){
 		$('.form-send').each((i, sendForm) => {
-			const $textArea = $(sendForm).find('.form-send-text');
+            const $sendForm = $(sendForm);
+			const $textArea = $sendForm.find('.form-send-text');
 			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
 			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
-            const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
+            const $sendButtonGroup = $sendForm.find('.form-send-button-group');
 			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新

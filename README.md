@@ -1,7 +1,10 @@
 ﻿# direct helper
-![サンプル画像](sample.png)
+<img src="doc/icon.png" alt=*アイコン* width="500">
 
 ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
+
+## サンプル
+![サンプル画像](doc/sample.png)
 
 ## インストール方法
 ### ユーザースクリプトマネージャーをインストール
@@ -144,6 +147,7 @@ DOM構造や挙動は、可能な限りオリジナルのものを再現して�
 |type|FormType|○|フォーム種別|
 |default|?|○|デフォルト値|
 |parentKey|String|-|親キー|
+|buttons|Object|-|ラジオボタン|
 
 #### buttons
 |プロパティ|型|必須|内容|

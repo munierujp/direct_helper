@@ -223,7 +223,7 @@
 						name: "ユーザーアイコンの拡大",
 						description: "ユーザーアイコンをクリックで拡大表示します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					}
 				}
 			},
@@ -237,14 +237,14 @@
 						name: "サムネイルサイズの変更",
 						description: "画像のサムネイルサイズを変更します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					thumbnail_size: {
 						key: "thumbnail_size",
 						name: "サムネイルサイズ",
 						description: "画像のサムネイルサイズ（px）を入力してください。",
 						type: FormTypes.NUMBER,
-						default: 600,
+						defaultValue: 600,
 						parentKey: "change_thumbnail_size"
 					},
 					blur_thumbnail: {
@@ -252,14 +252,14 @@
 						name: "サムネイル画像をぼかす",
 						description: "サムネイル画像にブラー効果をかけてぼかします。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					thumbnail_blur_grade: {
 						key: "thumbnail_blur_grade",
 						name: "ぼかし度",
 						description: "サムネイル画像のぼかし度（px）を入力してください。",
 						type: FormTypes.NUMBER,
-						default: 0,
+						defaultValue: 0,
 						parentKey: "blur_thumbnail"
 					}
 				}
@@ -274,14 +274,14 @@
 						name: "送信ボタンの確認",
 						description: "送信ボタンによるメッセージ送信前に確認します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					show_message_count: {
 						key: "show_message_count",
 						name: "入力文字数の表示",
 						description: "入力文字数をカウントダウン形式で表示します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					}
 				}
 			},
@@ -295,7 +295,7 @@
 						name: "マルチビューのレスポンシブ化",
 						description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					}
 				}
 			},
@@ -309,14 +309,14 @@
 						name: "メッセージの監視",
 						description: "メッセージを監視してコンソールに出力します。",
 						type: FormTypes.CHECKBOX,
-						default: true
+						defaultValue: true
 					},
 					show_past_message: {
 						key: "show_past_message",
 						name: "過去メッセージの表示",
 						description: "監視開始以前のメッセージを表示します。",
 						type: FormTypes.CHECKBOX,
-						default: false,
+						defaultValue: false,
 						parentKey: "watch_message"
 					},
 					watch_default_observe_talk: {
@@ -324,7 +324,7 @@
 						name: "デフォルト監視対象の自動監視",
 						description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
 						type: FormTypes.CHECKBOX,
-						default: true,
+						defaultValue: true,
 						parentKey: "watch_message"
 					},
 					default_observe_talk_ids: {
@@ -332,7 +332,7 @@
 						name: "デフォルト監視トークID",
 						description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
 						type: FormTypes.TEXT_ARRAY,
-						default: [],
+						defaultValue: [],
 						parentKey: "watch_default_observe_talk"
 					}
 				}
@@ -347,59 +347,59 @@
 						name: "ログラベル",
 						description: "コンソールでのフィルター用の文字列です。",
 						type: FormTypes.TEXT,
-						default: ""
+						defaultValue: ""
 					},
 					user_name_system: {
 						type: FormTypes.TEXT,
 						name: "システムユーザー名",
 						key: "user_name_system",
-						default: "システム"
+						defaultValue: "システム"
 					},
 					log_stamp: {
 						key: "log_stamp",
 						name: "スタンプログ",
 						type: FormTypes.TEXT,
-						default: "[スタンプ]"
+						defaultValue: "[スタンプ]"
 					},
 					log_image: {
 						key: "log_image",
 						name: "画像ログ",
 						type: FormTypes.TEXT,
-						default: "[画像]"
+						defaultValue: "[画像]"
 					},
 					log_file: {
 						key: "log_file",
 						name: "ファイルログ",
 						type: FormTypes.TEXT,
-						default: "[ファイル]"
+						defaultValue: "[ファイル]"
 					},
 					date_format: {
 						key: "date_format",
 						name: "日付フォーマット",
 						description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
 						type: FormTypes.TEXT,
-						default: "yyyy/M/d(e) HH:mm:ss"
+						defaultValue: "yyyy/M/d(e) HH:mm:ss"
 					},
 					custom_log_start_observe_messages: {
 						key: "custom_log_start_observe_messages",
 						name: "メッセージ監視開始文",
 						description: "&lt;time&gt;:監視開始日時",
 						type: FormTypes.TEXT,
-						default: "<time> メッセージの監視を開始します。"
+						defaultValue: "<time> メッセージの監視を開始します。"
 					},
 					custom_log_start_observe_talk: {
 						key: "custom_log_start_observe_talk",
 						name: "トーク監視開始文",
 						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
 						type: FormTypes.TEXT,
-						default: "<time> [<talkName>]の監視を開始します。"
+						defaultValue: "<time> [<talkName>]の監視を開始します。"
 					},
 					custom_log_message_header: {
 						key: "custom_log_message_header",
 						name: "メッセージヘッダー",
 						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
 						type: FormTypes.TEXT,
-						default: "<time> [<talkName>] <userName>"
+						defaultValue: "<time> [<talkName>] <userName>"
 					}
 				}
 			}
@@ -441,7 +441,7 @@
 		SETTING_DATA.sections.forEach(section => {
 			Iterator.of(section.items)
 				.filter(key => settings[key] === undefined)
-				.forEach((key, inputData) => settings[key] = inputData.default);
+				.forEach((key, inputData) => settings[key] = inputData.defaultValue);
 		});
 
 		setSettings(settings);
@@ -490,7 +490,7 @@
 		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, input) => {
 			const inputData = inputKeyDatas[key];
-			const value =  settings[key];
+			const value = settings[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
@@ -847,37 +847,40 @@
     * 送信ボタンの確認機能を実行します。
     */
 	function doConfirmSendMessageButton(){
-		const sendForms = document.querySelectorAll('.form-send');
-		sendForms.forEach(sendForm => {
-			const textArea = sendForm.querySelector('.form-send-text');
-			const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-			const sendButton = sendForm.querySelector('.form-send-button');
+		$('.form-send').each((i, sendForm) => {
+            const $sendForm = $(sendForm);
 
 			//ダミー送信ボタンを作成
-			const dummySendButton = deepCloneNode(sendButton);
-			dummySendButton.disabled = true;
-			sendButtonArea.appendChild(dummySendButton);
+			const $sendButton = $sendForm.find('.form-send-button');
+			const $dummySendButton = $sendButton.clone();
+			$dummySendButton.prop("disabled", true);
+			const $sendButtonGroup = $sendForm.find('.form-send-button-group');
+			$sendButtonGroup.append($dummySendButton);
 
 			//送信ボタンを非表示化
-			setDisplay(sendButton, DisplayTypes.NONE);
+			$sendButton.hide();
 
 			//文字入力時にダミー送信ボタンをクリック可能化
-			addEventListener(textArea, EventTypes.INPUT, () => dummySendButton.disabled = textArea.value === "");
+			const $textArea = $sendForm.find('.form-send-text');
+            $textArea.on("input.direct_helper.doConfirmSendMessageButton.onInputText", () => {
+                const textAreaIsEmpty = $textArea.val() === "";
+                $dummySendButton.prop("disabled", textAreaIsEmpty);
+            });
 
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
-			const fileArea = sendForm.querySelector('.staged-files');
-			Observer.of(fileArea).attributes("style").hasChanged(mutations => {
-				mutations.forEach(mutation => {
-					const display = fileArea.style.display;
-					dummySendButton.disabled = display == "none";
-				});
-			}).start();
+            $sendForm.find('.staged-files').each((i, fileArea) => {
+                Observer.of(fileArea).attributes("style").hasChanged(mutations => {
+                    mutations.forEach(mutation => {
+                        const fileAreaIsEmpty = $(fileArea).is(':hidden');
+                        $dummySendButton.prop("disabled", fileAreaIsEmpty);
+                    });
+                }).start();
+            });
 
 			//ダミー送信ボタンクリック時に確認ダイアログを表示
-			addEventListener(dummySendButton, EventTypes.CLICK, () => {
+            $dummySendButton.on("click.direct_helper.doConfirmSendMessageButton.onClickDummySendButton", () => {
 				if(window.confirm("本当に送信しますか？")){
-					//送信ボタンをクリック
-					sendButton.click();
+					$sendButton.click();
 				}else{
 					//なにもしない
 				}
@@ -890,79 +893,72 @@
     */
 	function doExpandUserIcon(){
 		const CUSTOM_MODAL_Z_INDEX = 9999;
+        const addEscapeKeyupListener =  listener => $(document).on("keyup.direct_helper.doExpandUserIcon.onEscapeKeyup", listener);
+        const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper.doExpandUserIcon.onEscapeKeyup");
 
-		const userDialog = document.getElementById("user-dialog-basic-profile");
-		const icon = userDialog.querySelector('.prof-icon-large');
-		setStyle(icon, "cursor", "zoom-in");
+		const $userDialog = $('#user-dialog-basic-profile');
+		const $icon = $userDialog.find('.prof-icon-large');
+		$icon.css("cursor", "zoom-in");
 
 		//アイコンクリック時に拡大画像を表示
-		addEventListener(icon, EventTypes.CLICK, () => {
-			const image = icon.querySelector('img');
-			const backgroundImage = image.style["background-image"];
+        $icon.on("click.direct_helper.doExpandUserIcon.onClickIcon",  () => {
+			const $image = $icon.find('img');
+            const backgroundImage = $image.css("background-image");
 			const url = backgroundImage.match(/url\("(.+)"\)/)[1];
 
 			//モーダルで背景を暗くする
-			const modal = document.querySelector('.modal-backdrop');
-			const modalZIndex = modal.style["z-index"];
-			setStyle(modal, "z-index", CUSTOM_MODAL_Z_INDEX);
+			const $modal = $('.modal-backdrop');
+			const modalZIndex = $modal.css("z-index");
+			$modal.css("z-index", CUSTOM_MODAL_Z_INDEX);
 
 			//拡大画像エリアを作成
-			const expandedImageArea = createElement(ElementTypes.DIV, {
-				id: HTML_ID_PREFIX + "expanded-user-icon"
-			}, {
-				"position": "fixed",
-				"top": 0,
-				"left": 0,
-				"width": "100%",
-				"height": "100%",
-				"display": "flex",
-				"align-items": "center",
-				"justify-content": "center",
-				"z-index": CUSTOM_MODAL_Z_INDEX + 1,
-				"cursor": "zoom-out "
-			});
+            const $expandedImageArea = $(`<div></div>`).css({
+                "position": "fixed",
+                "top": 0,
+                "left": 0,
+                "width": "100%",
+                "height": "100%",
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "z-index": CUSTOM_MODAL_Z_INDEX + 1,
+                "cursor": "zoom-out "
+            });
 
 			//拡大画像を作成
-			const expandedImage = createElement(ElementTypes.IMG, {
-				src: url
-			}, {
-				"max-width": "100%",
-				"max-height": "100%"
-			});
-			expandedImageArea.appendChild(expandedImage);
-			document.body.appendChild(expandedImageArea);
-
-			const addKeyupListener = listener => addEventListener(document, EventTypes.KEYUP, listener);
-			const removeKeyupListener = listener => removeEventListener(document, EventTypes.KEYUP, listener);
+            const $expandedImage = $(`<img src="${url}">`).css({
+                "max-width": "100%",
+                "max-height": "100%"
+            });
+			$expandedImageArea.append($expandedImage);
+			$('body').append($expandedImageArea);
 
 			const closeExpandedImage = () => {
-				document.body.removeChild(expandedImageArea);
-				setStyle(modal, "z-index", modalZIndex);
+				$expandedImageArea.remove();
+				$modal.css("z-index", modalZIndex);
 			};
 
-			const onEscapeKeyup = event => {
+			//Escapeキー押下時に拡大画像エリアを閉じる
+            addEscapeKeyupListener(event => {
 				if(event.key == KeyTypes.ESCAPE.key){
 					closeExpandedImage();
-					removeKeyupListener(onEscapeKeyup);
+                    removeEscapeKeyupListener();
 				}
-			};
+			});
 
 			//拡大画像エリアクリック時に拡大画像を閉じる
-			addEventListener(expandedImageArea, EventTypes.CLICK, event => {
+			$expandedImageArea.on("click.direct_helper.doExpandUserIcon.onClickExpandedImageArea", () => {
 				closeExpandedImage();
-				removeKeyupListener(onEscapeKeyup);
+                removeEscapeKeyupListener();
 
 				//拡大画像エリアクリック後にEscapeキー押下時にユーザーダイアログを閉じる
-				addKeyupListener(event => {
+                addEscapeKeyupListener(event => {
 					if(event.key == KeyTypes.ESCAPE.key){
-						const userModal = document.getElementById("user-modal");
-						userModal.click();
+                         const $userModal = $('#user-modal');
+						$userModal.click();
 					}
 				});
 			});
-
-			//Escapeキー押下時に拡大画像エリアを閉じる
-			addKeyupListener(onEscapeKeyup);
 		});
 	}
 
@@ -970,47 +966,46 @@
     * マルチビューのレスポンシブ化機能を実行します。
     */
 	function doResponsiveMultiView(){
-		const multiPane = document.getElementById("talk-panes-multi");
-		const talkPanes = multiPane.querySelectorAll('.talk-pane');
-		talkPanes.forEach(talkPane => {
+        const $multiPaneArea = $('#talk-panes-multi');
+		const $talkPanes = $multiPaneArea.find('.talk-pane');
+        const $firstTalkPane = $talkPanes.first();
+        const $firstTimelineHeader = $firstTalkPane.find('.timeline-header');
+        const firstTalkPaneColor = $firstTimelineHeader.css("background-color");
+
+		$talkPanes.each((i, talkPane) => {
 			//トークペインのclass属性変更時、表示を切り替え
 			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
 				mutations.forEach(mutation => {
-					const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
-					const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
-
 					//アクティブペインを外側から表示
-					activeTalkPanes.forEach(talkPane => {
-						setDisplay(talkPane, DisplayTypes.BLOCK);
-						const timelinebody = talkPane.querySelector('.timeline-body');
-						setDisplay(timelinebody, DisplayTypes.BLOCK);
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						const timelineFotter = talkPane.querySelector('.timeline-footer');
-						const timelineBodyHeight = talkPane.clientHeight - timelineHeader.clientHeight - timelineFotter.clientHeight;
-						setStyle(timelinebody, "height", timelineBodyHeight + "px");
-						timelinebody.scrollTop = timelinebody.scrollHeight;
+					const $activeTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("has-send-form"));
+					$activeTalkPanes.each((i, talkPane) => {
+                        const $talkPane = $(talkPane);
+                        $talkPane.show();
+						const $timelinebody = $talkPane.find('.timeline-body');
+                        $timelinebody.show();
+						const $timelineHeader = $talkPane.find('.timeline-header');
+						const $timelineFotter = $talkPane.find('.timeline-footer');
+						$timelinebody.height($talkPane.prop("clientHeight") - $timelineHeader.prop("clientHeight") - $timelineFotter.prop("clientHeight"));
+						$timelinebody.scrollTop($timelinebody.prop("scrollHeight"));
 					});
 
 					//非アクティブペインを内側から非表示
-					inactiveTalkPanes.forEach(talkPane => {
-						const timelinebody = talkPane.querySelector('.timeline-body');
-						setDisplay(timelinebody, DisplayTypes.NONE);
-						setDisplay(talkPane, DisplayTypes.NONE);
+					const $inactiveTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("no-send-form"));
+					$inactiveTalkPanes.each((i, talkPane) => {
+                        const $talkPane = $(talkPane);
+						const $timelinebody = $talkPane.find('.timeline-body');
+                        $timelinebody.hide();
+                        $talkPane.hide();
 					});
 
-					//アクティブペインがない場合は空ビューを表示
-					if(activeTalkPanes.length === 0){
-						const talkPane =  talkPanes[0];
-						setDisplay(talkPane, DisplayTypes.BLOCK);
-						const emptyView = talkPane.querySelector('.empty-view-container-for-timeline');
-						emptyView.classList.remove("hide");
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						timelineHeader.style["background-color"] = "#ffffff";
+					//アクティブペインがない場合は1番目のペインの空ビューを表示
+					if($activeTalkPanes.length === 0){
+                        $firstTalkPane.show();
+						const $emptyView = $firstTalkPane.find('.empty-view-container-for-timeline');
+						$emptyView.removeClass("hide");
+						$firstTimelineHeader.css("background-color", "#ffffff");
 					}else{
-						const talkPane =  talkPanes[0];
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						const talkPaneColor = talkPane.querySelector('.dropdown-toggle').style["background-color"];
-						timelineHeader.style["background-color"] = talkPaneColor;
+						$firstTimelineHeader.css("background-color", firstTalkPaneColor);
 					}
 				});
 			}).start();
@@ -1021,22 +1016,21 @@
     * 入力文字数の表示機能を実行します。
     */
 	function doShowMessageCount(){
-		const sendForms = document.querySelectorAll('.form-send');
-		sendForms.forEach(sendForm => {
-			const textArea = sendForm.querySelector('.form-send-text');
-			const maxLength = textArea.maxLength;
+		$('.form-send').each((i, sendForm) => {
+            const $sendForm = $(sendForm);
+			const $textArea = $sendForm.find('.form-send-text');
+			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
-			const counter = createElementWithHTML(ElementTypes.LABEL, maxLength, {
-				id: HTML_ID_PREFIX + "message-count"
-			}, {
-				"margin-right": "8px"
-			});
-			const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-			sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
+			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
+            const $sendButtonGroup = $sendForm.find('.form-send-button-group');
+			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新
-			addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
+            $textArea.on("input.direct_helper.doShowMessageCount.onInputText", () => {
+                const valueLength = $textArea.val().length;
+                $counter.text(maxLength - valueLength);
+            });
 		});
 	}
 
@@ -1079,7 +1073,7 @@
 					const talkId = talkItem.id;
 					const talkName = talkItem.querySelector('.talk-name-part').textContent;
 					const talk = new Talk(talkId, talkName);
-					const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
+					const talkIsRead = talkItem.querySelector('.corner-badge') === null;
 					talk.isRead = talkIsRead;
 					talkIdTalks[talkId] = talk;
 				});

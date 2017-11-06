@@ -1,5 +1,5 @@
 ﻿# direct helper
-![サンプル画像](sample.png)
+![サンプル画像](doc/sample.png)
 
 ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
 

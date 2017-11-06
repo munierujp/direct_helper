@@ -17,7 +17,7 @@
 direct helperは、ChromeのTampermonkeyで動作確認をしています。
 
 ### スクリプトをインストール
-* [direct helper.user.js](https://github.com/munierujp/direct_helper/raw/master/src/direct_helper.user.js)
+* [direct_helper.user.js](https://github.com/munierujp/direct_helper/raw/master/src/direct_helper.user.js)
 
 上記ファイルをスクリプトマネージャーにインストールしてください。  
 Tampermonkeyの場合、リンクをクリックするとインストール画面が表示されます。

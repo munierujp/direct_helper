@@ -1,5 +1,5 @@
 ﻿# 開発方法
-`direct helper.user.js`がスクリプトの本体です。  
+`direct_helper.user.js`がスクリプトの本体です。  
 JavaScriptでコードを記述してください。
 
 ## 外部ライブラリ

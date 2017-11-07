@@ -1021,7 +1021,8 @@
     * 入力文字数の表示機能を実行します。
     */
 	function doShowMessageCount(){
-		$('.form-send').each((i, sendForm) => {
+		const sendForms = $('.form-send');
+		sendForms.each((i, sendForm) => {
 			const $textArea = $(sendForm).find('.form-send-text');
 			const maxLength = $textArea.prop("maxLength");
 

@@ -849,8 +849,8 @@
 	function doConfirmSendMessageButton(){
         const CONFIRM_MESSAGE = "本当に送信しますか？";
 
-		const sendForms = $('.form-send');
-		sendForms.each((i, sendForm) => {
+		const $sendForms = $('.form-send');
+		$sendForms.each((i, sendForm) => {
 			const $sendButton = $(sendForm).find('.form-send-button');
 
 			//ダミー送信ボタンを作成

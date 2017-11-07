@@ -1169,6 +1169,15 @@
 	}
 
 	/**
+    * jQueryオブジェクトからメッセージ種別を取得します。
+    * @param {jQuery} jQuery jQueryオブジェクト
+    * @return {MessageType} メッセージ種別
+    */
+	function getMessageTypeFromJQuery(jQuery){
+        return Object.values(MessageTypes).find(messageType => jQuery.hasClass(messageType.value));
+	}
+
+	/**
     * ファイル種別を取得します。
     * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
     * @param {DOMTokenList} classList クラスリスト

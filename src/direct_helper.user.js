@@ -816,7 +816,8 @@
 				const messageType = getMessageTypeFromJQuery($messageBodyArea);
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
-					const $thumbnails = $(messageArea).find('.msg-text-contained-thumb img');
+					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
+					const $thumbnails = $thumbnailArea.find('img');
 					$thumbnails.each((i, thumbnail) => $(thumbnail).css("filter", `blur(${settings.thumbnail_blur_grade}px)`));
 				}
 			});

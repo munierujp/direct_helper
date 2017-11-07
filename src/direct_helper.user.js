@@ -812,13 +812,12 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const messageAreaChild = messageArea.querySelector('div:first-child');
-				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
-				const messageType = getMessageType(messageBodyArea.classList);
-				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
-					const thumbnails = thumbnailArea.querySelectorAll('img');
-					thumbnails.forEach(thumbnail => setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)"));
+				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
+				const messageType = getMessageTypeFromJQuery($messageBodyArea);
+                const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+				if(messageHasFile){
+					const $thumbnails = $(messageArea).find('.msg-text-contained-thumb img');
+					$thumbnails.each((i, thumbnail) => $(thumbnail).css("filter", `blur(${settings.thumbnail_blur_grade}px)`));
 				}
 			});
 		});

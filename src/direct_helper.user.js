@@ -1382,15 +1382,6 @@
 	}
 
 	/**
-    * ノードの深い複製を返します。
-    * @param {Node} node ノード
-    * @return {Node} ノードの深い複製
-    */
-	function deepCloneNode(node){
-		return node.cloneNode(true);
-	}
-
-	/**
     * 内部テキストを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} elementType 要素種別
     * @param {Object} [attributes] 属性

@@ -1147,7 +1147,7 @@
 		const messageType = getMessageType($(messageBodyArea));
 
 		const message = new Message(talk);
-		message.time = getMessageTime(messageArea);
+		message.time = getMessageTime($(messageArea));
 		message.userName = getMessageUserName(messageAreaChild);
 		message.body = getMessageBody(messageBodyArea, messageType);
 
@@ -1186,13 +1186,12 @@
 	}
 
 	/**
-    * メッセージの投稿日時を取得します。
-    * @param {Node} messageArea メッセージエリア
+    * メッセージエリアオブジェクトからメッセージの投稿日時を取得します。
+    * @param {jQuery} $messageArea メッセージエリアオブジェクト
     * @return {Date} メッセージの投稿日時
     */
-	function getMessageTime(messageArea){
-		const createdTimestamp = Number(messageArea.getAttribute("data-created-at"));
-		return new Date(createdTimestamp);
+	function getMessageTime($messageArea){
+		return new Date(Number($messageArea.attr("data-created-at")));
 	}
 
 	/**

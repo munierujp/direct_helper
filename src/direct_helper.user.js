@@ -1044,47 +1044,53 @@
     * メッセージの監視機能を実行します。
     */
 	function doWatchMessage(){
-		const talkIdTalks = {};
-		const observingTalkIds = [];
+        const talkIsRead = talkId => {
+            const $talk = $('#' + talkId);
+            const $cornerBadge = $talk.find('.corner-badge');
+            return $cornerBadge.length === 0;
+        };
 
-		//トーク一覧に子ノード追加時、トーク関連処理を実行
-		const talks = document.getElementById("talks");
-		Observer.of(talks).childList().hasChanged(mutations => {
-			//デフォルト監視対象を監視対象に追加
-			if(settings.watch_default_observe_talk === true){
-				//既読デフォルト監視トークIDリストの作成
-				const readTalkIds = settings.default_observe_talk_ids.filter(talkId => {
-					const talk = document.getElementById(talkId);
-					return Optional.ofAbsentable(talk.querySelector('.corner-badge')).isAbsent();
-				});
+        const talkIdTalks = {};
+        const observingTalkIds = [];
 
-				//既読デフォルト監視トークを監視対象に追加
-				readTalkIds.filter(talkId => !observingTalkIds.includes(talkId)).forEach((talkId, index) => {
-					const talk = document.getElementById(talkId);
-					//監視対象に追加するためにクリック
-					talk.click();
-					observingTalkIds.push(talkId);
+        //トーク一覧に子ノード追加時、トーク関連処理を実行
+        const $talkLists = $('#talks');
+        $talkLists.each((i, talkList) => {
+            Observer.of(talkList).childList().hasChanged(mutations => {
+                //デフォルト監視対象を監視対象に追加
+                if(settings.watch_default_observe_talk === true){
+                    const readTalkIds = settings.default_observe_talk_ids.filter(talkIsRead);
 
-					//最後の場合はトークを閉じるために2回クリック
-					if(index == readTalkIds.length -1){
-						talk.click();
-					}
-				});
-			}
+                    //既読デフォルト監視トークを監視対象に追加
+                    const talkIsNotObserving = talkId => !observingTalkIds.includes(talkId);
+                    readTalkIds.filter(talkIsNotObserving).forEach((talkId, index) => {
+                        const $talk = $('#' + talkId);
+                        observingTalkIds.push(talkId);
 
-			//トーク情報の更新
-			mutations.forEach(mutation => {
-				const talkItems = mutation.addedNodes;
-				talkItems.forEach(talkItem => {
-					const talkId = talkItem.id;
-					const talkName = talkItem.querySelector('.talk-name-part').textContent;
-					const talk = new Talk(talkId, talkName);
-					const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
-					talk.isRead = talkIsRead;
-					talkIdTalks[talkId] = talk;
-				});
-			});
-		}).start();
+                        //監視対象に追加するためにクリック
+                        $talk.click();
+
+                        //最後の場合はトークを閉じるために2回クリック
+                        const talkIsLast = index == readTalkIds.length -1;
+                        if(talkIsLast){
+                            $talk.click();
+                        }
+                    });
+                }
+
+                //トーク情報の更新
+                mutations.forEach(mutation => {
+                    const talkItems = mutation.addedNodes;
+                    talkItems.forEach(talkItem => {
+                        const talkId = talkItem.id;
+                        const talkName = $(talkItem).find('.talk-name-part').text();
+                        const talk = new Talk(talkId, talkName);
+                        talk.isRead = talkIsRead(talkId);
+                        talkIdTalks[talkId] = talk;
+                    });
+                });
+            }).start();
+        });
 
 		//メッセージ監視開始ログを表示
 		const observeStartMessage = Replacer.of(
@@ -1113,7 +1119,8 @@
 				const message = createMessage($(messageArea), talk);
 
 				//メッセージをコンソールに出力
-				if(message.time > observeStartDate || settings.show_past_message === true){
+                const messageIsNotPast = message.time > observeStartDate;
+				if(messageIsNotPast || settings.show_past_message === true){
 					logMessage(message);
 				}
 			});

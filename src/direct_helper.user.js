@@ -1177,14 +1177,12 @@
 	}
 
 	/**
-    * スタンプ種別を取得します。
-    * スタンプ種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
+    * メッセージ本文エリアオブジェクトからスタンプ種別を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {StampType} スタンプ種別
     */
-	function getStampType(classList){
-		const stampTypes = Object.values(StampTypes).filter(stampType => classList.contains(stampType.value));
-		return stampTypes.length == 1 ? stampTypes[0] : undefined;
+	function getStampType($messageBodyArea){
+        return Object.values(StampTypes).find(stampType => $messageBodyArea.hasClass(stampType.value));
 	}
 
 	/**
@@ -1237,7 +1235,7 @@
 				return prefix;
 			}
 		}else if(messageType == MessageTypes.STAMP){
-			const stampType = getStampType(messageBodyArea.classList);
+			const stampType = getStampType($(messageBodyArea));
 			if(stampType == StampTypes.NO_TEXT){
 				return settings.log_stamp;
 			}

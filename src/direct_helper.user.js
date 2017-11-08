@@ -1149,7 +1149,7 @@
 		const message = new Message(talk);
 		message.time = getMessageTime($(messageArea));
 		message.userName = getMessageUserName($(messageArea));
-		message.body = getMessageBody(messageBodyArea, messageType);
+		message.body = getMessageBody($(messageBodyArea), messageType);
 
 		if(messageType == MessageTypes.STAMP){
 			message.stamp = getMessageStamp(messageBodyArea);
@@ -1211,37 +1211,41 @@
 	}
 
 	/**
-    * メッセージの本文を取得します。
-    * @param {Node} messageBodyArea メッセージ本文エリア
+    * メッセージ本文エリアオブジェクトからメッセージの本文を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @param {MessageType} messageType メッセージ種別
     * @return {String} メッセージの本文
     * @throws {TypeError} messageTypeの型がMessageTypeではない場合
     */
-	function getMessageBody(messageBodyArea, messageType){
+	function getMessageBody($messageBodyArea, messageType){
 		if(!(messageType instanceof MessageType)){
 			throw new TypeError(messageType + " is not instance of MessageType");
 		}
 
-		if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-			const fileType = getFileType($(messageBodyArea));
+        const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+        const messageHasStamp = messageType == MessageTypes.STAMP;
+		if(messageHasFile){
+			const fileType = getFileType($messageBodyArea);
 			const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-			if(messageType == MessageTypes.FILE_AND_TEXT && !messageBodyArea.classList.contains("no-text")){
-				return prefix + messageBodyArea.querySelector('.msg-thumbs-text').textContent;
+            const messageHasText = messageType == MessageTypes.FILE_AND_TEXT && !($messageBodyArea.hasClass("no-text"));
+			if(messageHasText){
+                const text =$messageBodyArea.find('.msg-thumbs-text').text();
+				return prefix + text;
 			}else{
 				return prefix;
 			}
-		}else if(messageType == MessageTypes.STAMP){
-			const stampType = getStampType($(messageBodyArea));
+		}else if(messageHasStamp){
+			const stampType = getStampType($messageBodyArea);
 			if(stampType == StampTypes.NO_TEXT){
 				return settings.log_stamp;
 			}
 		}
 
 		//本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
-		const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
-		const messageMenu = messageText.querySelector('.msg-menu-container');
-		Optional.ofAbsentable(messageMenu).ifPresent(messageMenu => messageText.removeChild(messageMenu));
-		return messageText.textContent;
+		const $messageText = $messageBodyArea.find('.msg-text').clone();
+		const $messageMenu = $messageText.find('.msg-menu-container');
+        $messageMenu.remove();
+		return $messageText.text();
 	}
 
 	/**

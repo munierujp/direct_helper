@@ -1168,14 +1168,12 @@
 	}
 
 	/**
-    * ファイル種別を取得します。
-    * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
+    * メッセージ本文エリアオブジェクトからファイル種別を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {FileType} ファイル種別
     */
-	function getFileType(classList){
-		const fileTypes = Object.values(FileTypes).filter(fileType => classList.contains(fileType.value));
-		return fileTypes.length == 1 ? fileTypes[0] : undefined;
+	function getFileType($messageBodyArea){
+        return Object.values(FileTypes).find(fileType => $messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
 	}
 
 	/**
@@ -1231,7 +1229,7 @@
 		}
 
 		if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-			const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
+			const fileType = getFileType($(messageBodyArea));
 			const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
 			if(messageType == MessageTypes.FILE_AND_TEXT && !messageBodyArea.classList.contains("no-text")){
 				return prefix + messageBodyArea.querySelector('.msg-thumbs-text').textContent;

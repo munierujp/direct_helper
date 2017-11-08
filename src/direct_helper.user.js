@@ -1125,14 +1125,16 @@
     * @param {Function} callback : talkArea => {...}
     */
 	function observeAddingTalkArea(callback){
-		//メッセージエリアに子ノード追加時、トークエリア関連処理を実行
-		const messagesArea = document.getElementById("messages");
-		Observer.of(messagesArea).childList().hasChanged(mutations => {
-			mutations.forEach(mutation => {
-				const talkAreas = mutation.addedNodes;
-				talkAreas.forEach(talkArea => callback(talkArea));
-			});
-		}).start();
+		const $messagesAreas = $('#messages');
+        $messagesAreas.each((i, messagesArea) => {
+            //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
+            Observer.of(messagesArea).childList().hasChanged(mutations => {
+                mutations.forEach(mutation => {
+                    const talkAreas = mutation.addedNodes;
+                    talkAreas.forEach(talkArea => callback(talkArea));
+                });
+            }).start();
+        });
 	}
 
 	/**

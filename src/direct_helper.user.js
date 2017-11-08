@@ -1110,7 +1110,7 @@
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				//メッセージを生成
-				const message = createMessage(messageArea, talk);
+				const message = createMessage($(messageArea), talk);
 
 				//メッセージをコンソールに出力
 				if(message.time > observeStartDate || settings.show_past_message === true){
@@ -1136,23 +1136,22 @@
 	}
 
 	/**
-    * メッセージを作成します。
-    * @param {Node} messageArea メッセージエリア
+    * メッセージエリアオブジェクトからメッセージを作成します。
+    * @param {jQuery} $messageArea メッセージエリアオブジェクト
     * @parma {Talk} talk トーク
     * @return {Message} メッセージ
     */
-	function createMessage(messageArea, talk){
-		const messageAreaChild = messageArea.querySelector('div:first-child');
-		const messageBodyArea = messageAreaChild.querySelector('.msg-body');
-		const messageType = getMessageType($(messageBodyArea));
+	function createMessage($messageArea, talk){
+		const $messageBodyArea = $messageArea.find('div:first-child .msg-body');
+		const messageType = getMessageType($messageBodyArea);
 
 		const message = new Message(talk);
-		message.time = getMessageTime($(messageArea));
-		message.userName = getMessageUserName($(messageArea));
-		message.body = getMessageBody($(messageBodyArea), messageType);
+		message.time = getMessageTime($messageArea);
+		message.userName = getMessageUserName($messageArea);
+		message.body = getMessageBody($messageBodyArea, messageType);
 
 		if(messageType == MessageTypes.STAMP){
-			message.stamp = getMessageStamp($(messageBodyArea));
+			message.stamp = getMessageStamp($messageBodyArea);
 		}
 
 		return message;

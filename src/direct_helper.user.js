@@ -1144,7 +1144,7 @@
 	function createMessage(messageArea, talk){
 		const messageAreaChild = messageArea.querySelector('div:first-child');
 		const messageBodyArea = messageAreaChild.querySelector('.msg-body');
-		const messageType = getMessageType(messageBodyArea.classList);
+		const messageType = getMessageType($(messageBodyArea));
 
 		const message = new Message(talk);
 		message.time = getMessageTime(messageArea);
@@ -1159,14 +1159,12 @@
 	}
 
 	/**
-    * メッセージ種別を取得します。
-    * メッセージ種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
+    * メッセージ本文エリアオブジェクトからメッセージ種別を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {MessageType} メッセージ種別
     */
-	function getMessageType(classList){
-		const messageTypes = Object.values(MessageTypes).filter(messageType => classList.contains(messageType.value));
-		return messageTypes.length == 1 ? messageTypes[0] : undefined;
+	function getMessageType($messageBodyArea){
+        return Object.values(MessageTypes).find(messageType => $messageBodyArea.hasClass(messageType.value));
 	}
 
 	/**

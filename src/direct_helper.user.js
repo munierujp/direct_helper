@@ -1148,7 +1148,7 @@
 
 		const message = new Message(talk);
 		message.time = getMessageTime($(messageArea));
-		message.userName = getMessageUserName(messageAreaChild);
+		message.userName = getMessageUserName($(messageArea));
 		message.body = getMessageBody(messageBodyArea, messageType);
 
 		if(messageType == MessageTypes.STAMP){
@@ -1195,22 +1195,19 @@
 	}
 
 	/**
-    * メッセージのユーザー名を取得します。
-    * @param {Node} messageAreaChild メッセージエリア子要素
+    * メッセージエリアオブジェクトからメッセージのユーザー名を取得します。
+    * @param {jQuery} $messageArea メッセージエリアオブジェクト
     * @return {String} メッセージのユーザー名
     */
-	function getMessageUserName(messageAreaChild){
-		const userTypeValue = messageAreaChild.className;
-		switch(userTypeValue){
-			case UserTypes.SYSTEM.value:
-				return settings.user_name_system;
-			case UserTypes.ME.value:
-				const myUserName = document.getElementById("current-username");
-				return removeBlank(myUserName.textContent);
-			case UserTypes.OTHERS.value:
-				const otherUserName = messageAreaChild.querySelector('.username');
-				return removeBlank(otherUserName.textContent);
-		}
+	function getMessageUserName($messageArea){
+        const $messageAreaFirstChild = $messageArea.find('div:first-child');
+        if($messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
+            return settings.user_name_system;
+        }else if($messageAreaFirstChild.hasClass(UserTypes.ME.value)){
+            return $('#current-username').text();
+        }else if($messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
+            return $messageAreaFirstChild.find('.username').text();
+        }
 	}
 
 	/**

@@ -813,7 +813,7 @@
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
-				const messageType = getMessageTypeFromJQuery($messageBodyArea);
+				const messageType = getMessageType($messageBodyArea);
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
@@ -833,7 +833,7 @@
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
-				const messageType = getMessageTypeFromJQuery($messageBodyArea);
+				const messageType = getMessageType($messageBodyArea);
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
@@ -1165,15 +1165,6 @@
     */
 	function getMessageType($messageBodyArea){
         return Object.values(MessageTypes).find(messageType => $messageBodyArea.hasClass(messageType.value));
-	}
-
-	/**
-    * jQueryオブジェクトからメッセージ種別を取得します。
-    * @param {jQuery} jQuery jQueryオブジェクト
-    * @return {MessageType} メッセージ種別
-    */
-	function getMessageTypeFromJQuery(jQuery){
-        return Object.values(MessageTypes).find(messageType => jQuery.hasClass(messageType.value));
 	}
 
 	/**

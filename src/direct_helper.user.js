@@ -1152,7 +1152,7 @@
 		message.body = getMessageBody($(messageBodyArea), messageType);
 
 		if(messageType == MessageTypes.STAMP){
-			message.stamp = getMessageStamp(messageBodyArea);
+			message.stamp = getMessageStamp($(messageBodyArea));
 		}
 
 		return message;
@@ -1249,12 +1249,12 @@
 	}
 
 	/**
-    * メッセージのスタンプを取得します。
-    * @param {Node} messageBodyArea メッセージ本文エリア
+    * メッセージ本文エリアオブジェクトからメッセージのスタンプを取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {Node} メッセージのスタンプ
     */
-	function getMessageStamp(messageBodyArea){
-		return messageBodyArea.querySelector('img');
+	function getMessageStamp($messageBodyArea){
+		return $messageBodyArea.find('img').get(0);
 	}
 
 	/**

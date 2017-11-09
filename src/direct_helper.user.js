@@ -78,20 +78,6 @@
 		}
 	}
 
-	/** 要素種別クラス */
-	class ElementType extends HasValue{}
-	/** 要素種別 */
-	const ElementTypes = {
-		BUTTON: new ElementType("button"),
-		DIV: new ElementType("div"),
-		H3: new ElementType("h3"),
-		HR: new ElementType("hr"),
-		IMG: new ElementType("img"),
-		INPUT: new ElementType("input"),
-		LABEL: new ElementType("label"),
-		SPAN: new ElementType("span")
-	};
-
 	/** イベント種別クラス */
 	class EventType extends HasValue{}
 	/** イベント種別 */
@@ -167,7 +153,6 @@
 
 	/** enumリスト */
 	const ENUMS = [
-		ElementTypes,
 		EventTypes,
 		FileTypes,
 		FormTypes,

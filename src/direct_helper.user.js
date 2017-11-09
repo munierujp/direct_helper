@@ -1241,20 +1241,6 @@
 	}
 
 	/**
-    * HTML要素からイベントリスナーを削除します。
-    * @param {HTMLElement} element HTML要素
-    * @param {EventType} eventType イベント種別
-    * @param {Function} listener : Event => {}
-    * @throws {TypeError} eventTypeの型がEventTypeではない場合
-    */
-	function removeEventListener(element, eventType, listener){
-		if(!(eventType instanceof EventType)){
-			throw new TypeError(eventType + " is not instance of EventType");
-		}
-		element.removeEventListener(eventType.value, listener, false);
-	}
-
-	/**
     * ローカルストレージからJSON形式の設定を取得します。
     * ローカルストレージ上に値が存在しない場合、空のオブジェクトを返します。
     * @return {Object} 設定

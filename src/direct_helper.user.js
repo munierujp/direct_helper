@@ -424,7 +424,7 @@
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => $('#' + HTML_ID_PREFIX + key)).get();
+		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
 			const value = settings[key];
@@ -438,7 +438,7 @@
                     $input.prop("checked", value);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const $button = $('#' + HTML_ID_PREFIX + value);
+					const $button = $ById(HTML_ID_PREFIX + value);
 					$button.prop("checked", true);
 					break;
 			}
@@ -447,7 +447,7 @@
 			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
-					const $parentInput = $('#' + HTML_ID_PREFIX + parentKey);
+					const $parentInput = $ById(HTML_ID_PREFIX + parentKey);
 					const parentIsUnchecked = $parentInput.prop("checked") === false;
 					switch(inputData.type){
 						case FormTypes.TEXT:
@@ -510,7 +510,7 @@
 			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
-					const $parentInput = $('#' + HTML_ID_PREFIX + parentKey);
+					const $parentInput = $ById(HTML_ID_PREFIX + parentKey);
 					$parentInput.on("click.direct_helper_appendSettingSection", () => {
 						const parentIsUnchecked = $parentInput.prop("checked") === false;
 						switch(inputData.type){
@@ -867,7 +867,7 @@
     */
 	function doWatchMessage(){
         const talkIsRead = talkId => {
-            const $talk = $('#' + talkId);
+            const $talk = $ById(talkId);
             const $cornerBadge = $talk.find('.corner-badge');
             return $cornerBadge.length === 0;
         };
@@ -886,7 +886,7 @@
                     //既読デフォルト監視トークを監視対象に追加
                     const talkIsNotObserving = talkId => !observingTalkIds.includes(talkId);
                     readTalkIds.filter(talkIsNotObserving).forEach((talkId, index) => {
-                        const $talk = $('#' + talkId);
+                        const $talk = $ById(talkId);
                         observingTalkIds.push(talkId);
 
                         //監視対象に追加するためにクリック
@@ -1110,6 +1110,15 @@
 			.ifAbsent(() => console.log(settings.log_label, message.body));
 		console.groupEnd();
 	}
+
+	/**
+    * id属性からjQueryオブジェクトを取得します。
+    * @param {String} id id属性
+    * @return {jQuery} jQueryオブジェクト
+    */
+    function $ById(id){
+        return $(document.getElementById(id));
+    }
 
 	/**
     * オブジェクトを深く凍結します。

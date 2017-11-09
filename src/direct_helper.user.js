@@ -1243,15 +1243,6 @@
 	/**
     * HTML要素に属性を設定します。
     * @param {HTMLElement} element HTML要素
-    * @param {Object} attributes 属性
-    */
-	function setAttributes(element, attributes){
-		Iterator.of(attributes).forEach((name, value) => setAttribute(element, name, value));
-	}
-
-	/**
-    * HTML要素に属性を設定します。
-    * @param {HTMLElement} element HTML要素
     * @param {String} name 属性名
     * @param {String} value 値
     */

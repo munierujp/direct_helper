@@ -1241,24 +1241,6 @@
 	}
 
 	/**
-    * HTML要素を作成します。属性やスタイルがあれば設定します。
-    * @param {ElementType} elementType 要素種別
-    * @param {Object} [attributes] 属性
-    * @param {Object} [styles] スタイル
-    * @return {HTMLElement} HTML要素
-    * @throws {TypeError} elementTypeの型がElementTypeではない場合
-    */
-	function createElement(elementType, attributes, styles){
-		if(!(elementType instanceof ElementType)){
-			throw new TypeError(elementType + " is not instance of ElementType");
-		}
-		const element = document.createElement(elementType.value);
-		Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
-		Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
-		return element;
-	}
-
-	/**
     * HTML要素に属性を設定します。
     * @param {HTMLElement} element HTML要素
     * @param {Object} attributes 属性

@@ -1241,19 +1241,6 @@
 	}
 
 	/**
-    * HTML要素にディスプレイ属性を設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {DisplayType} displayType ディスプレイ種別
-    * @throws {TypeError} displayTypeの型がDisplayTypeではない場合
-    */
-	function setDisplay(element, displayType){
-		if(!(displayType instanceof DisplayType)){
-			throw new TypeError(displayType + " is not instance of DisplayType");
-		}
-		setStyle(element, "display", displayType.value);
-	}
-
-	/**
     * HTML要素にスタイルを設定します。
     * @param {HTMLElement} element HTML要素
     * @param {Object} styles スタイル

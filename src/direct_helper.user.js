@@ -451,26 +451,11 @@
     * 設定画面を描画します。
     */
 	function drawSettingView(){
-		const settingPage = document.getElementById("environment-page");
-
-		const hr = createElement(ElementTypes.HR);
-		settingPage.appendChild(hr);
-
-		const pageTitle = createElement(ElementTypes.H3, {
-			class: "page-title"
-		});
-		const pageTitleIcon = createElement(ElementTypes.SPAN, {
-			class: "page-title-glyphicon glyphicon glyphicon-cog"
-		});
-		pageTitle.appendChild(pageTitleIcon);
-		const pageTitleName = document.createTextNode(" " + SETTING_DATA.name);
-		pageTitle.appendChild(pageTitleName);
-		settingPage.appendChild(pageTitle);
-
-		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DATA.description);
-		settingPage.appendChild(description);
-
-		SETTING_DATA.sections.forEach(section => appendSettingSection($(settingPage), section));
+		const $settingPage = $('#environment-page');
+        $settingPage.append(`<hr>`);
+		$settingPage.append(`<h3 class="page-title"><span class="page-title-glyphicon glyphicon glyphicon-cog"></span>  ${SETTING_DATA.name}</h3>`);
+		$settingPage.append(`<div>${SETTING_DATA.description}</div>`);
+		SETTING_DATA.sections.forEach(section => appendSettingSection($settingPage, section));
 	}
 
 	/**

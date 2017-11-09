@@ -1243,15 +1243,6 @@
 	/**
     * HTML要素にスタイルを設定します。
     * @param {HTMLElement} element HTML要素
-    * @param {Object} styles スタイル
-    */
-	function setStyles(element, styles){
-		Iterator.of(styles).forEach((name, value) => setStyle(element, name, value));
-	}
-
-	/**
-    * HTML要素にスタイルを設定します。
-    * @param {HTMLElement} element HTML要素
     * @param {String} name プロパティ名
     * @param {String} value 値
     */

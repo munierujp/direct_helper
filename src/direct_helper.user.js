@@ -666,7 +666,7 @@
     * @return {jQuery} 項目オブジェクト
     */
 	function createSettingSection(settingData, inputForms){
-		const $section = $(`<div class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
+		const $section = $(`<div id="${HTML_ID_PREFIX + settingData.key}" class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
 		Optional.ofAbsentable(settingData.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
 		inputForms.forEach($inputForm => $section.append($inputForm));
 		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);

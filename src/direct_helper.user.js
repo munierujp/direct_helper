@@ -482,7 +482,7 @@
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
 		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data).get(0)).get();
-		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
+		const section = createSettingSection(settiongData, Object.values(inputKeyForms).map(element => $(element))).get(0);
 		settingPage.appendChild(section);
 
 		//フォームの初期値を設定
@@ -660,45 +660,17 @@
 	}
 
 	/**
-    * 設定画面の項目要素を作成します。
+    * 設定画面の項目オブジェクトを作成します。
     * @param {Object} settingData 設定データ
-    * @param {HTMLElement[]} inputForms 入力フォーム要素リスト
-    * @return {HTMLElement} 項目要素
+    * @param {jQuery[]} inputForms 入力フォームオブジェクトリスト
+    * @return {jQuery} 項目オブジェクト
     */
 	function createSettingSection(settingData, inputForms){
-		const section = createElement(ElementTypes.DIV, {
-			class: "c-section",
-			id: HTML_ID_PREFIX + settingData.key
-		});
-		const header = createElementWithHTML(ElementTypes.DIV, settingData.name, {
-			class: "c-section__heading"
-		});
-		section.appendChild(header);
-
-		Optional.ofAbsentable(settingData.description).ifPresent(descriptionText => {
-			const description = createElementWithHTML(ElementTypes.DIV, descriptionText, {
-				class: "form-group"
-			});
-			section.appendChild(description);
-		});
-
-		inputForms.forEach(inputForm => section.appendChild(inputForm));
-
-		const changeButtonArea = createElement(ElementTypes.DIV);
-		const changeButton = createElementWithHTML(ElementTypes.BUTTON, "変更", {
-			type: "button",
-			class: "btn btn-primary btn-fix"
-		});
-		changeButton.disabled = true;
-		changeButtonArea.appendChild(changeButton);
-		const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。", {
-			class: "success"
-		});
-		setDisplay(message, DisplayTypes.NONE);
-		changeButtonArea.appendChild(message);
-		section.appendChild(changeButtonArea);
-
-		return section;
+		const $section = $(`<div class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
+		Optional.ofAbsentable(settingData.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
+		inputForms.forEach($inputForm => $section.append($inputForm));
+		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
+		return $section;
 	}
 
 	/**

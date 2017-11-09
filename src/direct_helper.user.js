@@ -1241,16 +1241,6 @@
 	}
 
 	/**
-    * HTML要素にスタイルを設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {String} name プロパティ名
-    * @param {String} value 値
-    */
-	function setStyle(element, name, value){
-		element.style[name] = value;
-	}
-
-	/**
     * HTML要素にイベントリスナーを追加します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} eventType イベント種別

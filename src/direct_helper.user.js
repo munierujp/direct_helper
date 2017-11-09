@@ -34,18 +34,6 @@
 		}
 	}
 
-	/** ラジオボタンリスト */
-	class RadioButtons extends HasValue{
-		/**
-		* チェックされているボタンを返します。
-		* チェックされているボタンがない場合、undefinedを返します。
-		* @return {HTMLElement} ラジオボタン要素
-		*/
-		findChecked(){
-			return Array.from(this.value).find(button => button.checked === true);
-		}
-	}
-
 	/** トーク */
 	class Talk{
 		/**
@@ -89,40 +77,6 @@
 			}).start();
 		}
 	}
-
-	/** ディスプレイ種別クラス */
-	class DisplayType extends HasValue{}
-	/** ディスプレイ種別 */
-	const DisplayTypes = {
-		BLOCK: new DisplayType("block"),
-		INLINE: new DisplayType("inline"),
-		NONE: new DisplayType("none")
-	};
-
-	/** 要素種別クラス */
-	class ElementType extends HasValue{}
-	/** 要素種別 */
-	const ElementTypes = {
-		BUTTON: new ElementType("button"),
-		DIV: new ElementType("div"),
-		H3: new ElementType("h3"),
-		HR: new ElementType("hr"),
-		IMG: new ElementType("img"),
-		INPUT: new ElementType("input"),
-		LABEL: new ElementType("label"),
-		SPAN: new ElementType("span")
-	};
-
-	/** イベント種別クラス */
-	class EventType extends HasValue{}
-	/** イベント種別 */
-	const EventTypes = {
-		CLICK: new EventType("click"),
-		INPUT: new EventType("input"),
-		KEYDOWN: new EventType("keydown"),
-		KEYPRESS: new EventType("keypress"),
-		KEYUP: new EventType("keyup")
-	};
 
 	/** ファイル種別クラス */
 	class FileType extends HasValue{}
@@ -188,9 +142,6 @@
 
 	/** enumリスト */
 	const ENUMS = [
-		DisplayTypes,
-		ElementTypes,
-		EventTypes,
 		FileTypes,
 		FormTypes,
 		KeyTypes,
@@ -451,58 +402,44 @@
     * 設定画面を描画します。
     */
 	function drawSettingView(){
-		const settingPage = document.getElementById("environment-page");
-
-		const hr = createElement(ElementTypes.HR);
-		settingPage.appendChild(hr);
-
-		const pageTitle = createElement(ElementTypes.H3, {
-			class: "page-title"
-		});
-		const pageTitleIcon = createElement(ElementTypes.SPAN, {
-			class: "page-title-glyphicon glyphicon glyphicon-cog"
-		});
-		pageTitle.appendChild(pageTitleIcon);
-		const pageTitleName = document.createTextNode(" " + SETTING_DATA.name);
-		pageTitle.appendChild(pageTitleName);
-		settingPage.appendChild(pageTitle);
-
-		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DATA.description);
-		settingPage.appendChild(description);
-
-		SETTING_DATA.sections.forEach(section => appendSettingSection(settingPage, section));
+		const $settingPage = $('#environment-page');
+        $settingPage.append(`<hr>`);
+		$settingPage.append(`<h3 class="page-title"><span class="page-title-glyphicon glyphicon glyphicon-cog"></span>  ${SETTING_DATA.name}</h3>`);
+		$settingPage.append(`<div>${SETTING_DATA.description}</div>`);
+		SETTING_DATA.sections.forEach(section => appendSettingSection($settingPage, section));
 	}
 
 	/**
     * 設定画面に項目を追加します。
-    * @param {HTMLElement} settingPage 設定画面
+    * @param {jQuery} $settingPage 設定画面オブジェクト
     * @param {Object} settiongData 設定データ
     */
-	function appendSettingSection(settingPage, settiongData){
+	function appendSettingSection($settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
 		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
-		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
-		settingPage.appendChild(section);
+        const inputForms = Object.values(inputKeyForms);
+		const $section = createSettingSection(settiongData, inputForms);
+		$settingPage.append($section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
-		Iterator.of(inputKeyInputs).forEach((key, input) => {
+		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
+		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
-			const value =  settings[key];
+			const value = settings[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-					input.value = value;
+					$input.val(value);
 					break;
 				case FormTypes.CHECKBOX:
-					input.checked = value;
+                    $input.prop("checked", value);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const button = document.getElementById(HTML_ID_PREFIX + value);
-					button.checked = true;
+					const $button = $ById(HTML_ID_PREFIX + value);
+					$button.prop("checked", true);
 					break;
 			}
 
@@ -510,18 +447,18 @@
 			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
-					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
-					const parentIsUnchecked = parentInput.checked === false;
+					const $parentInput = $ById(HTML_ID_PREFIX + parentKey);
+					const parentIsUnchecked = $parentInput.prop("checked") === false;
 					switch(inputData.type){
 						case FormTypes.TEXT:
 						case FormTypes.TEXT_ARRAY:
 						case FormTypes.NUMBER:
 						case FormTypes.CHECKBOX:
-							input.disabled = parentIsUnchecked;
+							$input.prop("disabled", parentIsUnchecked);
 							break;
 						case FormTypes.RADIOBUTTON:
-							const buttons = input.querySelectorAll('input');
-							buttons.forEach(button => button.disabled = parentIsUnchecked);
+							const $buttons = $input.find('input');
+							$buttons.each((i, button) => $(button).prop("disabled", parentIsUnchecked));
 							break;
 					}
 				}
@@ -529,41 +466,43 @@
 		});
 
 		//値変更時に変更ボタンをクリック可能化
-		const changeButton = section.querySelector('.btn');
-		const message = section.querySelector('.success');
+		const $changeButton = $section.find('.btn');
+		const $message = $section.find('.success');
 		const onChangeValue = () => {
-			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, input) => {
+			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, $input) => {
 				const inputData = inputKeyDatas[key];
 				switch(inputData.type){
 					case FormTypes.TEXT:
 					case FormTypes.TEXT_ARRAY:
 					case FormTypes.NUMBER:
-						return input.value;
+						return $input.val();
 					case FormTypes.CHECKBOX:
-						return input.checked;
+						return $input.prop("checked");
 					case FormTypes.RADIOBUTTON:
-						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
-						const checkedButton = RadioButtons.of(buttons).findChecked();
-						return checkedButton.id.replace(HTML_ID_PREFIX, "");
+						const $buttons = $ByName(HTML_ID_PREFIX + key);
+						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
+                        const id = $checkedButton.prop("id");
+						return id.replace(HTML_ID_PREFIX, "");
 				}
 			}).get();
-			changeButton.disabled = equalsInputValuesToSettings(inputKeyInputValues, settings);
-			setDisplay(message, DisplayTypes.NONE);
+            const notChangedValue = equalsInputValuesToSettings(inputKeyInputValues, settings);
+            $changeButton.prop("disabled", notChangedValue);
+            $message.hide();
 		};
-		Iterator.of(inputKeyInputs).forEach((key, input) => {
+		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-					addEventListener(input, EventTypes.INPUT, onChangeValue);
+                    $input.on("input.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.CHECKBOX:
-					addEventListener(input, EventTypes.CLICK, onChangeValue);
+                    $input.on("click.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
-					buttons.forEach(button => addEventListener(button, EventTypes.CLICK, onChangeValue));
+                    const $buttons = $ByName(HTML_ID_PREFIX + key);
+					$buttons.each((i, button) => $(button).on("click.direct_helper_appendSettingSection", onChangeValue));
 					break;
 			}
 
@@ -571,224 +510,107 @@
 			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
-					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
-					addEventListener(parentInput, EventTypes.CLICK, () => {
-						const parentIsUnchecked = parentInput.checked === false;
+					const $parentInput = $ById(HTML_ID_PREFIX + parentKey);
+					$parentInput.on("click.direct_helper_appendSettingSection", () => {
+						const parentIsUnchecked = $parentInput.prop("checked") === false;
 						switch(inputData.type){
 							case FormTypes.TEXT:
 							case FormTypes.TEXT_ARRAY:
 							case FormTypes.NUMBER:
 							case FormTypes.CHECKBOX:
-								input.disabled = parentIsUnchecked;
+								$input.prop("disabled", parentIsUnchecked);
 								break;
 							case FormTypes.RADIOBUTTON:
-								const buttons = input.querySelectorAll('input');
-								buttons.forEach(button => button.disabled = parentIsUnchecked);
+                                const $buttons = $input.find('input');
+                                $buttons.each((i, button) => $(button).prop("disabled", parentIsUnchecked));
 								break;
 						}
 					});
 				}
 			});
-		});
+        });
 
-		//変更ボタンクリック時に設定を更新
-		addEventListener(changeButton, EventTypes.CLICK, () => {
-			Iterator.of(inputKeyInputs).forEach((key, input) => {
-				const inputData = inputKeyDatas[key];
-				switch(inputData.type){
-					case FormTypes.TEXT:
-					case FormTypes.NUMBER:
-						settings[key] = input.value;
-						break;
-					case FormTypes.TEXT_ARRAY:
-						settings[key] = stringToArray(input.value);
-						break;
-					case FormTypes.CHECKBOX:
-						settings[key] = input.checked;
-						break;
-					case FormTypes.RADIOBUTTON:
-						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
-						const checkedButton = RadioButtons.of(buttons).findChecked();
-						settings[key] = checkedButton.id.replace(HTML_ID_PREFIX, "");
-						break;
-				}
-			});
+        //変更ボタンクリック時に設定を更新
+        $changeButton.on("click.direct_helper_appendSettingSection", () => {
+            Iterator.of(inputKeyInputs).forEach((key, $input) => {
+                const inputData = inputKeyDatas[key];
+                switch(inputData.type){
+                    case FormTypes.TEXT:
+                    case FormTypes.NUMBER:
+                        settings[key] = $input.val();
+                        break;
+                    case FormTypes.TEXT_ARRAY:
+                        settings[key] = stringToArray($input.val());
+                        break;
+                    case FormTypes.CHECKBOX:
+                        settings[key] = $input.prop("checked");
+                        break;
+                    case FormTypes.RADIOBUTTON:
+                        const $buttons = $input.find('input');
+						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
+                        const id = $checkedButton.prop("id");
+                        settings[key] = id.replace(HTML_ID_PREFIX, "");
+                        break;
+                }
+            });
 
-			setSettings(settings);
-			changeButton.disabled = true;
-			setDisplay(message, DisplayTypes.INLINE);
-		});
-	}
+            setSettings(settings);
+            $changeButton.prop("disabled", true);
+            $message.show();
+        });
+    }
 
 	/**
-    * 設定画面の入力フォーム要素を作成します。
+    * 設定画面の入力フォームオブジェクトを作成します。
     * @param {Object} inputData インプットデータ
-    * @return {HTMLElement} 入力フォーム要素
+    * @return {jQuery} 入力フォームオブジェクト
     */
 	function createSettingInputFormElement(inputData){
 		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group"
-			});
-			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
-				class: "control-label"
-			});
-			inputForm.appendChild(label);
-			const inputArea = createElement(ElementTypes.DIV, {
-				class: "controls"
-			});
-			const input = createElement(ElementTypes.INPUT, {
-				id: HTML_ID_PREFIX + inputData.key,
-				class: "form-control",
-				name: "status"
-			});
-			inputArea.appendChild(input);
-			inputForm.appendChild(inputArea);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				inputForm.appendChild(annotation);
-			});
-			return inputForm;
+			const $inputForm = $(`<div class="form-group"></div>`);
+			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
+			$inputForm.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			return $inputForm;
 		}else if(inputData.type == FormTypes.NUMBER){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group"
-			});
-			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
-				class: "control-label"
-			});
-			inputForm.appendChild(label);
-			const inputArea = createElement(ElementTypes.DIV, {
-				class: "controls"
-			});
-			const input = createElement(ElementTypes.INPUT, {
-				type: "number",
-				id: HTML_ID_PREFIX + inputData.key,
-				class: "form-control",
-				name: "status"
-			});
-			inputArea.appendChild(input);
-			inputForm.appendChild(inputArea);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				inputForm.appendChild(annotation);
-			});
-			return inputForm;
+			const $inputForm = $(`<div class="form-group"></div>`);
+			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
+			$inputForm.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			return $inputForm;
 		}else if(inputData.type == FormTypes.CHECKBOX){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group"
-			});
-			const checkboxArea = createElement(ElementTypes.DIV, {
-				class: "checkbox"
-			});
-			const label = createElement(ElementTypes.LABEL);
-			const checkbox = createElement(ElementTypes.INPUT, {
-				id: HTML_ID_PREFIX + inputData.key,
-				type: "checkbox"
-			});
-			label.appendChild(checkbox);
-			const labelText = document.createTextNode(inputData.name);
-			label.appendChild(labelText);
-			checkboxArea.appendChild(label);
-
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				checkboxArea.appendChild(annotation);
-			});
-
-			inputForm.appendChild(checkboxArea);
-			return inputForm;
+			const $inputForm = $(`<div class="form-group"></div>`);
+			const $checkboxArea = $(`<div class="checkbox"></div>`);
+			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + inputData.key}" type="checkbox">${inputData.name}</label>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
+			$inputForm.append($checkboxArea);
+			return $inputForm;
 		}else if(inputData.type == FormTypes.RADIOBUTTON){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group",
-				id: HTML_ID_PREFIX + inputData.key
+			const $inputForm = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
+			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			inputData.buttons.forEach(button => {
+                const $radioButtonArea = $(`<div class="radio"></div>`);
+				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + inputData.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
+                Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
+				$inputForm.append($radioButtonArea);
 			});
-			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
-				class: "control-label"
-			});
-			inputForm.appendChild(label);
-
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				inputForm.appendChild(annotation);
-			});
-
-			const buttons = inputData.buttons;
-			buttons.forEach(button => {
-				const radioButtonArea = createElement(ElementTypes.DIV, {
-					class: "radio"
-				});
-				const label = createElement(ElementTypes.LABEL);
-				const input = createElement(ElementTypes.INPUT, {
-					type: "radio",
-					name: HTML_ID_PREFIX + inputData.key,
-					id: HTML_ID_PREFIX + button.key
-				});
-				label.appendChild(input);
-				const labelText = document.createTextNode(button.name);
-				label.appendChild(labelText);
-				radioButtonArea.appendChild(label);
-
-				Optional.ofAbsentable(button.description).ifPresent(description => {
-					const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-						class: "annotation"
-					});
-					radioButtonArea.appendChild(annotation);
-				});
-
-				inputForm.appendChild(radioButtonArea);
-			});
-			return inputForm;
+			return $inputForm;
 		}
 	}
 
 	/**
-    * 設定画面の項目要素を作成します。
+    * 設定画面の項目オブジェクトを作成します。
     * @param {Object} settingData 設定データ
-    * @param {HTMLElement[]} inputForms 入力フォーム要素リスト
-    * @return {HTMLElement} 項目要素
+    * @param {jQuery[]} inputForms 入力フォームオブジェクトリスト
+    * @return {jQuery} 項目オブジェクト
     */
 	function createSettingSection(settingData, inputForms){
-		const section = createElement(ElementTypes.DIV, {
-			class: "c-section",
-			id: HTML_ID_PREFIX + settingData.key
-		});
-		const header = createElementWithHTML(ElementTypes.DIV, settingData.name, {
-			class: "c-section__heading"
-		});
-		section.appendChild(header);
-
-		Optional.ofAbsentable(settingData.description).ifPresent(descriptionText => {
-			const description = createElementWithHTML(ElementTypes.DIV, descriptionText, {
-				class: "form-group"
-			});
-			section.appendChild(description);
-		});
-
-		inputForms.forEach(inputForm => section.appendChild(inputForm));
-
-		const changeButtonArea = createElement(ElementTypes.DIV);
-		const changeButton = createElementWithHTML(ElementTypes.BUTTON, "変更", {
-			type: "button",
-			class: "btn btn-primary btn-fix"
-		});
-		changeButton.disabled = true;
-		changeButtonArea.appendChild(changeButton);
-		const message = createElementWithHTML(ElementTypes.SPAN, "変更しました。", {
-			class: "success"
-		});
-		setDisplay(message, DisplayTypes.NONE);
-		changeButtonArea.appendChild(message);
-		section.appendChild(changeButtonArea);
-
-		return section;
+		const $section = $(`<div id="${HTML_ID_PREFIX + settingData.key}" class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
+		Optional.ofAbsentable(settingData.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
+		inputForms.forEach($inputForm => $section.append($inputForm));
+		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
+		return $section;
 	}
 
 	/**
@@ -812,13 +634,13 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const messageAreaChild = messageArea.querySelector('div:first-child');
-				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
-				const messageType = getMessageType(messageBodyArea.classList);
-				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
-					const thumbnails = thumbnailArea.querySelectorAll('img');
-					thumbnails.forEach(thumbnail => setStyle(thumbnail, "filter", "blur(" + settings.thumbnail_blur_grade + "px)"));
+				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
+				const messageType = getMessageType($messageBodyArea);
+                const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+				if(messageHasFile){
+					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
+					const $thumbnails = $thumbnailArea.find('img');
+					$thumbnails.each((i, thumbnail) => $(thumbnail).css("filter", `blur(${settings.thumbnail_blur_grade}px)`));
 				}
 			});
 		});
@@ -832,12 +654,12 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const messageAreaChild = messageArea.querySelector('div:first-child');
-				const messageBodyArea = messageAreaChild.querySelector('.msg-body');
-				const messageType = getMessageType(messageBodyArea.classList);
-				if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-					const thumbnailArea = messageArea.querySelector('.msg-text-contained-thumb');
-					setStyle(thumbnailArea, "width", settings.thumbnail_size + "px");
+				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
+				const messageType = getMessageType($messageBodyArea);
+                const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+				if(messageHasFile){
+					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
+                    $thumbnailArea.width(settings.thumbnail_size);
 				}
 			});
 		});
@@ -847,37 +669,43 @@
     * 送信ボタンの確認機能を実行します。
     */
 	function doConfirmSendMessageButton(){
-		const sendForms = document.querySelectorAll('.form-send');
-		sendForms.forEach(sendForm => {
-			const textArea = sendForm.querySelector('.form-send-text');
-			const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-			const sendButton = sendForm.querySelector('.form-send-button');
+        const CONFIRM_MESSAGE = "本当に送信しますか？";
+
+		const $sendForms = $('.form-send');
+		$sendForms.each((i, sendForm) => {
+			const $sendButton = $(sendForm).find('.form-send-button');
 
 			//ダミー送信ボタンを作成
-			const dummySendButton = deepCloneNode(sendButton);
-			dummySendButton.disabled = true;
-			sendButtonArea.appendChild(dummySendButton);
+			const $dummySendButton = $sendButton.clone();
+			$dummySendButton.prop("disabled", true);
+			const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
+			$sendButtonGroup.append($dummySendButton);
 
 			//送信ボタンを非表示化
-			setDisplay(sendButton, DisplayTypes.NONE);
+			$sendButton.hide();
 
 			//文字入力時にダミー送信ボタンをクリック可能化
-			addEventListener(textArea, EventTypes.INPUT, () => dummySendButton.disabled = textArea.value === "");
+			const $textArea = $(sendForm).find('.form-send-text');
+            $textArea.on("input.direct_helper_doConfirmSendMessageButton", () => {
+                const textAreaIsEmpty = $textArea.val() === "";
+                $dummySendButton.prop("disabled", textAreaIsEmpty);
+            });
 
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
-			const fileArea = sendForm.querySelector('.staged-files');
-			Observer.of(fileArea).attributes("style").hasChanged(mutations => {
-				mutations.forEach(mutation => {
-					const display = fileArea.style.display;
-					dummySendButton.disabled = display == "none";
-				});
-			}).start();
+            const $fileAreas = $(sendForm).find('.staged-files');
+            $fileAreas.each((i, fileArea) => {
+                Observer.of(fileArea).attributes("style").hasChanged(mutations => {
+                    mutations.forEach(mutation => {
+                        const fileAreaIsHidden= $(fileArea).is(':hidden');
+                        $dummySendButton.prop("disabled", fileAreaIsHidden);
+                    });
+                }).start();
+            });
 
 			//ダミー送信ボタンクリック時に確認ダイアログを表示
-			addEventListener(dummySendButton, EventTypes.CLICK, () => {
-				if(window.confirm("本当に送信しますか？")){
-					//送信ボタンをクリック
-					sendButton.click();
+            $dummySendButton.on("click.direct_helper_doConfirmSendMessageButton", () => {
+				if(window.confirm(CONFIRM_MESSAGE)){
+					$sendButton.click();
 				}else{
 					//なにもしない
 				}
@@ -891,78 +719,74 @@
 	function doExpandUserIcon(){
 		const CUSTOM_MODAL_Z_INDEX = 9999;
 
-		const userDialog = document.getElementById("user-dialog-basic-profile");
-		const icon = userDialog.querySelector('.prof-icon-large');
-		setStyle(icon, "cursor", "zoom-in");
+        const addEscapeKeyupListener =  listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
+        const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup");
+
+		const $userDialog = $('#user-dialog-basic-profile');
+		const $icon = $userDialog.find('.prof-icon-large');
+
+        //アイコンのマウスカーソルを変更
+		$icon.css("cursor", "zoom-in");
 
 		//アイコンクリック時に拡大画像を表示
-		addEventListener(icon, EventTypes.CLICK, () => {
-			const image = icon.querySelector('img');
-			const backgroundImage = image.style["background-image"];
+        $icon.on("click.direct_helper_doExpandUserIcon_onClickIcon",  () => {
+			const $image = $icon.find('img');
+            const backgroundImage = $image.css("background-image");
 			const url = backgroundImage.match(/url\("(.+)"\)/)[1];
 
 			//モーダルで背景を暗くする
-			const modal = document.querySelector('.modal-backdrop');
-			const modalZIndex = modal.style["z-index"];
-			setStyle(modal, "z-index", CUSTOM_MODAL_Z_INDEX);
+			const $modal = $('.modal-backdrop');
+			const modalZIndex = $modal.css("z-index");
+			$modal.css("z-index", CUSTOM_MODAL_Z_INDEX);
 
 			//拡大画像エリアを作成
-			const expandedImageArea = createElement(ElementTypes.DIV, {
-				id: HTML_ID_PREFIX + "expanded-user-icon"
-			}, {
-				"position": "fixed",
-				"top": 0,
-				"left": 0,
-				"width": "100%",
-				"height": "100%",
-				"display": "flex",
-				"align-items": "center",
-				"justify-content": "center",
-				"z-index": CUSTOM_MODAL_Z_INDEX + 1,
-				"cursor": "zoom-out "
-			});
+            const $expandedImageArea = $(`<div></div>`).css({
+                "position": "fixed",
+                "top": 0,
+                "left": 0,
+                "width": "100%",
+                "height": "100%",
+                "display": "flex",
+                "align-items": "center",
+                "justify-content": "center",
+                "z-index": CUSTOM_MODAL_Z_INDEX + 1,
+                "cursor": "zoom-out "
+            });
 
 			//拡大画像を作成
-			const expandedImage = createElement(ElementTypes.IMG, {
-				src: url
-			}, {
-				"max-width": "100%",
-				"max-height": "100%"
-			});
-			expandedImageArea.appendChild(expandedImage);
-			document.body.appendChild(expandedImageArea);
-
-			const addKeyupListener = listener => addEventListener(document, EventTypes.KEYUP, listener);
-			const removeKeyupListener = listener => removeEventListener(document, EventTypes.KEYUP, listener);
+            const $expandedImage = $(`<img src="${url}">`).css({
+                "max-width": "100%",
+                "max-height": "100%"
+            });
+			$expandedImageArea.append($expandedImage);
+			$('body').append($expandedImageArea);
 
 			const closeExpandedImage = () => {
-				document.body.removeChild(expandedImageArea);
-				setStyle(modal, "z-index", modalZIndex);
+				$expandedImageArea.remove();
+				$modal.css("z-index", modalZIndex);
 			};
 
-			const onEscapeKeyup = event => {
+			//Escapeキー押下時に拡大画像エリアを閉じる
+            addEscapeKeyupListener(event => {
 				if(event.key == KeyTypes.ESCAPE.key){
 					closeExpandedImage();
-					removeKeyupListener(onEscapeKeyup);
+                    removeEscapeKeyupListener();
 				}
-			};
+			});
 
 			//拡大画像エリアクリック時に拡大画像を閉じる
-			addEventListener(expandedImageArea, EventTypes.CLICK, event => {
+			$expandedImageArea.on("click.direct_helper_doExpandUserIcon_onClickExpandedImageArea", () => {
 				closeExpandedImage();
-				removeKeyupListener(onEscapeKeyup);
+                removeEscapeKeyupListener();
 
 				//拡大画像エリアクリック後にEscapeキー押下時にユーザーダイアログを閉じる
-				addKeyupListener(event => {
+                addEscapeKeyupListener(event => {
 					if(event.key == KeyTypes.ESCAPE.key){
-						const userModal = document.getElementById("user-modal");
-						userModal.click();
+                         const $userModal = $('#user-modal');
+						$userModal.click();
 					}
 				});
 			});
-
-			//Escapeキー押下時に拡大画像エリアを閉じる
-			addKeyupListener(onEscapeKeyup);
 		});
 	}
 
@@ -970,47 +794,45 @@
     * マルチビューのレスポンシブ化機能を実行します。
     */
 	function doResponsiveMultiView(){
-		const multiPane = document.getElementById("talk-panes-multi");
-		const talkPanes = multiPane.querySelectorAll('.talk-pane');
-		talkPanes.forEach(talkPane => {
+        const $multiPaneArea = $('#talk-panes-multi');
+		const $talkPanes = $multiPaneArea.find('.talk-pane');
+        const $firstTalkPane = $talkPanes.first();
+        const $firstTimelineHeader = $firstTalkPane.find('.timeline-header');
+        const firstTalkPaneColor = $firstTimelineHeader.css("background-color");
+
+		$talkPanes.each((i, talkPane) => {
 			//トークペインのclass属性変更時、表示を切り替え
 			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
 				mutations.forEach(mutation => {
-					const activeTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("has-send-form"));
-					const inactiveTalkPanes = Array.from(talkPanes).filter(talkPane => talkPane.classList.contains("no-send-form"));
+					const $activeTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("has-send-form"));
+					const $inactiveTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("no-send-form"));
 
 					//アクティブペインを外側から表示
-					activeTalkPanes.forEach(talkPane => {
-						setDisplay(talkPane, DisplayTypes.BLOCK);
-						const timelinebody = talkPane.querySelector('.timeline-body');
-						setDisplay(timelinebody, DisplayTypes.BLOCK);
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						const timelineFotter = talkPane.querySelector('.timeline-footer');
-						const timelineBodyHeight = talkPane.clientHeight - timelineHeader.clientHeight - timelineFotter.clientHeight;
-						setStyle(timelinebody, "height", timelineBodyHeight + "px");
-						timelinebody.scrollTop = timelinebody.scrollHeight;
+					$activeTalkPanes.each((i, talkPane) => {
+                        $(talkPane).show();
+						const $timelinebody = $(talkPane).find('.timeline-body');
+                        $timelinebody.show();
+						const $timelineHeader = $(talkPane).find('.timeline-header');
+						const $timelineFotter = $(talkPane).find('.timeline-footer');
+						$timelinebody.height($(talkPane).prop("clientHeight") - $timelineHeader.prop("clientHeight") - $timelineFotter.prop("clientHeight"));
+						$timelinebody.scrollTop($timelinebody.prop("scrollHeight"));
 					});
 
 					//非アクティブペインを内側から非表示
-					inactiveTalkPanes.forEach(talkPane => {
-						const timelinebody = talkPane.querySelector('.timeline-body');
-						setDisplay(timelinebody, DisplayTypes.NONE);
-						setDisplay(talkPane, DisplayTypes.NONE);
+					$inactiveTalkPanes.each((i, talkPane) => {
+						const $timelinebody = $(talkPane).find('.timeline-body');
+                        $timelinebody.hide();
+                        $(talkPane).hide();
 					});
 
-					//アクティブペインがない場合は空ビューを表示
-					if(activeTalkPanes.length === 0){
-						const talkPane =  talkPanes[0];
-						setDisplay(talkPane, DisplayTypes.BLOCK);
-						const emptyView = talkPane.querySelector('.empty-view-container-for-timeline');
-						emptyView.classList.remove("hide");
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						timelineHeader.style["background-color"] = "#ffffff";
+					//アクティブペインがない場合は1番目のペインの空ビューを表示
+					if($activeTalkPanes.length === 0){
+                        $firstTalkPane.show();
+						const $emptyView = $firstTalkPane.find('.empty-view-container-for-timeline');
+						$emptyView.removeClass("hide");
+						$firstTimelineHeader.css("background-color", "#ffffff");
 					}else{
-						const talkPane =  talkPanes[0];
-						const timelineHeader = talkPane.querySelector('.timeline-header');
-						const talkPaneColor = talkPane.querySelector('.dropdown-toggle').style["background-color"];
-						timelineHeader.style["background-color"] = talkPaneColor;
+						$firstTimelineHeader.css("background-color", firstTalkPaneColor);
 					}
 				});
 			}).start();
@@ -1021,22 +843,22 @@
     * 入力文字数の表示機能を実行します。
     */
 	function doShowMessageCount(){
-		const sendForms = document.querySelectorAll('.form-send');
-		sendForms.forEach(sendForm => {
-			const textArea = sendForm.querySelector('.form-send-text');
-			const maxLength = textArea.maxLength;
+		const sendForms = $('.form-send');
+		sendForms.each((i, sendForm) => {
+			const $textArea = $(sendForm).find('.form-send-text');
+			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
-			const counter = createElementWithHTML(ElementTypes.LABEL, maxLength, {
-				id: HTML_ID_PREFIX + "message-count"
-			}, {
-				"margin-right": "8px"
-			});
-			const sendButtonArea = sendForm.querySelector('.form-send-button-group');
-			sendButtonArea.insertBefore(counter, sendButtonArea.firstChild);
+			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
+            const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
+			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新
-			addEventListener(textArea, EventTypes.INPUT, () => counter.innerHTML = maxLength - textArea.value.length);
+            $textArea.on("input.direct_helper_doShowMessageCount", () => {
+                const currentLength = $textArea.val().length;
+                const count = maxLength - currentLength;
+                $counter.text(count);
+            });
 		});
 	}
 
@@ -1044,47 +866,53 @@
     * メッセージの監視機能を実行します。
     */
 	function doWatchMessage(){
-		const talkIdTalks = {};
-		const observingTalkIds = [];
+        const talkIsRead = talkId => {
+            const $talk = $ById(talkId);
+            const $cornerBadge = $talk.find('.corner-badge');
+            return $cornerBadge.length === 0;
+        };
 
-		//トーク一覧に子ノード追加時、トーク関連処理を実行
-		const talks = document.getElementById("talks");
-		Observer.of(talks).childList().hasChanged(mutations => {
-			//デフォルト監視対象を監視対象に追加
-			if(settings.watch_default_observe_talk === true){
-				//既読デフォルト監視トークIDリストの作成
-				const readTalkIds = settings.default_observe_talk_ids.filter(talkId => {
-					const talk = document.getElementById(talkId);
-					return Optional.ofAbsentable(talk.querySelector('.corner-badge')).isAbsent();
-				});
+        const talkIdTalks = {};
+        const observingTalkIds = [];
 
-				//既読デフォルト監視トークを監視対象に追加
-				readTalkIds.filter(talkId => !observingTalkIds.includes(talkId)).forEach((talkId, index) => {
-					const talk = document.getElementById(talkId);
-					//監視対象に追加するためにクリック
-					talk.click();
-					observingTalkIds.push(talkId);
+        //トーク一覧に子ノード追加時、トーク関連処理を実行
+        const $talkLists = $('#talks');
+        $talkLists.each((i, talkList) => {
+            Observer.of(talkList).childList().hasChanged(mutations => {
+                //デフォルト監視対象を監視対象に追加
+                if(settings.watch_default_observe_talk === true){
+                    const readTalkIds = settings.default_observe_talk_ids.filter(talkIsRead);
 
-					//最後の場合はトークを閉じるために2回クリック
-					if(index == readTalkIds.length -1){
-						talk.click();
-					}
-				});
-			}
+                    //既読デフォルト監視トークを監視対象に追加
+                    const talkIsNotObserving = talkId => !observingTalkIds.includes(talkId);
+                    readTalkIds.filter(talkIsNotObserving).forEach((talkId, index) => {
+                        const $talk = $ById(talkId);
+                        observingTalkIds.push(talkId);
 
-			//トーク情報の更新
-			mutations.forEach(mutation => {
-				const talkItems = mutation.addedNodes;
-				talkItems.forEach(talkItem => {
-					const talkId = talkItem.id;
-					const talkName = talkItem.querySelector('.talk-name-part').textContent;
-					const talk = new Talk(talkId, talkName);
-					const talkIsRead =  talkItem.querySelector('.corner-badge') === null;
-					talk.isRead = talkIsRead;
-					talkIdTalks[talkId] = talk;
-				});
-			});
-		}).start();
+                        //監視対象に追加するためにクリック
+                        $talk.click();
+
+                        //最後の場合はトークを閉じるために2回クリック
+                        const talkIsLast = index == readTalkIds.length -1;
+                        if(talkIsLast){
+                            $talk.click();
+                        }
+                    });
+                }
+
+                //トーク情報の更新
+                mutations.forEach(mutation => {
+                    const talkItems = mutation.addedNodes;
+                    talkItems.forEach(talkItem => {
+                        const talkId = talkItem.id;
+                        const talkName = $(talkItem).find('.talk-name-part').text();
+                        const talk = new Talk(talkId, talkName);
+                        talk.isRead = talkIsRead(talkId);
+                        talkIdTalks[talkId] = talk;
+                    });
+                });
+            }).start();
+        });
 
 		//メッセージ監視開始ログを表示
 		const observeStartMessage = Replacer.of(
@@ -1110,10 +938,11 @@
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				//メッセージを生成
-				const message = createMessage(messageArea, talk);
+				const message = createMessage($(messageArea), talk);
 
 				//メッセージをコンソールに出力
-				if(message.time > observeStartDate || settings.show_past_message === true){
+                const messageIsNotPast = message.time > observeStartDate;
+				if(messageIsNotPast || settings.show_past_message === true){
 					logMessage(message);
 				}
 			});
@@ -1125,142 +954,137 @@
     * @param {Function} callback : talkArea => {...}
     */
 	function observeAddingTalkArea(callback){
-		//メッセージエリアに子ノード追加時、トークエリア関連処理を実行
-		const messagesArea = document.getElementById("messages");
-		Observer.of(messagesArea).childList().hasChanged(mutations => {
-			mutations.forEach(mutation => {
-				const talkAreas = mutation.addedNodes;
-				talkAreas.forEach(talkArea => callback(talkArea));
-			});
-		}).start();
+		const $messagesAreas = $('#messages');
+        $messagesAreas.each((i, messagesArea) => {
+            //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
+            Observer.of(messagesArea).childList().hasChanged(mutations => {
+                mutations.forEach(mutation => {
+                    const talkAreas = mutation.addedNodes;
+                    talkAreas.forEach(talkArea => callback(talkArea));
+                });
+            }).start();
+        });
 	}
 
 	/**
-    * メッセージを作成します。
-    * @param {Node} messageArea メッセージエリア
+    * メッセージエリアオブジェクトからメッセージを作成します。
+    * @param {jQuery} $messageArea メッセージエリアオブジェクト
     * @parma {Talk} talk トーク
     * @return {Message} メッセージ
     */
-	function createMessage(messageArea, talk){
-		const messageAreaChild = messageArea.querySelector('div:first-child');
-		const messageBodyArea = messageAreaChild.querySelector('.msg-body');
-		const messageType = getMessageType(messageBodyArea.classList);
+	function createMessage($messageArea, talk){
+		const $messageBodyArea = $messageArea.find('div:first-child .msg-body');
+		const messageType = getMessageType($messageBodyArea);
 
 		const message = new Message(talk);
-		message.time = getMessageTime(messageArea);
-		message.userName = getMessageUserName(messageAreaChild);
-		message.body = getMessageBody(messageBodyArea, messageType);
+		message.time = getMessageTime($messageArea);
+		message.userName = getMessageUserName($messageArea);
+		message.body = getMessageBody($messageBodyArea, messageType);
 
 		if(messageType == MessageTypes.STAMP){
-			message.stamp = getMessageStamp(messageBodyArea);
+			message.stamp = getMessageStamp($messageBodyArea);
 		}
 
 		return message;
 	}
 
 	/**
-    * メッセージ種別を取得します。
-    * メッセージ種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
+    * メッセージ本文エリアオブジェクトからメッセージ種別を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {MessageType} メッセージ種別
     */
-	function getMessageType(classList){
-		const messageTypes = Object.values(MessageTypes).filter(messageType => classList.contains(messageType.value));
-		return messageTypes.length == 1 ? messageTypes[0] : undefined;
+	function getMessageType($messageBodyArea){
+        return Object.values(MessageTypes).find(messageType => $messageBodyArea.hasClass(messageType.value));
 	}
 
 	/**
-    * ファイル種別を取得します。
-    * ファイル種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
+    * メッセージ本文エリアオブジェクトからファイル種別を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {FileType} ファイル種別
     */
-	function getFileType(classList){
-		const fileTypes = Object.values(FileTypes).filter(fileType => classList.contains(fileType.value));
-		return fileTypes.length == 1 ? fileTypes[0] : undefined;
+	function getFileType($messageBodyArea){
+        return Object.values(FileTypes).find(fileType => $messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
 	}
 
 	/**
-    * スタンプ種別を取得します。
-    * スタンプ種別が存在しないまたは複数ある場合はundefinedを返します。
-    * @param {DOMTokenList} classList クラスリスト
+    * メッセージ本文エリアオブジェクトからスタンプ種別を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {StampType} スタンプ種別
     */
-	function getStampType(classList){
-		const stampTypes = Object.values(StampTypes).filter(stampType => classList.contains(stampType.value));
-		return stampTypes.length == 1 ? stampTypes[0] : undefined;
+	function getStampType($messageBodyArea){
+        return Object.values(StampTypes).find(stampType => $messageBodyArea.hasClass(stampType.value));
 	}
 
 	/**
-    * メッセージの投稿日時を取得します。
-    * @param {Node} messageArea メッセージエリア
+    * メッセージエリアオブジェクトからメッセージの投稿日時を取得します。
+    * @param {jQuery} $messageArea メッセージエリアオブジェクト
     * @return {Date} メッセージの投稿日時
     */
-	function getMessageTime(messageArea){
-		const createdTimestamp = Number(messageArea.getAttribute("data-created-at"));
-		return new Date(createdTimestamp);
+	function getMessageTime($messageArea){
+		return new Date(Number($messageArea.attr("data-created-at")));
 	}
 
 	/**
-    * メッセージのユーザー名を取得します。
-    * @param {Node} messageAreaChild メッセージエリア子要素
+    * メッセージエリアオブジェクトからメッセージのユーザー名を取得します。
+    * @param {jQuery} $messageArea メッセージエリアオブジェクト
     * @return {String} メッセージのユーザー名
     */
-	function getMessageUserName(messageAreaChild){
-		const userTypeValue = messageAreaChild.className;
-		switch(userTypeValue){
-			case UserTypes.SYSTEM.value:
-				return settings.user_name_system;
-			case UserTypes.ME.value:
-				const myUserName = document.getElementById("current-username");
-				return removeBlank(myUserName.textContent);
-			case UserTypes.OTHERS.value:
-				const otherUserName = messageAreaChild.querySelector('.username');
-				return removeBlank(otherUserName.textContent);
-		}
+	function getMessageUserName($messageArea){
+        const $messageAreaFirstChild = $messageArea.find('div:first-child');
+        if($messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
+            return settings.user_name_system;
+        }else if($messageAreaFirstChild.hasClass(UserTypes.ME.value)){
+            return $('#current-username').text();
+        }else if($messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
+            return $messageAreaFirstChild.find('.username').text();
+        }
 	}
 
 	/**
-    * メッセージの本文を取得します。
-    * @param {Node} messageBodyArea メッセージ本文エリア
+    * メッセージ本文エリアオブジェクトからメッセージの本文を取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @param {MessageType} messageType メッセージ種別
     * @return {String} メッセージの本文
     * @throws {TypeError} messageTypeの型がMessageTypeではない場合
     */
-	function getMessageBody(messageBodyArea, messageType){
+	function getMessageBody($messageBodyArea, messageType){
 		if(!(messageType instanceof MessageType)){
 			throw new TypeError(messageType + " is not instance of MessageType");
 		}
 
-		if(messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT){
-			const fileType = getFileType(messageBodyArea.querySelector('.msg-thumb').classList);
+        const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+        const messageHasStamp = messageType == MessageTypes.STAMP;
+		if(messageHasFile){
+			const fileType = getFileType($messageBodyArea);
 			const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-			if(messageType == MessageTypes.FILE_AND_TEXT && !messageBodyArea.classList.contains("no-text")){
-				return prefix + messageBodyArea.querySelector('.msg-thumbs-text').textContent;
+            const messageHasText = messageType == MessageTypes.FILE_AND_TEXT && !($messageBodyArea.hasClass("no-text"));
+			if(messageHasText){
+                const text =$messageBodyArea.find('.msg-thumbs-text').text();
+				return prefix + text;
 			}else{
 				return prefix;
 			}
-		}else if(messageType == MessageTypes.STAMP){
-			const stampType = getStampType(messageBodyArea.classList);
+		}else if(messageHasStamp){
+			const stampType = getStampType($messageBodyArea);
 			if(stampType == StampTypes.NO_TEXT){
 				return settings.log_stamp;
 			}
 		}
 
 		//本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
-		const messageText = deepCloneNode(messageBodyArea.querySelector('.msg-text'));
-		const messageMenu = messageText.querySelector('.msg-menu-container');
-		Optional.ofAbsentable(messageMenu).ifPresent(messageMenu => messageText.removeChild(messageMenu));
-		return messageText.textContent;
+		const $messageText = $messageBodyArea.find('.msg-text').clone();
+		const $messageMenu = $messageText.find('.msg-menu-container');
+        $messageMenu.remove();
+		return $messageText.text();
 	}
 
 	/**
-    * メッセージのスタンプを取得します。
-    * @param {Node} messageBodyArea メッセージ本文エリア
+    * メッセージ本文エリアオブジェクトからメッセージのスタンプを取得します。
+    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
     * @return {Node} メッセージのスタンプ
     */
-	function getMessageStamp(messageBodyArea){
-		return messageBodyArea.querySelector('img');
+	function getMessageStamp($messageBodyArea){
+		return $messageBodyArea.find('img').get(0);
 	}
 
 	/**
@@ -1286,6 +1110,24 @@
 			.ifAbsent(() => console.log(settings.log_label, message.body));
 		console.groupEnd();
 	}
+
+	/**
+    * id属性からjQueryオブジェクトを取得します。
+    * @param {String} id id属性
+    * @return {jQuery} jQueryオブジェクト
+    */
+    function $ById(id){
+        return $(document.getElementById(id));
+    }
+
+	/**
+    * name属性からjQueryオブジェクトを取得します。
+    * @param {String} name name属性
+    * @return {jQuery} jQueryオブジェクト
+    */
+    function $ByName(name){
+        return $(document.getElementsByName(name));
+    }
 
 	/**
     * オブジェクトを深く凍結します。
@@ -1377,142 +1219,6 @@
     */
 	function stringToArray(string){
 		return string !== "" ? string.split(",") : [];
-	}
-
-	/**
-    * ノードの深い複製を返します。
-    * @param {Node} node ノード
-    * @return {Node} ノードの深い複製
-    */
-	function deepCloneNode(node){
-		return node.cloneNode(true);
-	}
-
-	/**
-    * 内部テキストを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
-    * @param {ElementType} elementType 要素種別
-    * @param {Object} [attributes] 属性
-    * @param {Object} [styles] スタイル
-    * @param {String} text テキスト
-    * @return {HTMLElement} HTML要素
-    * @throws {TypeError} elementTypeの型がElementTypeではない場合
-    */
-	function createElementWithText(elementType, text, attributes, styles){
-		const element = createElement(elementType, attributes, styles);
-		element.textContent = text;
-		return element;
-	}
-
-	/**
-    * 内部HTMLを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
-    * @param {ElementType} elementType 要素種別
-    * @param {Object} [attributes] 属性
-    * @param {Object} [styles] スタイル
-    * @param {String} html HTML
-    * @return {HTMLElement} HTML要素
-    * @throws {TypeError} elementTypeの型がElementTypeではない場合
-    */
-	function createElementWithHTML(elementType, html, attributes, styles){
-		const element = createElement(elementType, attributes, styles);
-		element.innerHTML = html;
-		return element;
-	}
-
-	/**
-    * HTML要素を作成します。属性やスタイルがあれば設定します。
-    * @param {ElementType} elementType 要素種別
-    * @param {Object} [attributes] 属性
-    * @param {Object} [styles] スタイル
-    * @return {HTMLElement} HTML要素
-    * @throws {TypeError} elementTypeの型がElementTypeではない場合
-    */
-	function createElement(elementType, attributes, styles){
-		if(!(elementType instanceof ElementType)){
-			throw new TypeError(elementType + " is not instance of ElementType");
-		}
-		const element = document.createElement(elementType.value);
-		Optional.ofAbsentable(attributes).ifPresent(attributes => setAttributes(element, attributes));
-		Optional.ofAbsentable(styles).ifPresent(styles => setStyles(element, styles));
-		return element;
-	}
-
-	/**
-    * HTML要素に属性を設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {Object} attributes 属性
-    */
-	function setAttributes(element, attributes){
-		Iterator.of(attributes).forEach((name, value) => setAttribute(element, name, value));
-	}
-
-	/**
-    * HTML要素に属性を設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {String} name 属性名
-    * @param {String} value 値
-    */
-	function setAttribute(element, name, value){
-		element.setAttribute(name, value);
-	}
-
-	/**
-    * HTML要素にディスプレイ属性を設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {DisplayType} displayType ディスプレイ種別
-    * @throws {TypeError} displayTypeの型がDisplayTypeではない場合
-    */
-	function setDisplay(element, displayType){
-		if(!(displayType instanceof DisplayType)){
-			throw new TypeError(displayType + " is not instance of DisplayType");
-		}
-		setStyle(element, "display", displayType.value);
-	}
-
-	/**
-    * HTML要素にスタイルを設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {Object} styles スタイル
-    */
-	function setStyles(element, styles){
-		Iterator.of(styles).forEach((name, value) => setStyle(element, name, value));
-	}
-
-	/**
-    * HTML要素にスタイルを設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {String} name プロパティ名
-    * @param {String} value 値
-    */
-	function setStyle(element, name, value){
-		element.style[name] = value;
-	}
-
-	/**
-    * HTML要素にイベントリスナーを追加します。
-    * @param {HTMLElement} element HTML要素
-    * @param {EventType} eventType イベント種別
-    * @param {Function} listener : Event => {}
-    * @throws {TypeError} eventTypeの型がEventTypeではない場合
-    */
-	function addEventListener(element, eventType, listener){
-		if(!(eventType instanceof EventType)){
-			throw new TypeError(eventType + " is not instance of EventType");
-		}
-		element.addEventListener(eventType.value, listener, false);
-	}
-
-	/**
-    * HTML要素からイベントリスナーを削除します。
-    * @param {HTMLElement} element HTML要素
-    * @param {EventType} eventType イベント種別
-    * @param {Function} listener : Event => {}
-    * @throws {TypeError} eventTypeの型がEventTypeではない場合
-    */
-	function removeEventListener(element, eventType, listener){
-		if(!(eventType instanceof EventType)){
-			throw new TypeError(eventType + " is not instance of EventType");
-		}
-		element.removeEventListener(eventType.value, listener, false);
 	}
 
 	/**

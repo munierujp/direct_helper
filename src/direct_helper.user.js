@@ -1241,21 +1241,6 @@
 	}
 
 	/**
-    * 内部テキストを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
-    * @param {ElementType} elementType 要素種別
-    * @param {Object} [attributes] 属性
-    * @param {Object} [styles] スタイル
-    * @param {String} text テキスト
-    * @return {HTMLElement} HTML要素
-    * @throws {TypeError} elementTypeの型がElementTypeではない場合
-    */
-	function createElementWithText(elementType, text, attributes, styles){
-		const element = createElement(elementType, attributes, styles);
-		element.textContent = text;
-		return element;
-	}
-
-	/**
     * 内部HTMLを持ったHTML要素を作成します。属性やスタイルがあれば設定します。
     * @param {ElementType} elementType 要素種別
     * @param {Object} [attributes] 属性

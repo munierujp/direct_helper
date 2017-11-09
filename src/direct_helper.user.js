@@ -481,7 +481,7 @@
 	function appendSettingSection(settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
+		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data).get(0)).get();
 		const section = createSettingSection(settiongData, Object.values(inputKeyForms));
 		settingPage.appendChild(section);
 
@@ -621,131 +621,41 @@
 	}
 
 	/**
-    * 設定画面の入力フォーム要素を作成します。
+    * 設定画面の入力フォームオブジェクトを作成します。
     * @param {Object} inputData インプットデータ
-    * @return {HTMLElement} 入力フォーム要素
+    * @return {jQuery} 入力フォームオブジェクト
     */
 	function createSettingInputFormElement(inputData){
 		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group"
-			});
-			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
-				class: "control-label"
-			});
-			inputForm.appendChild(label);
-			const inputArea = createElement(ElementTypes.DIV, {
-				class: "controls"
-			});
-			const input = createElement(ElementTypes.INPUT, {
-				id: HTML_ID_PREFIX + inputData.key,
-				class: "form-control",
-				name: "status"
-			});
-			inputArea.appendChild(input);
-			inputForm.appendChild(inputArea);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				inputForm.appendChild(annotation);
-			});
-			return inputForm;
+			const $inputForm = $(`<div class="form-group"></div>`);
+			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
+			$inputForm.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			return $inputForm;
 		}else if(inputData.type == FormTypes.NUMBER){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group"
-			});
-			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
-				class: "control-label"
-			});
-			inputForm.appendChild(label);
-			const inputArea = createElement(ElementTypes.DIV, {
-				class: "controls"
-			});
-			const input = createElement(ElementTypes.INPUT, {
-				type: "number",
-				id: HTML_ID_PREFIX + inputData.key,
-				class: "form-control",
-				name: "status"
-			});
-			inputArea.appendChild(input);
-			inputForm.appendChild(inputArea);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				inputForm.appendChild(annotation);
-			});
-			return inputForm;
+			const $inputForm = $(`<div class="form-group"></div>`);
+			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
+			$inputForm.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			return $inputForm;
 		}else if(inputData.type == FormTypes.CHECKBOX){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group"
-			});
-			const checkboxArea = createElement(ElementTypes.DIV, {
-				class: "checkbox"
-			});
-			const label = createElement(ElementTypes.LABEL);
-			const checkbox = createElement(ElementTypes.INPUT, {
-				id: HTML_ID_PREFIX + inputData.key,
-				type: "checkbox"
-			});
-			label.appendChild(checkbox);
-			const labelText = document.createTextNode(inputData.name);
-			label.appendChild(labelText);
-			checkboxArea.appendChild(label);
-
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				checkboxArea.appendChild(annotation);
-			});
-
-			inputForm.appendChild(checkboxArea);
-			return inputForm;
+			const $inputForm = $(`<div class="form-group"></div>`);
+			const $checkboxArea = $(`<div class="checkbox"></div>`);
+			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + inputData.key}" type="checkbox">${inputData.name}</label>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
+			$inputForm.append($checkboxArea);
+			return $inputForm;
 		}else if(inputData.type == FormTypes.RADIOBUTTON){
-			const inputForm = createElement(ElementTypes.DIV, {
-				class: "form-group",
-				id: HTML_ID_PREFIX + inputData.key
+			const $inputForm = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
+			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			inputData.buttons.forEach(button => {
+                const $radioButtonArea = $(`<div class="radio"></div>`);
+				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + inputData.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
+                Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
+				$inputForm.append($radioButtonArea);
 			});
-			const label = createElementWithHTML(ElementTypes.LABEL, inputData.name, {
-				class: "control-label"
-			});
-			inputForm.appendChild(label);
-
-			Optional.ofAbsentable(inputData.description).ifPresent(description => {
-				const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-					class: "annotation"
-				});
-				inputForm.appendChild(annotation);
-			});
-
-			const buttons = inputData.buttons;
-			buttons.forEach(button => {
-				const radioButtonArea = createElement(ElementTypes.DIV, {
-					class: "radio"
-				});
-				const label = createElement(ElementTypes.LABEL);
-				const input = createElement(ElementTypes.INPUT, {
-					type: "radio",
-					name: HTML_ID_PREFIX + inputData.key,
-					id: HTML_ID_PREFIX + button.key
-				});
-				label.appendChild(input);
-				const labelText = document.createTextNode(button.name);
-				label.appendChild(labelText);
-				radioButtonArea.appendChild(label);
-
-				Optional.ofAbsentable(button.description).ifPresent(description => {
-					const annotation = createElementWithHTML(ElementTypes.DIV, description, {
-						class: "annotation"
-					});
-					radioButtonArea.appendChild(annotation);
-				});
-
-				inputForm.appendChild(radioButtonArea);
-			});
-			return inputForm;
+			return $inputForm;
 		}
 	}
 

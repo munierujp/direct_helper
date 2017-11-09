@@ -78,15 +78,6 @@
 		}
 	}
 
-	/** ディスプレイ種別クラス */
-	class DisplayType extends HasValue{}
-	/** ディスプレイ種別 */
-	const DisplayTypes = {
-		BLOCK: new DisplayType("block"),
-		INLINE: new DisplayType("inline"),
-		NONE: new DisplayType("none")
-	};
-
 	/** 要素種別クラス */
 	class ElementType extends HasValue{}
 	/** 要素種別 */
@@ -176,7 +167,6 @@
 
 	/** enumリスト */
 	const ENUMS = [
-		DisplayTypes,
 		ElementTypes,
 		EventTypes,
 		FileTypes,

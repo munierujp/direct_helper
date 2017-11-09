@@ -470,39 +470,40 @@
 		const description = createElementWithHTML(ElementTypes.DIV, SETTING_DATA.description);
 		settingPage.appendChild(description);
 
-		SETTING_DATA.sections.forEach(section => appendSettingSection(settingPage, section));
+		SETTING_DATA.sections.forEach(section => appendSettingSection($(settingPage), section));
 	}
 
 	/**
     * 設定画面に項目を追加します。
-    * @param {HTMLElement} settingPage 設定画面
+    * @param {jQuery} $settingPage 設定画面オブジェクト
     * @param {Object} settiongData 設定データ
     */
-	function appendSettingSection(settingPage, settiongData){
+	function appendSettingSection($settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data).get(0)).get();
-		const section = createSettingSection(settiongData, Object.values(inputKeyForms).map(element => $(element))).get(0);
-		settingPage.appendChild(section);
+		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
+        const inputForms = Object.values(inputKeyForms);
+		const $section = createSettingSection(settiongData, inputForms);
+		$settingPage.append($section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => document.getElementById(HTML_ID_PREFIX + key)).get();
-		Iterator.of(inputKeyInputs).forEach((key, input) => {
+		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => $('#' + HTML_ID_PREFIX + key)).get();
+		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
-			const value =  settings[key];
+			const value = settings[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-					input.value = value;
+					$input.val(value);
 					break;
 				case FormTypes.CHECKBOX:
-					input.checked = value;
+                    $input.prop("checked", value);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const button = document.getElementById(HTML_ID_PREFIX + value);
-					button.checked = true;
+					const $button = $('#' + HTML_ID_PREFIX + value);
+					$button.prop("checked", true);
 					break;
 			}
 
@@ -510,18 +511,18 @@
 			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
-					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
-					const parentIsUnchecked = parentInput.checked === false;
+					const $parentInput = $('#' + HTML_ID_PREFIX + parentKey);
+					const parentIsUnchecked = $parentInput.prop("checked") === false;
 					switch(inputData.type){
 						case FormTypes.TEXT:
 						case FormTypes.TEXT_ARRAY:
 						case FormTypes.NUMBER:
 						case FormTypes.CHECKBOX:
-							input.disabled = parentIsUnchecked;
+							$input.prop("disabled", parentIsUnchecked);
 							break;
 						case FormTypes.RADIOBUTTON:
-							const buttons = input.querySelectorAll('input');
-							buttons.forEach(button => button.disabled = parentIsUnchecked);
+							const $buttons = $input.find('input');
+							$buttons.each((i, button) => $(button).prop("disabled", parentIsUnchecked));
 							break;
 					}
 				}
@@ -529,41 +530,43 @@
 		});
 
 		//値変更時に変更ボタンをクリック可能化
-		const changeButton = section.querySelector('.btn');
-		const message = section.querySelector('.success');
+		const $changeButton = $section.find('.btn');
+		const $message = $section.find('.success');
 		const onChangeValue = () => {
-			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, input) => {
+			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, $input) => {
 				const inputData = inputKeyDatas[key];
 				switch(inputData.type){
 					case FormTypes.TEXT:
 					case FormTypes.TEXT_ARRAY:
 					case FormTypes.NUMBER:
-						return input.value;
+						return $input.val();
 					case FormTypes.CHECKBOX:
-						return input.checked;
+						return $input.prop("checked");
 					case FormTypes.RADIOBUTTON:
-						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
-						const checkedButton = RadioButtons.of(buttons).findChecked();
-						return checkedButton.id.replace(HTML_ID_PREFIX, "");
+						const $buttons = $('[name="' + HTML_ID_PREFIX + key + '"]');
+						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
+                        const id = $checkedButton.prop("id");
+						return id.replace(HTML_ID_PREFIX, "");
 				}
 			}).get();
-			changeButton.disabled = equalsInputValuesToSettings(inputKeyInputValues, settings);
-			setDisplay(message, DisplayTypes.NONE);
+            const notChangedValue = equalsInputValuesToSettings(inputKeyInputValues, settings);
+            $changeButton.prop("disabled", notChangedValue);
+            $message.hide();
 		};
-		Iterator.of(inputKeyInputs).forEach((key, input) => {
+		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
 			switch(inputData.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-					addEventListener(input, EventTypes.INPUT, onChangeValue);
+                    $input.on("input.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.CHECKBOX:
-					addEventListener(input, EventTypes.CLICK, onChangeValue);
+                    $input.on("click.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
-					buttons.forEach(button => addEventListener(button, EventTypes.CLICK, onChangeValue));
+                    const $buttons = $('[name="' + HTML_ID_PREFIX + key + '"]');
+					$buttons.each((i, button) => $(button).on("click.direct_helper_appendSettingSection", onChangeValue));
 					break;
 			}
 
@@ -571,54 +574,55 @@
 			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
 				const parentData = inputKeyDatas[parentKey];
 				if(parentData.type == FormTypes.CHECKBOX){
-					const parentInput = document.getElementById(HTML_ID_PREFIX + parentKey);
-					addEventListener(parentInput, EventTypes.CLICK, () => {
-						const parentIsUnchecked = parentInput.checked === false;
+					const $parentInput = $('#' + HTML_ID_PREFIX + parentKey);
+					$parentInput.on("click.direct_helper_appendSettingSection", () => {
+						const parentIsUnchecked = $parentInput.prop("checked") === false;
 						switch(inputData.type){
 							case FormTypes.TEXT:
 							case FormTypes.TEXT_ARRAY:
 							case FormTypes.NUMBER:
 							case FormTypes.CHECKBOX:
-								input.disabled = parentIsUnchecked;
+								$input.prop("disabled", parentIsUnchecked);
 								break;
 							case FormTypes.RADIOBUTTON:
-								const buttons = input.querySelectorAll('input');
-								buttons.forEach(button => button.disabled = parentIsUnchecked);
+                                const $buttons = $input.find('input');
+                                $buttons.each((i, button) => $(button).prop("disabled", parentIsUnchecked));
 								break;
 						}
 					});
 				}
 			});
-		});
+        });
 
-		//変更ボタンクリック時に設定を更新
-		addEventListener(changeButton, EventTypes.CLICK, () => {
-			Iterator.of(inputKeyInputs).forEach((key, input) => {
-				const inputData = inputKeyDatas[key];
-				switch(inputData.type){
-					case FormTypes.TEXT:
-					case FormTypes.NUMBER:
-						settings[key] = input.value;
-						break;
-					case FormTypes.TEXT_ARRAY:
-						settings[key] = stringToArray(input.value);
-						break;
-					case FormTypes.CHECKBOX:
-						settings[key] = input.checked;
-						break;
-					case FormTypes.RADIOBUTTON:
-						const buttons = document.getElementsByName(HTML_ID_PREFIX + key);
-						const checkedButton = RadioButtons.of(buttons).findChecked();
-						settings[key] = checkedButton.id.replace(HTML_ID_PREFIX, "");
-						break;
-				}
-			});
+        //変更ボタンクリック時に設定を更新
+        $changeButton.on("click.direct_helper_appendSettingSection", () => {
+            Iterator.of(inputKeyInputs).forEach((key, $input) => {
+                const inputData = inputKeyDatas[key];
+                switch(inputData.type){
+                    case FormTypes.TEXT:
+                    case FormTypes.NUMBER:
+                        settings[key] = $input.val();
+                        break;
+                    case FormTypes.TEXT_ARRAY:
+                        settings[key] = stringToArray($input.val());
+                        break;
+                    case FormTypes.CHECKBOX:
+                        settings[key] = $input.prop("checked");
+                        break;
+                    case FormTypes.RADIOBUTTON:
+                        const $buttons = $input.find('input');
+						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
+                        const id = $checkedButton.prop("id");
+                        settings[key] = id.replace(HTML_ID_PREFIX, "");
+                        break;
+                }
+            });
 
-			setSettings(settings);
-			changeButton.disabled = true;
-			setDisplay(message, DisplayTypes.INLINE);
-		});
-	}
+            setSettings(settings);
+            $changeButton.prop("disabled", true);
+            $message.show();
+        });
+    }
 
 	/**
     * 設定画面の入力フォームオブジェクトを作成します。

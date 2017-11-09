@@ -479,7 +479,7 @@
 					case FormTypes.CHECKBOX:
 						return $input.prop("checked");
 					case FormTypes.RADIOBUTTON:
-						const $buttons = $('[name="' + HTML_ID_PREFIX + key + '"]');
+						const $buttons = $ByName(HTML_ID_PREFIX + key);
 						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
                         const id = $checkedButton.prop("id");
 						return id.replace(HTML_ID_PREFIX, "");
@@ -501,7 +501,7 @@
                     $input.on("click.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.RADIOBUTTON:
-                    const $buttons = $('[name="' + HTML_ID_PREFIX + key + '"]');
+                    const $buttons = $ByName(HTML_ID_PREFIX + key);
 					$buttons.each((i, button) => $(button).on("click.direct_helper_appendSettingSection", onChangeValue));
 					break;
 			}
@@ -1118,6 +1118,15 @@
     */
     function $ById(id){
         return $(document.getElementById(id));
+    }
+
+	/**
+    * name属性からjQueryオブジェクトを取得します。
+    * @param {String} name name属性
+    * @return {jQuery} jQueryオブジェクト
+    */
+    function $ByName(name){
+        return $(document.getElementsByName(name));
     }
 
 	/**

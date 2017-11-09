@@ -1,6 +1,6 @@
 ﻿# 開発方法
 `direct_helper.user.js`がスクリプトの本体です。  
-JavaScriptでコードを記述してください。
+JavaScript/jQueryでコードを記述してください。
 
 ## 外部ライブラリ
 以下の外部ライブラリを使用しています。  

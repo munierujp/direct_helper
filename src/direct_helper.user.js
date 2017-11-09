@@ -78,17 +78,6 @@
 		}
 	}
 
-	/** イベント種別クラス */
-	class EventType extends HasValue{}
-	/** イベント種別 */
-	const EventTypes = {
-		CLICK: new EventType("click"),
-		INPUT: new EventType("input"),
-		KEYDOWN: new EventType("keydown"),
-		KEYPRESS: new EventType("keypress"),
-		KEYUP: new EventType("keyup")
-	};
-
 	/** ファイル種別クラス */
 	class FileType extends HasValue{}
 	/** ファイル種別 */
@@ -153,7 +142,6 @@
 
 	/** enumリスト */
 	const ENUMS = [
-		EventTypes,
 		FileTypes,
 		FormTypes,
 		KeyTypes,

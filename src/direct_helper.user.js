@@ -34,18 +34,6 @@
 		}
 	}
 
-	/** ラジオボタンリスト */
-	class RadioButtons extends HasValue{
-		/**
-		* チェックされているボタンを返します。
-		* チェックされているボタンがない場合、undefinedを返します。
-		* @return {HTMLElement} ラジオボタン要素
-		*/
-		findChecked(){
-			return Array.from(this.value).find(button => button.checked === true);
-		}
-	}
-
 	/** トーク */
 	class Talk{
 		/**

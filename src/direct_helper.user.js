@@ -1241,16 +1241,6 @@
 	}
 
 	/**
-    * HTML要素に属性を設定します。
-    * @param {HTMLElement} element HTML要素
-    * @param {String} name 属性名
-    * @param {String} value 値
-    */
-	function setAttribute(element, name, value){
-		element.setAttribute(name, value);
-	}
-
-	/**
     * HTML要素にディスプレイ属性を設定します。
     * @param {HTMLElement} element HTML要素
     * @param {DisplayType} displayType ディスプレイ種別

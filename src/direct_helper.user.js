@@ -1241,20 +1241,6 @@
 	}
 
 	/**
-    * HTML要素にイベントリスナーを追加します。
-    * @param {HTMLElement} element HTML要素
-    * @param {EventType} eventType イベント種別
-    * @param {Function} listener : Event => {}
-    * @throws {TypeError} eventTypeの型がEventTypeではない場合
-    */
-	function addEventListener(element, eventType, listener){
-		if(!(eventType instanceof EventType)){
-			throw new TypeError(eventType + " is not instance of EventType");
-		}
-		element.addEventListener(eventType.value, listener, false);
-	}
-
-	/**
     * HTML要素からイベントリスナーを削除します。
     * @param {HTMLElement} element HTML要素
     * @param {EventType} eventType イベント種別

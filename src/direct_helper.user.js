@@ -719,7 +719,7 @@
 	function doExpandUserIcon(){
 		const CUSTOM_MODAL_Z_INDEX = 9999;
 
-        const addEscapeKeyupListener =  listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
+        const addEscapeKeyupListener = listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
         const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup");
 
 		const $userDialog = $('#user-dialog-basic-profile');

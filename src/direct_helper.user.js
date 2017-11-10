@@ -87,9 +87,9 @@
 		*/
 		observeAddingMessageArea(callback){
 			const realMessageArea = this.value.querySelector('.real-msgs');
-			Observer.of(realMessageArea).childList().hasChanged(mutations => {
-				mutations.forEach(mutation => {
-					Array.from(mutation.addedNodes)
+			Observer.of(realMessageArea).childList().hasChanged(records => {
+				records.forEach(record => {
+					Array.from(record.addedNodes)
 						.filter(node => node.className == "msg")
 						.forEach(messageArea => callback(messageArea));
 				});
@@ -713,8 +713,8 @@
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
             const $fileAreas = $(sendForm).find('.staged-files');
             $fileAreas.each((i, fileArea) => {
-                Observer.of(fileArea).attributes("style").hasChanged(mutations => {
-                    mutations.forEach(mutation => {
+                Observer.of(fileArea).attributes("style").hasChanged(records => {
+                    records.forEach(record => {
                         const fileAreaIsHidden= $(fileArea).is(':hidden');
                         $dummySendButton.prop("disabled", fileAreaIsHidden);
                     });
@@ -821,8 +821,8 @@
 
 		$talkPanes.each((i, talkPane) => {
 			//トークペインのclass属性変更時、表示を切り替え
-			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
-				mutations.forEach(mutation => {
+			Observer.of(talkPane).attributes("class").hasChanged(records => {
+				records.forEach(record => {
 					const $activeTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("has-send-form"));
 					const $inactiveTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("no-send-form"));
 
@@ -897,7 +897,7 @@
         //トーク一覧に子ノード追加時、トーク関連処理を実行
         const $talkLists = $('#talks');
         $talkLists.each((i, talkList) => {
-            Observer.of(talkList).childList().hasChanged(mutations => {
+            Observer.of(talkList).childList().hasChanged(records => {
                 //デフォルト監視対象を監視対象に追加
                 if(settings.watch_default_observe_talk === true){
                     const readTalkIds = settings.default_observe_talk_ids.filter(talkIsRead);
@@ -920,8 +920,8 @@
                 }
 
                 //トーク情報の更新
-                mutations.forEach(mutation => {
-                    const talkItems = mutation.addedNodes;
+                records.forEach(record => {
+                    const talkItems = record.addedNodes;
                     talkItems.forEach(talkItem => {
                         const talkId = talkItem.id;
                         const talkName = $(talkItem).find('.talk-name-part').text();
@@ -976,9 +976,9 @@
 		const $messagesAreas = $('#messages');
         $messagesAreas.each((i, messagesArea) => {
             //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
-            Observer.of(messagesArea).childList().hasChanged(mutations => {
-                mutations.forEach(mutation => {
-                    const talkAreas = mutation.addedNodes;
+            Observer.of(messagesArea).childList().hasChanged(records => {
+                records.forEach(record => {
+                    const talkAreas = record.addedNodes;
                     talkAreas.forEach(talkArea => callback(talkArea));
                 });
             }).start();

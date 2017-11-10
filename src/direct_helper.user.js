@@ -44,6 +44,16 @@
 			this.id = id;
 			this.name = name;
 		}
+
+		/**
+        * Talkオブジェクトを生成します。
+        * @param {String} id トークID
+        * @param {String} name トーク名
+        * @return {Talk} Talkオブジェクト
+        */
+		static of(id, name){
+			return new this(id, name);
+		}
 	}
 
 	/** メッセージ */
@@ -906,7 +916,7 @@
                     talkItems.forEach(talkItem => {
                         const talkId = talkItem.id;
                         const talkName = $(talkItem).find('.talk-name-part').text();
-                        const talk = new Talk(talkId, talkName);
+                        const talk = Talk.of(talkId, talkName);
                         talk.isRead = talkIsRead(talkId);
                         talkIdTalks[talkId] = talk;
                     });

@@ -68,6 +68,15 @@
 			}
 			this.talk = talk;
 		}
+
+		/**
+        * Messageオブジェクトを生成します。
+        * @param {Talk} talk トーク
+        * @return {Message} Messageオブジェクト
+        */
+		static of(talk){
+			return new this(talk);
+		}
 	}
 
 	/** トークエリア */
@@ -986,7 +995,7 @@
 		const $messageBodyArea = $messageArea.find('div:first-child .msg-body');
 		const messageType = getMessageType($messageBodyArea);
 
-		const message = new Message(talk);
+		const message = Message.of(talk);
 		message.time = getMessageTime($messageArea);
 		message.userName = getMessageUserName($messageArea);
 		message.body = getMessageBody($messageBodyArea, messageType);

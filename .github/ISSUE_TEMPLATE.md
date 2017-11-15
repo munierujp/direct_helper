@@ -1,10 +1,7 @@
-﻿## What
-
+## What
 
 ## Why
 
-
 ## How
-
 
 ## Note

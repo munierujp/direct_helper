@@ -59,7 +59,7 @@
 	/** メッセージ */
 	class Message{
 		/**
-        * @param {Talk} talk トーク
+        * @param {Talk} talk Talkオブジェクト
         * @throws {TypeError} talkの型がTalkではない場合
         */
 		constructor(talk){
@@ -71,7 +71,7 @@
 
 		/**
         * Messageオブジェクトを生成します。
-        * @param {Talk} talk トーク
+        * @param {Talk} talk Talkオブジェクト
         * @return {Message} Messageオブジェクト
         */
 		static of(talk){

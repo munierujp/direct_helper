@@ -77,6 +77,25 @@
 		static of(talk){
 			return new this(talk);
 		}
+
+        /**
+        * メッセージをコンソールに出力します。
+        * @param {Object} settings 設定
+        */
+        log(settings){
+            const header = Replacer.of(
+                [/<talkId>/g, this.talk.id],
+                [/<time>/g, formatDate(this.time, settings.date_format)],
+                [/<talkName>/g, this.talk.name],
+                [/<userName>/g, this.userName]
+            ).exec(settings.custom_log_message_header);
+
+            console.group(header);
+            Optional.ofAbsentable(this.stamp)
+                .ifPresent(stamp => console.log(settings.log_label, this.body, stamp))
+                .ifAbsent(() => console.log(settings.log_label, this.body));
+            console.groupEnd();
+        }
 	}
 
 	/** トークエリア */
@@ -962,7 +981,7 @@
 				//メッセージをコンソールに出力
                 const messageIsNotPast = message.time > observeStartDate;
 				if(messageIsNotPast || settings.show_past_message === true){
-					logMessage(message);
+					message.log(settings);
 				}
 			});
 		});
@@ -1104,30 +1123,6 @@
     */
 	function getMessageStamp($messageBodyArea){
 		return $messageBodyArea.find('img').get(0);
-	}
-
-	/**
-    * メッセージをコンソールに出力します。
-    * @param {Message} message メッセージ
-    * @throws {TypeError} messageの型がMessageではない場合
-    */
-	function logMessage(message){
-		if(!(message instanceof Message)){
-			throw new TypeError(message + " is not instance of Message");
-		}
-
-		const header = Replacer.of(
-			[/<talkId>/g, message.talk.id],
-			[/<time>/g, formatDate(message.time, settings.date_format)],
-			[/<talkName>/g, message.talk.name],
-			[/<userName>/g, message.userName]
-		).exec(settings.custom_log_message_header);
-
-		console.group(header);
-		Optional.ofAbsentable(message.stamp)
-			.ifPresent(stamp => console.log(settings.log_label, message.body, stamp))
-			.ifAbsent(() => console.log(settings.log_label, message.body));
-		console.groupEnd();
 	}
 
 	/**

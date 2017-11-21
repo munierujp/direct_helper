@@ -116,6 +116,96 @@
 		}
 	}
 
+	/** メッセージエリア */
+	class MessageArea{
+		/**
+        * @param {Element} value メッセージエリア
+        */
+		constructor(value){
+			this.value = value;
+            this.$messageArea = $(this.value);
+            this.$messageAreaFirstChild = this.$messageArea.find('div:first-child');
+            this.$messageBodyArea = this.$messageAreaFirstChild.find('.msg-body');
+            this.messageType = Object.values(MessageTypes).find(messageType => this.$messageBodyArea.hasClass(messageType.value));
+		}
+
+		/**
+        * MessageAreaオブジェクトを生成します。
+        * @param {Element} value メッセージエリア
+        * @return {MessageArea} MessageAreaオブジェクト
+        */
+		static of(value){
+			return new this(value);
+		}
+
+        /**
+        * ユーザー名を取得します。
+        * @param {Object} settings 設定
+        * @return {String} ユーザー名
+        */
+        getUserName(settings){
+            if(this.$messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
+                return settings.user_name_system;
+            }else if(this.$messageAreaFirstChild.hasClass(UserTypes.ME.value)){
+                return $('#current-username').text();
+            }else if(this.$messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
+                return this.$messageAreaFirstChild.find('.username').text();
+            }
+        }
+
+        /**
+        * 本文を取得します。
+        * @param {Object} settings 設定
+        * @return {String} 本文
+        */
+        getMessageBody(settings){
+            const messageHasFile = this.messageType == MessageTypes.FILE || this.messageType == MessageTypes.FILE_AND_TEXT;
+            const messageHasStamp = this.messageType == MessageTypes.STAMP;
+            if(messageHasFile){
+                const fileType = Object.values(FileTypes).find(fileType => this.$messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
+                const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
+                const messageHasText = this.messageType == MessageTypes.FILE_AND_TEXT && !(this.$messageBodyArea.hasClass("no-text"));
+                if(messageHasText){
+                    const text =this.$messageBodyArea.find('.msg-thumbs-text').text();
+                    return prefix + text;
+                }else{
+                    return prefix;
+                }
+            }else if(messageHasStamp){
+                const stampType = Object.values(StampTypes).find(stampType => this.$messageBodyArea.hasClass(stampType.value));
+                if(stampType == StampTypes.NO_TEXT){
+                    return settings.log_stamp;
+                }
+            }
+
+            //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
+            const $messageText = this.$messageBodyArea.find('.msg-text').clone();
+            const $messageMenu = $messageText.find('.msg-menu-container');
+            $messageMenu.remove();
+            return $messageText.text();
+        }
+
+        /**
+        * Messageオブジェクトを作成します。
+        * @param {Object} settings 設定
+        * @parm {Talk} talk Talkオブジェクト
+        * @return {Message} Messageオブジェクト
+        */
+        createMessage(settings, talk){
+            const message = Message.of(talk);
+            message.type = this.messageType;
+            message.time = new Date(Number(this.$messageArea.attr("data-created-at")));
+            message.userName = this.getUserName(settings);
+            message.body = this.getMessageBody(settings);
+
+            if(this.messageType == MessageTypes.STAMP){
+                message.stamp = this.$messageBodyArea.find('img').get(0);
+            }
+
+            return message;
+        }
+	}
+
 	/** ファイル種別クラス */
 	class FileType extends HasValue{}
 	/** ファイル種別 */
@@ -672,8 +762,7 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
-				const messageType = getMessageType($messageBodyArea);
+				const messageType = MessageArea.of(messageArea).messageType;
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
@@ -692,8 +781,7 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
-				const messageType = getMessageType($messageBodyArea);
+				const messageType = MessageArea.of(messageArea).messageType;
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
@@ -976,7 +1064,7 @@
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				//メッセージを生成
-				const message = createMessage($(messageArea), talk);
+				const message = MessageArea.of(messageArea).createMessage(settings, talk);
 
 				//メッセージをコンソールに出力
                 const messageIsNotPast = message.time > observeStartDate;
@@ -1002,127 +1090,6 @@
                 });
             }).start();
         });
-	}
-
-	/**
-    * メッセージエリアオブジェクトからメッセージを作成します。
-    * @param {jQuery} $messageArea メッセージエリアオブジェクト
-    * @parma {Talk} talk トーク
-    * @return {Message} メッセージ
-    */
-	function createMessage($messageArea, talk){
-		const $messageBodyArea = $messageArea.find('div:first-child .msg-body');
-		const messageType = getMessageType($messageBodyArea);
-
-		const message = Message.of(talk);
-		message.time = getMessageTime($messageArea);
-		message.userName = getMessageUserName($messageArea);
-		message.body = getMessageBody($messageBodyArea, messageType);
-
-		if(messageType == MessageTypes.STAMP){
-			message.stamp = getMessageStamp($messageBodyArea);
-		}
-
-		return message;
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからメッセージ種別を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {MessageType} メッセージ種別
-    */
-	function getMessageType($messageBodyArea){
-        return Object.values(MessageTypes).find(messageType => $messageBodyArea.hasClass(messageType.value));
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからファイル種別を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {FileType} ファイル種別
-    */
-	function getFileType($messageBodyArea){
-        return Object.values(FileTypes).find(fileType => $messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからスタンプ種別を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {StampType} スタンプ種別
-    */
-	function getStampType($messageBodyArea){
-        return Object.values(StampTypes).find(stampType => $messageBodyArea.hasClass(stampType.value));
-	}
-
-	/**
-    * メッセージエリアオブジェクトからメッセージの投稿日時を取得します。
-    * @param {jQuery} $messageArea メッセージエリアオブジェクト
-    * @return {Date} メッセージの投稿日時
-    */
-	function getMessageTime($messageArea){
-		return new Date(Number($messageArea.attr("data-created-at")));
-	}
-
-	/**
-    * メッセージエリアオブジェクトからメッセージのユーザー名を取得します。
-    * @param {jQuery} $messageArea メッセージエリアオブジェクト
-    * @return {String} メッセージのユーザー名
-    */
-	function getMessageUserName($messageArea){
-        const $messageAreaFirstChild = $messageArea.find('div:first-child');
-        if($messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
-            return settings.user_name_system;
-        }else if($messageAreaFirstChild.hasClass(UserTypes.ME.value)){
-            return $('#current-username').text();
-        }else if($messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
-            return $messageAreaFirstChild.find('.username').text();
-        }
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからメッセージの本文を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @param {MessageType} messageType メッセージ種別
-    * @return {String} メッセージの本文
-    * @throws {TypeError} messageTypeの型がMessageTypeではない場合
-    */
-	function getMessageBody($messageBodyArea, messageType){
-		if(!(messageType instanceof MessageType)){
-			throw new TypeError(messageType + " is not instance of MessageType");
-		}
-
-        const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
-        const messageHasStamp = messageType == MessageTypes.STAMP;
-		if(messageHasFile){
-			const fileType = getFileType($messageBodyArea);
-			const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-            const messageHasText = messageType == MessageTypes.FILE_AND_TEXT && !($messageBodyArea.hasClass("no-text"));
-			if(messageHasText){
-                const text =$messageBodyArea.find('.msg-thumbs-text').text();
-				return prefix + text;
-			}else{
-				return prefix;
-			}
-		}else if(messageHasStamp){
-			const stampType = getStampType($messageBodyArea);
-			if(stampType == StampTypes.NO_TEXT){
-				return settings.log_stamp;
-			}
-		}
-
-		//本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
-		const $messageText = $messageBodyArea.find('.msg-text').clone();
-		const $messageMenu = $messageText.find('.msg-menu-container');
-        $messageMenu.remove();
-		return $messageText.text();
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからメッセージのスタンプを取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {Node} メッセージのスタンプ
-    */
-	function getMessageStamp($messageBodyArea){
-		return $messageBodyArea.find('img').get(0);
 	}
 
 	/**

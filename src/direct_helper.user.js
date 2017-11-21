@@ -545,14 +545,14 @@
 	function appendSettingSection($settingPage, settiongData){
 		//設定項目の作成
 		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
-        const inputForms = Object.values(inputKeyForms);
-		const $section = createSettingSection(settiongData, inputForms);
+		const inputKeyFormGroups = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingFormGroup(data)).get();
+        const formGroups = Object.values(inputKeyFormGroups);
+		const $section = createSettingSection(settiongData, formGroups);
 		$settingPage.append($section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
+		const inputKeyInputs = Iterator.of(inputKeyFormGroups).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
 			const value = settings[key];
@@ -689,54 +689,54 @@
     }
 
 	/**
-    * 設定画面の入力フォームオブジェクトを作成します。
+    * 設定画面のフォームグループオブジェクトを作成します。
     * @param {Object} inputData インプットデータ
-    * @return {jQuery} 入力フォームオブジェクト
+    * @return {jQuery} フォームグループオブジェクト
     */
-	function createSettingInputFormElement(inputData){
+	function createSettingFormGroup(inputData){
 		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
-			const $inputForm = $(`<div class="form-group"></div>`);
-			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
-			$inputForm.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
-			return $inputForm;
+			const $formGroup = $(`<div class="form-group"></div>`);
+			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
+			$formGroup.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			return $formGroup;
 		}else if(inputData.type == FormTypes.NUMBER){
-			const $inputForm = $(`<div class="form-group"></div>`);
-			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
-			$inputForm.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
-			return $inputForm;
+			const $formGroup = $(`<div class="form-group"></div>`);
+			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
+			$formGroup.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			return $formGroup;
 		}else if(inputData.type == FormTypes.CHECKBOX){
-			const $inputForm = $(`<div class="form-group"></div>`);
+			const $formGroup = $(`<div class="form-group"></div>`);
 			const $checkboxArea = $(`<div class="checkbox"></div>`);
 			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + inputData.key}" type="checkbox">${inputData.name}</label>`);
 			Optional.ofAbsentable(inputData.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
-			$inputForm.append($checkboxArea);
-			return $inputForm;
+			$formGroup.append($checkboxArea);
+			return $formGroup;
 		}else if(inputData.type == FormTypes.RADIOBUTTON){
-			const $inputForm = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
-			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			const $formGroup = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
+			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			inputData.buttons.forEach(button => {
                 const $radioButtonArea = $(`<div class="radio"></div>`);
 				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + inputData.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
                 Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
-				$inputForm.append($radioButtonArea);
+				$formGroup.append($radioButtonArea);
 			});
-			return $inputForm;
+			return $formGroup;
 		}
 	}
 
 	/**
-    * 設定画面の項目オブジェクトを作成します。
+    * 設定画面のセクションオブジェクトを作成します。
     * @param {Object} settingData 設定データ
-    * @param {jQuery[]} inputForms 入力フォームオブジェクトリスト
-    * @return {jQuery} 項目オブジェクト
+    * @param {jQuery[]} formGroups フォームグループオブジェクトリスト
+    * @return {jQuery} セクションオブジェクト
     */
-	function createSettingSection(settingData, inputForms){
+	function createSettingSection(settingData, formGroups){
 		const $section = $(`<div id="${HTML_ID_PREFIX + settingData.key}" class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
 		Optional.ofAbsentable(settingData.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
-		inputForms.forEach($inputForm => $section.append($inputForm));
+		formGroups.forEach($formGroup => $section.append($formGroup));
 		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
 		return $section;
 	}

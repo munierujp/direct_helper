@@ -540,14 +540,14 @@
 	/**
     * 設定画面に項目を追加します。
     * @param {jQuery} $settingPage 設定画面オブジェクト
-    * @param {Object} settiongData 設定データ
+    * @param {Object} settingData 設定データ
     */
-	function appendSettingSection($settingPage, settiongData){
+	function appendSettingSection($settingPage, settingData){
 		//設定項目の作成
-		const inputKeyDatas = settiongData.items;
+		const inputKeyDatas = settingData.items;
 		const inputKeyFormGroups = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingFormGroup(data)).get();
         const formGroups = Object.values(inputKeyFormGroups);
-		const $section = createSettingSection(settiongData, formGroups);
+		const $section = createSettingSection(settingData, formGroups);
 		$settingPage.append($section);
 
 		//フォームの初期値を設定

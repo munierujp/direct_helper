@@ -991,7 +991,7 @@
             return $cornerBadge.length === 0;
         };
 
-        const talkIdTalks = {};
+        const talkMap = new Map();
         const observingTalkIds = [];
 
         //トーク一覧に子ノード追加時、トーク関連処理を実行
@@ -1027,7 +1027,7 @@
                         const talkName = $(talkItem).find('.talk-name-part').text();
                         const talk = Talk.of(talkId, talkName);
                         talk.isRead = talkIsRead(talkId);
-                        talkIdTalks[talkId] = talk;
+                        talkMap.set(talkId, talk);
                     });
                 });
             }).start();
@@ -1043,7 +1043,7 @@
 		observeAddingTalkArea(talkArea => {
 			//トークを生成
 			const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
-			const talk = talkIdTalks[talkId];
+            const talk = talkMap.get(talkId);
 
 			//トーク監視開始ログを表示
 			const observeStartDate = new Date();

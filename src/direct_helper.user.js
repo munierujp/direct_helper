@@ -296,29 +296,29 @@
 				key: "user-dialog-settings",
 				name: "ユーザーダイアログ",
 				description: "ユーザーダイアログの動作を変更します。",
-				items: {
-					expand_user_icon: {
+				items: [
+					{
 						key: "expand_user_icon",
 						name: "ユーザーアイコンの拡大",
 						description: "ユーザーアイコンをクリックで拡大表示します。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					}
-				}
+				]
 			},
 			{
 				key: "talk-settings",
 				name: "画像",
 				description: "画像の動作を変更します。",
-				items: {
-					change_thumbnail_size: {
+				items: [
+					{
 						key: "change_thumbnail_size",
 						name: "サムネイルサイズの変更",
 						description: "画像のサムネイルサイズを変更します。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					},
-					thumbnail_size: {
+					{
 						key: "thumbnail_size",
 						name: "サムネイルサイズ",
 						description: "画像のサムネイルサイズ（px）を入力してください。",
@@ -326,14 +326,14 @@
 						default: 600,
 						parentKey: "change_thumbnail_size"
 					},
-					blur_thumbnail: {
+					{
 						key: "blur_thumbnail",
 						name: "サムネイル画像をぼかす",
 						description: "サムネイル画像にブラー効果をかけてぼかします。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					},
-					thumbnail_blur_grade: {
+					{
 						key: "thumbnail_blur_grade",
 						name: "ぼかし度",
 						description: "サムネイル画像のぼかし度（px）を入力してください。",
@@ -341,56 +341,56 @@
 						default: 0,
 						parentKey: "blur_thumbnail"
 					}
-				}
+				]
 			},
 			{
 				key: "input-message-settings",
 				name: "メッセージ入力",
 				description: "メッセージ入力欄の動作を変更します。",
-				items: {
-					confirm_send_message_button: {
+				items: [
+					{
 						key: "confirm_send_message_button",
 						name: "送信ボタンの確認",
 						description: "送信ボタンによるメッセージ送信前に確認します。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					},
-					show_message_count: {
+					{
 						key: "show_message_count",
 						name: "入力文字数の表示",
 						description: "入力文字数をカウントダウン形式で表示します。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					}
-				}
+				]
 			},
 			{
 				key: "multi-view-settings",
 				name: "マルチビュー",
 				description: "マルチビューの動作を変更します。",
-				items: {
-					responsive_multi_view: {
+				items: [
+					{
 						key: "responsive_multi_view",
 						name: "マルチビューのレスポンシブ化",
 						description: "選択状態に応じてマルチビューのカラム数を動的に変更します。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					}
-				}
+				]
 			},
 			{
 				key: "message-watching-settings",
 				name: "メッセージ監視",
 				description: "メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。",
-				items: {
-					watch_message: {
+				items: [
+					{
 						key: "watch_message",
 						name: "メッセージの監視",
 						description: "メッセージを監視してコンソールに出力します。",
 						type: FormTypes.CHECKBOX,
 						default: true
 					},
-					show_past_message: {
+					{
 						key: "show_past_message",
 						name: "過去メッセージの表示",
 						description: "監視開始以前のメッセージを表示します。",
@@ -398,7 +398,7 @@
 						default: false,
 						parentKey: "watch_message"
 					},
-					watch_default_observe_talk: {
+					{
 						key: "watch_default_observe_talk",
 						name: "デフォルト監視対象の自動監視",
 						description: "デフォルト監視トークIDで指定したトークが未読であれば、自動で監視します。",
@@ -406,7 +406,7 @@
 						default: true,
 						parentKey: "watch_message"
 					},
-					default_observe_talk_ids: {
+					{
 						key: "default_observe_talk_ids",
 						name: "デフォルト監視トークID",
 						description: 'HTMLのid属性のうち、"talk-_"で始まるものを半角カンマ区切りで入力してください。',
@@ -414,73 +414,73 @@
 						default: [],
 						parentKey: "watch_default_observe_talk"
 					}
-				}
+				]
 			},
 			{
 				key: "log-settings",
 				name: "ログ",
 				description: "ログの表示形式をカスタマイズします。",
-				items: {
-					log_label: {
+				items: [
+					{
 						key: "log_label",
 						name: "ログラベル",
 						description: "コンソールでのフィルター用の文字列です。",
 						type: FormTypes.TEXT,
 						default: ""
 					},
-					user_name_system: {
+					{
 						type: FormTypes.TEXT,
 						name: "システムユーザー名",
 						key: "user_name_system",
 						default: "システム"
 					},
-					log_stamp: {
+					{
 						key: "log_stamp",
 						name: "スタンプログ",
 						type: FormTypes.TEXT,
 						default: "[スタンプ]"
 					},
-					log_image: {
+					{
 						key: "log_image",
 						name: "画像ログ",
 						type: FormTypes.TEXT,
 						default: "[画像]"
 					},
-					log_file: {
+                    {
 						key: "log_file",
 						name: "ファイルログ",
 						type: FormTypes.TEXT,
 						default: "[ファイル]"
 					},
-					date_format: {
+					{
 						key: "date_format",
 						name: "日付フォーマット",
 						description: "パターン文字で指定してください。 例：yyyy/M/d(e) HH:mm:ss",
 						type: FormTypes.TEXT,
 						default: "yyyy/M/d(e) HH:mm:ss"
 					},
-					custom_log_start_observe_messages: {
+					{
 						key: "custom_log_start_observe_messages",
 						name: "メッセージ監視開始文",
 						description: "&lt;time&gt;:監視開始日時",
 						type: FormTypes.TEXT,
 						default: "<time> メッセージの監視を開始します。"
 					},
-					custom_log_start_observe_talk: {
+					{
 						key: "custom_log_start_observe_talk",
 						name: "トーク監視開始文",
 						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:監視開始日時",
 						type: FormTypes.TEXT,
 						default: "<time> [<talkName>]の監視を開始します。"
 					},
-					custom_log_message_header: {
+					{
 						key: "custom_log_message_header",
 						name: "メッセージヘッダー",
 						description: "&lt;talkId&gt;:トークID, &lt;talkName&gt;:トーク名, &lt;time&gt;:発言日時, &lt;userName&gt;:ユーザー名",
 						type: FormTypes.TEXT,
 						default: "<time> [<talkName>] <userName>"
 					}
-				}
+				]
 			}
 		]
 	};
@@ -518,9 +518,7 @@
 
 		//未設定項目にデフォルト値を設定
 		SETTING_DATA.sections.forEach(section => {
-			Iterator.of(section.items)
-				.filter(key => settings[key] === undefined)
-				.forEach((key, inputData) => settings[key] = inputData.default);
+            section.items.filter(item => settings[item.key] === undefined).forEach(item => settings[item.key] = item.default);
 		});
 
 		setSettings(settings);
@@ -540,23 +538,39 @@
 	/**
     * 設定画面に項目を追加します。
     * @param {jQuery} $settingPage 設定画面オブジェクト
-    * @param {Object} settingData 設定データ
+    * @param {Object} section 設定セクション
     */
-	function appendSettingSection($settingPage, settingData){
+	function appendSettingSection($settingPage, section){
+        const arrayToMap = (array, toKey, toValue) => {
+            const map = new Map();
+            array.forEach(element => map.set(toKey(element), toValue(element)));
+            return map;
+        };
+
+        const mapToMap = (map, toKey, toValue) => {
+            const newMap = new Map();
+            map.forEach((value, key) => newMap.set(toKey(key, value), toValue(key, value)));
+            return newMap;
+        };
+
+        //設定の取得
+		const settings = getSettings();
+
 		//設定項目の作成
-		const inputKeyDatas = settingData.items;
-		const inputKeyFormGroups = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingFormGroup(data)).get();
-        const formGroups = Object.values(inputKeyFormGroups);
-		const $section = createSettingSection(settingData, formGroups);
+		const $section = $(`<div id="${HTML_ID_PREFIX + section.key}" class="c-section"><div class="c-section__heading">${section.name}</div></div>`);
+		Optional.ofAbsentable(section.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
+        const settingItemMap = arrayToMap(section.items, item => item.key, item => item);
+        const formGroupMap = mapToMap(settingItemMap, key => key, (key, item) => createSettingFormGroup(item));
+        formGroupMap.forEach($formGroup => $section.append($formGroup));
+		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
 		$settingPage.append($section);
 
 		//フォームの初期値を設定
-		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyFormGroups).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
-		Iterator.of(inputKeyInputs).forEach((key, $input) => {
-			const inputData = inputKeyDatas[key];
+        const inputMap = mapToMap(formGroupMap, key => key, key => $ById(HTML_ID_PREFIX + key));
+		inputMap.forEach(($input, key) => {
+			const item = settingItemMap.get(key);
 			const value = settings[key];
-			switch(inputData.type){
+			switch(item.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
@@ -572,12 +586,12 @@
 			}
 
 			//親が無効な場合、子の値を変更不可能化
-			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
-				const parentData = inputKeyDatas[parentKey];
-				if(parentData.type == FormTypes.CHECKBOX){
+			Optional.ofAbsentable(item.parentKey).ifPresent(parentKey => {
+				const parentItem = settingItemMap.get(parentKey);
+				if(parentItem.type == FormTypes.CHECKBOX){
 					const $parentInput = $ById(HTML_ID_PREFIX + parentKey);
 					const parentIsUnchecked = $parentInput.prop("checked") === false;
-					switch(inputData.type){
+					switch(item.type){
 						case FormTypes.TEXT:
 						case FormTypes.TEXT_ARRAY:
 						case FormTypes.NUMBER:
@@ -597,29 +611,35 @@
 		const $changeButton = $section.find('.btn');
 		const $message = $section.find('.success');
 		const onChangeValue = () => {
-			const inputKeyInputValues = Iterator.of(inputKeyInputs).mapValue((key, $input) => {
-				const inputData = inputKeyDatas[key];
-				switch(inputData.type){
-					case FormTypes.TEXT:
-					case FormTypes.TEXT_ARRAY:
-					case FormTypes.NUMBER:
-						return $input.val();
-					case FormTypes.CHECKBOX:
-						return $input.prop("checked");
-					case FormTypes.RADIOBUTTON:
-						const $buttons = $ByName(HTML_ID_PREFIX + key);
-						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
+            const inputValueMap = mapToMap(inputMap, key => key, (key, $input) => {
+                const item = settingItemMap.get(key);
+                switch(item.type){
+                    case FormTypes.TEXT:
+                    case FormTypes.TEXT_ARRAY:
+                    case FormTypes.NUMBER:
+                        return $input.val();
+                    case FormTypes.CHECKBOX:
+                        return $input.prop("checked");
+                    case FormTypes.RADIOBUTTON:
+                        const $buttons = $ByName(HTML_ID_PREFIX + key);
+                        const $checkedButton = $buttons.filter((i, button) => button.checked === true);
                         const id = $checkedButton.prop("id");
-						return id.replace(HTML_ID_PREFIX, "");
-				}
-			}).get();
-            const notChangedValue = equalsInputValuesToSettings(inputKeyInputValues, settings);
-            $changeButton.prop("disabled", notChangedValue);
+                        return id.replace(HTML_ID_PREFIX, "");
+                }
+            });
+
+            const valuesIsAllMatch= Array.from(inputValueMap.entries()).every(entry => {
+                const key = entry[0];
+                const inputValue = entry[1];
+                const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
+                return inputValue == settingValue;
+            });
+            $changeButton.prop("disabled", valuesIsAllMatch);
             $message.hide();
 		};
-		Iterator.of(inputKeyInputs).forEach((key, $input) => {
-			const inputData = inputKeyDatas[key];
-			switch(inputData.type){
+		inputMap.forEach(($input, key) => {
+			const item = settingItemMap.get(key);
+			switch(item.type){
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
@@ -635,13 +655,13 @@
 			}
 
 			//親が無効な場合、子の値を変更不可能化
-			Optional.ofAbsentable(inputData.parentKey).ifPresent(parentKey => {
-				const parentData = inputKeyDatas[parentKey];
-				if(parentData.type == FormTypes.CHECKBOX){
+			Optional.ofAbsentable(item.parentKey).ifPresent(parentKey => {
+				const parentItem = settingItemMap.get(parentKey);
+				if(parentItem.type == FormTypes.CHECKBOX){
 					const $parentInput = $ById(HTML_ID_PREFIX + parentKey);
 					$parentInput.on("click.direct_helper_appendSettingSection", () => {
 						const parentIsUnchecked = $parentInput.prop("checked") === false;
-						switch(inputData.type){
+						switch(item.type){
 							case FormTypes.TEXT:
 							case FormTypes.TEXT_ARRAY:
 							case FormTypes.NUMBER:
@@ -660,9 +680,9 @@
 
         //変更ボタンクリック時に設定を更新
         $changeButton.on("click.direct_helper_appendSettingSection", () => {
-            Iterator.of(inputKeyInputs).forEach((key, $input) => {
-                const inputData = inputKeyDatas[key];
-                switch(inputData.type){
+            inputMap.forEach(($input, key) => {
+                const item = settingItemMap.get(key);
+                switch(item.type){
                     case FormTypes.TEXT:
                     case FormTypes.NUMBER:
                         settings[key] = $input.val();
@@ -690,68 +710,41 @@
 
 	/**
     * 設定画面のフォームグループオブジェクトを作成します。
-    * @param {Object} inputData インプットデータ
+    * @param {Object} item 設定アイテム
     * @return {jQuery} フォームグループオブジェクト
     */
-	function createSettingFormGroup(inputData){
-		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
+	function createSettingFormGroup(item){
+		if(item.type == FormTypes.TEXT || item.type == FormTypes.TEXT_ARRAY){
 			const $formGroup = $(`<div class="form-group"></div>`);
-			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
-			$formGroup.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			$formGroup.append(`<label class="control-label">${item.name}</label>`);
+			$formGroup.append(`<div class="controls"><input id="${HTML_ID_PREFIX + item.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
-		}else if(inputData.type == FormTypes.NUMBER){
+		}else if(item.type == FormTypes.NUMBER){
 			const $formGroup = $(`<div class="form-group"></div>`);
-			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
-			$formGroup.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			$formGroup.append(`<label class="control-label">${item.name}</label>`);
+			$formGroup.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + item.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
-		}else if(inputData.type == FormTypes.CHECKBOX){
+		}else if(item.type == FormTypes.CHECKBOX){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			const $checkboxArea = $(`<div class="checkbox"></div>`);
-			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + inputData.key}" type="checkbox">${inputData.name}</label>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
+			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + item.key}" type="checkbox">${item.name}</label>`);
+			Optional.ofAbsentable(item.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
 			$formGroup.append($checkboxArea);
 			return $formGroup;
-		}else if(inputData.type == FormTypes.RADIOBUTTON){
-			const $formGroup = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
-			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
-			inputData.buttons.forEach(button => {
+		}else if(item.type == FormTypes.RADIOBUTTON){
+			const $formGroup = $(`<div class="form-group" id="${HTML_ID_PREFIX + item.key}"></div>`);
+			$formGroup.append(`<label class="control-label">${item.name}</label>`);
+			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			item.buttons.forEach(button => {
                 const $radioButtonArea = $(`<div class="radio"></div>`);
-				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + inputData.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
+				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + item.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
                 Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
 				$formGroup.append($radioButtonArea);
 			});
 			return $formGroup;
 		}
-	}
-
-	/**
-    * 設定画面のセクションオブジェクトを作成します。
-    * @param {Object} settingData 設定データ
-    * @param {jQuery[]} formGroups フォームグループオブジェクトリスト
-    * @return {jQuery} セクションオブジェクト
-    */
-	function createSettingSection(settingData, formGroups){
-		const $section = $(`<div id="${HTML_ID_PREFIX + settingData.key}" class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
-		Optional.ofAbsentable(settingData.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
-		formGroups.forEach($formGroup => $section.append($formGroup));
-		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
-		return $section;
-	}
-
-	/**
-    * すべてのインプット要素の値と設定の値が等しいかどうかを判定します。
-    * @param {Ocject} inputKeyInputValues
-    * @param {Object} settings 設定
-    * @return {Boolean} すべて等しければtrue、それ以外はfalse
-    */
-	function equalsInputValuesToSettings(inputKeyInputValues, settings){
-		return Iterator.of(inputKeyInputValues).every((key, inputValue) => {
-			const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
-			return inputValue == settingValue;
-		});
 	}
 
 	/**

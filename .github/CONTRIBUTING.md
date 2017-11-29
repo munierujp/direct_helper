@@ -36,9 +36,9 @@ JavaScript/jQueryでコードを記述してください。
 |key|String|○|キー|
 |name|String|○|名前|
 |description|String|-|説明|
-|items|Object|-|設定アイテム|
+|items|Object[]|-|設定アイテム|
 
-#### items
+#### item
 |プロパティ|型|必須|内容|
 |---|---|---|---|
 |key|String|○|キー|

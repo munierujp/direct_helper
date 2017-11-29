@@ -44,12 +44,22 @@
 			this.id = id;
 			this.name = name;
 		}
+
+		/**
+        * Talkオブジェクトを生成します。
+        * @param {String} id トークID
+        * @param {String} name トーク名
+        * @return {Talk} Talkオブジェクト
+        */
+		static of(id, name){
+			return new this(id, name);
+		}
 	}
 
 	/** メッセージ */
 	class Message{
 		/**
-        * @param {Talk} talk トーク
+        * @param {Talk} talk Talkオブジェクト
         * @throws {TypeError} talkの型がTalkではない場合
         */
 		constructor(talk){
@@ -58,6 +68,34 @@
 			}
 			this.talk = talk;
 		}
+
+		/**
+        * Messageオブジェクトを生成します。
+        * @param {Talk} talk Talkオブジェクト
+        * @return {Message} Messageオブジェクト
+        */
+		static of(talk){
+			return new this(talk);
+		}
+
+        /**
+        * メッセージをコンソールに出力します。
+        * @param {Object} settings 設定
+        */
+        log(settings){
+            const header = Replacer.of(
+                [/<talkId>/g, this.talk.id],
+                [/<time>/g, formatDate(this.time, settings.date_format)],
+                [/<talkName>/g, this.talk.name],
+                [/<userName>/g, this.userName]
+            ).exec(settings.custom_log_message_header);
+
+            console.group(header);
+            Optional.ofAbsentable(this.stamp)
+                .ifPresent(stamp => console.log(settings.log_label, this.body, stamp))
+                .ifAbsent(() => console.log(settings.log_label, this.body));
+            console.groupEnd();
+        }
 	}
 
 	/** トークエリア */
@@ -68,14 +106,104 @@
 		*/
 		observeAddingMessageArea(callback){
 			const realMessageArea = this.value.querySelector('.real-msgs');
-			Observer.of(realMessageArea).childList().hasChanged(mutations => {
-				mutations.forEach(mutation => {
-					Array.from(mutation.addedNodes)
+			Observer.of(realMessageArea).childList().hasChanged(records => {
+				records.forEach(record => {
+					Array.from(record.addedNodes)
 						.filter(node => node.className == "msg")
 						.forEach(messageArea => callback(messageArea));
 				});
 			}).start();
 		}
+	}
+
+	/** メッセージエリア */
+	class MessageArea{
+		/**
+        * @param {Element} value メッセージエリア
+        */
+		constructor(value){
+			this.value = value;
+            this.$messageArea = $(this.value);
+            this.$messageAreaFirstChild = this.$messageArea.find('div:first-child');
+            this.$messageBodyArea = this.$messageAreaFirstChild.find('.msg-body');
+            this.messageType = Object.values(MessageTypes).find(messageType => this.$messageBodyArea.hasClass(messageType.value));
+		}
+
+		/**
+        * MessageAreaオブジェクトを生成します。
+        * @param {Element} value メッセージエリア
+        * @return {MessageArea} MessageAreaオブジェクト
+        */
+		static of(value){
+			return new this(value);
+		}
+
+        /**
+        * ユーザー名を取得します。
+        * @param {Object} settings 設定
+        * @return {String} ユーザー名
+        */
+        getUserName(settings){
+            if(this.$messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
+                return settings.user_name_system;
+            }else if(this.$messageAreaFirstChild.hasClass(UserTypes.ME.value)){
+                return $('#current-username').text();
+            }else if(this.$messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
+                return this.$messageAreaFirstChild.find('.username').text();
+            }
+        }
+
+        /**
+        * 本文を取得します。
+        * @param {Object} settings 設定
+        * @return {String} 本文
+        */
+        getMessageBody(settings){
+            const messageHasFile = this.messageType == MessageTypes.FILE || this.messageType == MessageTypes.FILE_AND_TEXT;
+            const messageHasStamp = this.messageType == MessageTypes.STAMP;
+            if(messageHasFile){
+                const fileType = Object.values(FileTypes).find(fileType => this.$messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
+                const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
+                const messageHasText = this.messageType == MessageTypes.FILE_AND_TEXT && !(this.$messageBodyArea.hasClass("no-text"));
+                if(messageHasText){
+                    const text =this.$messageBodyArea.find('.msg-thumbs-text').text();
+                    return prefix + text;
+                }else{
+                    return prefix;
+                }
+            }else if(messageHasStamp){
+                const stampType = Object.values(StampTypes).find(stampType => this.$messageBodyArea.hasClass(stampType.value));
+                if(stampType == StampTypes.NO_TEXT){
+                    return settings.log_stamp;
+                }
+            }
+
+            //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
+            const $messageText = this.$messageBodyArea.find('.msg-text').clone();
+            const $messageMenu = $messageText.find('.msg-menu-container');
+            $messageMenu.remove();
+            return $messageText.text();
+        }
+
+        /**
+        * Messageオブジェクトを作成します。
+        * @param {Object} settings 設定
+        * @parm {Talk} talk Talkオブジェクト
+        * @return {Message} Messageオブジェクト
+        */
+        createMessage(settings, talk){
+            const message = Message.of(talk);
+            message.type = this.messageType;
+            message.time = new Date(Number(this.$messageArea.attr("data-created-at")));
+            message.userName = this.getUserName(settings);
+            message.body = this.getMessageBody(settings);
+
+            if(this.messageType == MessageTypes.STAMP){
+                message.stamp = this.$messageBodyArea.find('img').get(0);
+            }
+
+            return message;
+        }
 	}
 
 	/** ファイル種別クラス */
@@ -412,19 +540,19 @@
 	/**
     * 設定画面に項目を追加します。
     * @param {jQuery} $settingPage 設定画面オブジェクト
-    * @param {Object} settiongData 設定データ
+    * @param {Object} settingData 設定データ
     */
-	function appendSettingSection($settingPage, settiongData){
+	function appendSettingSection($settingPage, settingData){
 		//設定項目の作成
-		const inputKeyDatas = settiongData.items;
-		const inputKeyForms = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingInputFormElement(data)).get();
-        const inputForms = Object.values(inputKeyForms);
-		const $section = createSettingSection(settiongData, inputForms);
+		const inputKeyDatas = settingData.items;
+		const inputKeyFormGroups = Iterator.of(inputKeyDatas).mapValue((key, data) => createSettingFormGroup(data)).get();
+        const formGroups = Object.values(inputKeyFormGroups);
+		const $section = createSettingSection(settingData, formGroups);
 		$settingPage.append($section);
 
 		//フォームの初期値を設定
 		const settings = getSettings();
-		const inputKeyInputs = Iterator.of(inputKeyForms).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
+		const inputKeyInputs = Iterator.of(inputKeyFormGroups).mapValue(key => $ById(HTML_ID_PREFIX + key)).get();
 		Iterator.of(inputKeyInputs).forEach((key, $input) => {
 			const inputData = inputKeyDatas[key];
 			const value = settings[key];
@@ -561,54 +689,54 @@
     }
 
 	/**
-    * 設定画面の入力フォームオブジェクトを作成します。
+    * 設定画面のフォームグループオブジェクトを作成します。
     * @param {Object} inputData インプットデータ
-    * @return {jQuery} 入力フォームオブジェクト
+    * @return {jQuery} フォームグループオブジェクト
     */
-	function createSettingInputFormElement(inputData){
+	function createSettingFormGroup(inputData){
 		if(inputData.type == FormTypes.TEXT || inputData.type == FormTypes.TEXT_ARRAY){
-			const $inputForm = $(`<div class="form-group"></div>`);
-			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
-			$inputForm.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
-			return $inputForm;
+			const $formGroup = $(`<div class="form-group"></div>`);
+			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
+			$formGroup.append(`<div class="controls"><input id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			return $formGroup;
 		}else if(inputData.type == FormTypes.NUMBER){
-			const $inputForm = $(`<div class="form-group"></div>`);
-			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
-			$inputForm.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
-			return $inputForm;
+			const $formGroup = $(`<div class="form-group"></div>`);
+			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
+			$formGroup.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + inputData.key}" class="form-control" name="status"></div>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
+			return $formGroup;
 		}else if(inputData.type == FormTypes.CHECKBOX){
-			const $inputForm = $(`<div class="form-group"></div>`);
+			const $formGroup = $(`<div class="form-group"></div>`);
 			const $checkboxArea = $(`<div class="checkbox"></div>`);
 			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + inputData.key}" type="checkbox">${inputData.name}</label>`);
 			Optional.ofAbsentable(inputData.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
-			$inputForm.append($checkboxArea);
-			return $inputForm;
+			$formGroup.append($checkboxArea);
+			return $formGroup;
 		}else if(inputData.type == FormTypes.RADIOBUTTON){
-			const $inputForm = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
-			$inputForm.append(`<label class="control-label">${inputData.name}</label>`);
-			Optional.ofAbsentable(inputData.description).ifPresent(description => $inputForm.append(`<div class="annotation">${description}</div>`));
+			const $formGroup = $(`<div class="form-group" id="${HTML_ID_PREFIX + inputData.key}"></div>`);
+			$formGroup.append(`<label class="control-label">${inputData.name}</label>`);
+			Optional.ofAbsentable(inputData.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			inputData.buttons.forEach(button => {
                 const $radioButtonArea = $(`<div class="radio"></div>`);
 				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + inputData.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
                 Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
-				$inputForm.append($radioButtonArea);
+				$formGroup.append($radioButtonArea);
 			});
-			return $inputForm;
+			return $formGroup;
 		}
 	}
 
 	/**
-    * 設定画面の項目オブジェクトを作成します。
+    * 設定画面のセクションオブジェクトを作成します。
     * @param {Object} settingData 設定データ
-    * @param {jQuery[]} inputForms 入力フォームオブジェクトリスト
-    * @return {jQuery} 項目オブジェクト
+    * @param {jQuery[]} formGroups フォームグループオブジェクトリスト
+    * @return {jQuery} セクションオブジェクト
     */
-	function createSettingSection(settingData, inputForms){
+	function createSettingSection(settingData, formGroups){
 		const $section = $(`<div id="${HTML_ID_PREFIX + settingData.key}" class="c-section"><div class="c-section__heading">${settingData.name}</div></div>`);
 		Optional.ofAbsentable(settingData.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
-		inputForms.forEach($inputForm => $section.append($inputForm));
+		formGroups.forEach($formGroup => $section.append($formGroup));
 		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
 		return $section;
 	}
@@ -634,8 +762,7 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
-				const messageType = getMessageType($messageBodyArea);
+				const messageType = MessageArea.of(messageArea).messageType;
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
@@ -654,8 +781,7 @@
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-				const $messageBodyArea = $(messageArea).find('div:first-child .msg-body');
-				const messageType = getMessageType($messageBodyArea);
+				const messageType = MessageArea.of(messageArea).messageType;
                 const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
@@ -694,8 +820,8 @@
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
             const $fileAreas = $(sendForm).find('.staged-files');
             $fileAreas.each((i, fileArea) => {
-                Observer.of(fileArea).attributes("style").hasChanged(mutations => {
-                    mutations.forEach(mutation => {
+                Observer.of(fileArea).attributes("style").hasChanged(records => {
+                    records.forEach(record => {
                         const fileAreaIsHidden= $(fileArea).is(':hidden');
                         $dummySendButton.prop("disabled", fileAreaIsHidden);
                     });
@@ -719,7 +845,7 @@
 	function doExpandUserIcon(){
 		const CUSTOM_MODAL_Z_INDEX = 9999;
 
-        const addEscapeKeyupListener =  listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
+        const addEscapeKeyupListener = listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
         const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup");
 
 		const $userDialog = $('#user-dialog-basic-profile');
@@ -802,8 +928,8 @@
 
 		$talkPanes.each((i, talkPane) => {
 			//トークペインのclass属性変更時、表示を切り替え
-			Observer.of(talkPane).attributes("class").hasChanged(mutations => {
-				mutations.forEach(mutation => {
+			Observer.of(talkPane).attributes("class").hasChanged(records => {
+				records.forEach(record => {
 					const $activeTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("has-send-form"));
 					const $inactiveTalkPanes = $talkPanes.filter((i, talkPane) => $(talkPane).hasClass("no-send-form"));
 
@@ -878,7 +1004,7 @@
         //トーク一覧に子ノード追加時、トーク関連処理を実行
         const $talkLists = $('#talks');
         $talkLists.each((i, talkList) => {
-            Observer.of(talkList).childList().hasChanged(mutations => {
+            Observer.of(talkList).childList().hasChanged(records => {
                 //デフォルト監視対象を監視対象に追加
                 if(settings.watch_default_observe_talk === true){
                     const readTalkIds = settings.default_observe_talk_ids.filter(talkIsRead);
@@ -901,12 +1027,12 @@
                 }
 
                 //トーク情報の更新
-                mutations.forEach(mutation => {
-                    const talkItems = mutation.addedNodes;
+                records.forEach(record => {
+                    const talkItems = record.addedNodes;
                     talkItems.forEach(talkItem => {
                         const talkId = talkItem.id;
                         const talkName = $(talkItem).find('.talk-name-part').text();
-                        const talk = new Talk(talkId, talkName);
+                        const talk = Talk.of(talkId, talkName);
                         talk.isRead = talkIsRead(talkId);
                         talkIdTalks[talkId] = talk;
                     });
@@ -938,12 +1064,12 @@
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				//メッセージを生成
-				const message = createMessage($(messageArea), talk);
+				const message = MessageArea.of(messageArea).createMessage(settings, talk);
 
 				//メッセージをコンソールに出力
                 const messageIsNotPast = message.time > observeStartDate;
 				if(messageIsNotPast || settings.show_past_message === true){
-					logMessage(message);
+					message.log(settings);
 				}
 			});
 		});
@@ -957,158 +1083,13 @@
 		const $messagesAreas = $('#messages');
         $messagesAreas.each((i, messagesArea) => {
             //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
-            Observer.of(messagesArea).childList().hasChanged(mutations => {
-                mutations.forEach(mutation => {
-                    const talkAreas = mutation.addedNodes;
+            Observer.of(messagesArea).childList().hasChanged(records => {
+                records.forEach(record => {
+                    const talkAreas = record.addedNodes;
                     talkAreas.forEach(talkArea => callback(talkArea));
                 });
             }).start();
         });
-	}
-
-	/**
-    * メッセージエリアオブジェクトからメッセージを作成します。
-    * @param {jQuery} $messageArea メッセージエリアオブジェクト
-    * @parma {Talk} talk トーク
-    * @return {Message} メッセージ
-    */
-	function createMessage($messageArea, talk){
-		const $messageBodyArea = $messageArea.find('div:first-child .msg-body');
-		const messageType = getMessageType($messageBodyArea);
-
-		const message = new Message(talk);
-		message.time = getMessageTime($messageArea);
-		message.userName = getMessageUserName($messageArea);
-		message.body = getMessageBody($messageBodyArea, messageType);
-
-		if(messageType == MessageTypes.STAMP){
-			message.stamp = getMessageStamp($messageBodyArea);
-		}
-
-		return message;
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからメッセージ種別を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {MessageType} メッセージ種別
-    */
-	function getMessageType($messageBodyArea){
-        return Object.values(MessageTypes).find(messageType => $messageBodyArea.hasClass(messageType.value));
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからファイル種別を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {FileType} ファイル種別
-    */
-	function getFileType($messageBodyArea){
-        return Object.values(FileTypes).find(fileType => $messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからスタンプ種別を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {StampType} スタンプ種別
-    */
-	function getStampType($messageBodyArea){
-        return Object.values(StampTypes).find(stampType => $messageBodyArea.hasClass(stampType.value));
-	}
-
-	/**
-    * メッセージエリアオブジェクトからメッセージの投稿日時を取得します。
-    * @param {jQuery} $messageArea メッセージエリアオブジェクト
-    * @return {Date} メッセージの投稿日時
-    */
-	function getMessageTime($messageArea){
-		return new Date(Number($messageArea.attr("data-created-at")));
-	}
-
-	/**
-    * メッセージエリアオブジェクトからメッセージのユーザー名を取得します。
-    * @param {jQuery} $messageArea メッセージエリアオブジェクト
-    * @return {String} メッセージのユーザー名
-    */
-	function getMessageUserName($messageArea){
-        const $messageAreaFirstChild = $messageArea.find('div:first-child');
-        if($messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
-            return settings.user_name_system;
-        }else if($messageAreaFirstChild.hasClass(UserTypes.ME.value)){
-            return $('#current-username').text();
-        }else if($messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
-            return $messageAreaFirstChild.find('.username').text();
-        }
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからメッセージの本文を取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @param {MessageType} messageType メッセージ種別
-    * @return {String} メッセージの本文
-    * @throws {TypeError} messageTypeの型がMessageTypeではない場合
-    */
-	function getMessageBody($messageBodyArea, messageType){
-		if(!(messageType instanceof MessageType)){
-			throw new TypeError(messageType + " is not instance of MessageType");
-		}
-
-        const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
-        const messageHasStamp = messageType == MessageTypes.STAMP;
-		if(messageHasFile){
-			const fileType = getFileType($messageBodyArea);
-			const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-            const messageHasText = messageType == MessageTypes.FILE_AND_TEXT && !($messageBodyArea.hasClass("no-text"));
-			if(messageHasText){
-                const text =$messageBodyArea.find('.msg-thumbs-text').text();
-				return prefix + text;
-			}else{
-				return prefix;
-			}
-		}else if(messageHasStamp){
-			const stampType = getStampType($messageBodyArea);
-			if(stampType == StampTypes.NO_TEXT){
-				return settings.log_stamp;
-			}
-		}
-
-		//本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
-		const $messageText = $messageBodyArea.find('.msg-text').clone();
-		const $messageMenu = $messageText.find('.msg-menu-container');
-        $messageMenu.remove();
-		return $messageText.text();
-	}
-
-	/**
-    * メッセージ本文エリアオブジェクトからメッセージのスタンプを取得します。
-    * @param {jQuery} $messageBodyArea メッセージ本文エリアオブジェクト
-    * @return {Node} メッセージのスタンプ
-    */
-	function getMessageStamp($messageBodyArea){
-		return $messageBodyArea.find('img').get(0);
-	}
-
-	/**
-    * メッセージをコンソールに出力します。
-    * @param {Message} message メッセージ
-    * @throws {TypeError} messageの型がMessageではない場合
-    */
-	function logMessage(message){
-		if(!(message instanceof Message)){
-			throw new TypeError(message + " is not instance of Message");
-		}
-
-		const header = Replacer.of(
-			[/<talkId>/g, message.talk.id],
-			[/<time>/g, formatDate(message.time, settings.date_format)],
-			[/<talkName>/g, message.talk.name],
-			[/<userName>/g, message.userName]
-		).exec(settings.custom_log_message_header);
-
-		console.group(header);
-		Optional.ofAbsentable(message.stamp)
-			.ifPresent(stamp => console.log(settings.log_label, message.body, stamp))
-			.ifAbsent(() => console.log(settings.log_label, message.body));
-		console.groupEnd();
 	}
 
 	/**

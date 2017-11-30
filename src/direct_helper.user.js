@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.6
+// @version      1.7
 // @description  directに便利な機能を追加します。
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*

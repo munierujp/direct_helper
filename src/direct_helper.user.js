@@ -580,7 +580,7 @@
                     $input.prop("checked", value);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const $button = $ById(HTML_ID_PREFIX + value);
+					const $button = $ById(HTML_ID_PREFIX + key + "_" + value);
 					$button.prop("checked", true);
 					break;
 			}
@@ -624,7 +624,7 @@
                         const $buttons = $ByName(HTML_ID_PREFIX + key);
                         const $checkedButton = $buttons.filter((i, button) => button.checked === true);
                         const id = $checkedButton.prop("id");
-                        return id.replace(HTML_ID_PREFIX, "");
+                        return id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
                 }
             });
 
@@ -697,7 +697,7 @@
                         const $buttons = $input.find('input');
 						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
                         const id = $checkedButton.prop("id");
-                        settings[key] = id.replace(HTML_ID_PREFIX, "");
+                        settings[key] = id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
                         break;
                 }
             });
@@ -717,29 +717,35 @@
 		if(item.type == FormTypes.TEXT || item.type == FormTypes.TEXT_ARRAY){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
-			$formGroup.append(`<div class="controls"><input id="${HTML_ID_PREFIX + item.key}" class="form-control" name="status"></div>`);
+            const id = HTML_ID_PREFIX + item.key;
+			$formGroup.append(`<div class="controls"><input id="${id}" class="form-control" name="status"></div>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
 		}else if(item.type == FormTypes.NUMBER){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
-			$formGroup.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + item.key}" class="form-control" name="status"></div>`);
+            const id = HTML_ID_PREFIX + item.key;
+			$formGroup.append(`<div class="controls"><input type="number" id="${id}" class="form-control" name="status"></div>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
 		}else if(item.type == FormTypes.CHECKBOX){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			const $checkboxArea = $(`<div class="checkbox"></div>`);
-			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + item.key}" type="checkbox">${item.name}</label>`);
+            const id = HTML_ID_PREFIX + item.key;
+			$checkboxArea.append(`<label><input id="${id}" type="checkbox">${item.name}</label>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
 			$formGroup.append($checkboxArea);
 			return $formGroup;
 		}else if(item.type == FormTypes.RADIOBUTTON){
-			const $formGroup = $(`<div class="form-group" id="${HTML_ID_PREFIX + item.key}"></div>`);
+            const id = HTML_ID_PREFIX + item.key;
+			const $formGroup = $(`<div class="form-group" id="${id}"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			item.buttons.forEach(button => {
                 const $radioButtonArea = $(`<div class="radio"></div>`);
-				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + item.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
+                const name = HTML_ID_PREFIX + item.key;
+                const id = HTML_ID_PREFIX + item.key + "_" + button.key;
+				$radioButtonArea.append(`<label><input type="radio" name="${name}" id="${id}">${button.name}</label>`);
                 Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
 				$formGroup.append($radioButtonArea);
 			});

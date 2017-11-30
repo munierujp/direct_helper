@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         direct helper
 // @namespace    https://github.com/munierujp/direct_helper
-// @version      1.6
+// @version      1.7
 // @description  directに便利な機能を追加します。
 // @author       @munieru_jp
 // @match       https://*.direct4b.com/home*
@@ -358,9 +358,26 @@
 					{
 						key: "show_message_count",
 						name: "入力文字数の表示",
-						description: "入力文字数をカウントダウン形式で表示します。",
+						description: "入力文字数を表示します。",
 						type: FormTypes.CHECKBOX,
 						default: true
+					},
+					{
+						key: "show_message_count_types",
+						name: "入力文字数の表示形式",
+						type: FormTypes.RADIOBUTTON,
+						default: "countdown",
+                        parentKey: "show_message_count",
+                        buttons: [
+                            {
+                                key: "countdown",
+                                name: "カウントダウン"
+                            },
+                            {
+                                key: "countup",
+                                name: "カウントアップ"
+                            }
+                        ]
 					}
 				]
 			},
@@ -580,7 +597,7 @@
                     $input.prop("checked", value);
 					break;
 				case FormTypes.RADIOBUTTON:
-					const $button = $ById(HTML_ID_PREFIX + value);
+					const $button = $ById(HTML_ID_PREFIX + key + "_" + value);
 					$button.prop("checked", true);
 					break;
 			}
@@ -624,7 +641,7 @@
                         const $buttons = $ByName(HTML_ID_PREFIX + key);
                         const $checkedButton = $buttons.filter((i, button) => button.checked === true);
                         const id = $checkedButton.prop("id");
-                        return id.replace(HTML_ID_PREFIX, "");
+                        return id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
                 }
             });
 
@@ -697,7 +714,7 @@
                         const $buttons = $input.find('input');
 						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
                         const id = $checkedButton.prop("id");
-                        settings[key] = id.replace(HTML_ID_PREFIX, "");
+                        settings[key] = id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
                         break;
                 }
             });
@@ -717,29 +734,35 @@
 		if(item.type == FormTypes.TEXT || item.type == FormTypes.TEXT_ARRAY){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
-			$formGroup.append(`<div class="controls"><input id="${HTML_ID_PREFIX + item.key}" class="form-control" name="status"></div>`);
+            const id = HTML_ID_PREFIX + item.key;
+			$formGroup.append(`<div class="controls"><input id="${id}" class="form-control" name="status"></div>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
 		}else if(item.type == FormTypes.NUMBER){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
-			$formGroup.append(`<div class="controls"><input type="number" id="${HTML_ID_PREFIX + item.key}" class="form-control" name="status"></div>`);
+            const id = HTML_ID_PREFIX + item.key;
+			$formGroup.append(`<div class="controls"><input type="number" id="${id}" class="form-control" name="status"></div>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
 		}else if(item.type == FormTypes.CHECKBOX){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			const $checkboxArea = $(`<div class="checkbox"></div>`);
-			$checkboxArea.append(`<label><input id="${HTML_ID_PREFIX + item.key}" type="checkbox">${item.name}</label>`);
+            const id = HTML_ID_PREFIX + item.key;
+			$checkboxArea.append(`<label><input id="${id}" type="checkbox">${item.name}</label>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
 			$formGroup.append($checkboxArea);
 			return $formGroup;
 		}else if(item.type == FormTypes.RADIOBUTTON){
-			const $formGroup = $(`<div class="form-group" id="${HTML_ID_PREFIX + item.key}"></div>`);
+            const id = HTML_ID_PREFIX + item.key;
+			const $formGroup = $(`<div class="form-group" id="${id}"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			item.buttons.forEach(button => {
                 const $radioButtonArea = $(`<div class="radio"></div>`);
-				$radioButtonArea.append(`<label><input type="radio" name="${HTML_ID_PREFIX + item.key}" id="${HTML_ID_PREFIX + button.key}">${button.name}</label>`);
+                const name = HTML_ID_PREFIX + item.key;
+                const id = HTML_ID_PREFIX + item.key + "_" + button.key;
+				$radioButtonArea.append(`<label><input type="radio" name="${name}" id="${id}">${button.name}</label>`);
                 Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
 				$formGroup.append($radioButtonArea);
 			});
@@ -962,20 +985,24 @@
     * 入力文字数の表示機能を実行します。
     */
 	function doShowMessageCount(){
+		const settings = getSettings();
+        const countDown = settings.show_message_count_types== "countdown";
+
 		const sendForms = $('.form-send');
 		sendForms.each((i, sendForm) => {
 			const $textArea = $(sendForm).find('.form-send-text');
 			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
-			const $counter = $(`<label>${maxLength}</label>`).css("margin-right", "8px");
+            const count = countDown ? maxLength : 0;
+			const $counter = $(`<label>${count}</label>`).css("margin-right", "8px");
             const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
 			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新
             $textArea.on("input.direct_helper_doShowMessageCount", () => {
                 const currentLength = $textArea.val().length;
-                const count = maxLength - currentLength;
+                const count = countDown ? maxLength - currentLength : currentLength;
                 $counter.text(count);
             });
 		});

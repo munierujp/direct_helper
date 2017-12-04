@@ -47,9 +47,9 @@ JavaScript/jQueryでコードを記述してください。
 |type|FormType|○|フォーム種別|
 |default|?|○|デフォルト値|
 |parentKey|String|-|親キー|
-|buttons|Object|-|ラジオボタン|
+|buttons|Object[]|-|ラジオボタン|
 
-### buttons
+### button
 |プロパティ|型|必須|内容|
 |---|---|---|---|
 |key|String|○|キー|

@@ -7,9 +7,9 @@ JavaScript/jQueryでコードを記述してください。
 ライブラリの詳細は各ライブラリのドキュメントを参照してください。
 
 * [Optional.js](https://github.com/munierujp/Optional.js)
-* [Iterator.js](https://github.com/munierujp/Iterator.js)
 * [Observer.js](https://github.com/munierujp/Observer.js)
 * [Replacer.js](https://github.com/munierujp/Replacer.js)
+* [SuperMap.js](https://github.com/munierujp/SuperMap.js)
 
 ## 関数
 機能に対応する関数の名前は、`doExpandUserIcon`のように`do[設定キー]`で統一しています。  

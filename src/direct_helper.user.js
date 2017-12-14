@@ -7,9 +7,9 @@
 // @match       https://*.direct4b.com/home*
 // @grant        none
 // @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
-// @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
 // @require https://cdn.rawgit.com/munierujp/Observer.js/d0401132a1276910692fc53ed4012ef5efad25f3/Observer.min.js
 // @require https://cdn.rawgit.com/munierujp/Replacer.js/dd9339ae54d7adfd6a65c54c299f5a485f327521/Replacer.min.js
+// @require https://cdn.rawgit.com/munierujp/SuperMap.js/71bda32a1df6f9f76d6b5823eaf2caab318baead/SuperMap.min.js
 // ==/UserScript==
 
 (function(){
@@ -523,9 +523,10 @@
 	const settings = getSettings();
 
 	//各種機能の実行
-	Iterator.of(SETTINGS_KEY_ACTIONS)
+	Object.keys(SETTINGS_KEY_ACTIONS)
 		.filter(key => settings[key] === true)
-		.forEach((key, action) => action());
+		.map(key => SETTINGS_KEY_ACTIONS[key])
+		.forEach(action => action());
 
 	/**
     * 設定を初期化します。
@@ -558,32 +559,26 @@
     * @param {Object} section 設定セクション
     */
 	function appendSettingSection($settingPage, section){
-        const arrayToMap = (array, toKey, toValue) => {
-            const map = new Map();
-            array.forEach(element => map.set(toKey(element), toValue(element)));
-            return map;
-        };
+		const arrayToMap = array => {
+			const map = SuperMap.empty();
+			array.forEach((element, index) => map.set(index, element));
+			return map;
+		};
 
-        const mapToMap = (map, toKey, toValue) => {
-            const newMap = new Map();
-            map.forEach((value, key) => newMap.set(toKey(key, value), toValue(key, value)));
-            return newMap;
-        };
-
-        //設定の取得
+		//設定の取得
 		const settings = getSettings();
 
 		//設定項目の作成
 		const $section = $(`<div id="${HTML_ID_PREFIX + section.key}" class="c-section"><div class="c-section__heading">${section.name}</div></div>`);
 		Optional.ofAbsentable(section.description).ifPresent(description => $section.append(`<div class="form-group">${description}</div>`));
-        const settingItemMap = arrayToMap(section.items, item => item.key, item => item);
-        const formGroupMap = mapToMap(settingItemMap, key => key, (key, item) => createSettingFormGroup(item));
-        formGroupMap.forEach($formGroup => $section.append($formGroup));
+		const settingItemMap = arrayToMap(section.items).mapKey((item, key) => item.key);
+		const formGroupMap = settingItemMap.mapValue(item => createSettingFormGroup(item));
+		formGroupMap.forEach($formGroup => $section.append($formGroup));
 		$section.append(`<div><button type="button" class="btn btn-primary btn-fix" disabled>変更</button><span class="success" style="display:none">変更しました。</span></div>`);
 		$settingPage.append($section);
 
 		//フォームの初期値を設定
-        const inputMap = mapToMap(formGroupMap, key => key, key => $ById(HTML_ID_PREFIX + key));
+		const inputMap = formGroupMap.mapValue(($formGroup, key) => $ById(HTML_ID_PREFIX + key));
 		inputMap.forEach(($input, key) => {
 			const item = settingItemMap.get(key);
 			const value = settings[key];
@@ -594,7 +589,7 @@
 					$input.val(value);
 					break;
 				case FormTypes.CHECKBOX:
-                    $input.prop("checked", value);
+					$input.prop("checked", value);
 					break;
 				case FormTypes.RADIOBUTTON:
 					const $button = $ById(HTML_ID_PREFIX + key + "_" + value);
@@ -628,31 +623,31 @@
 		const $changeButton = $section.find('.btn');
 		const $message = $section.find('.success');
 		const onChangeValue = () => {
-            const inputValueMap = mapToMap(inputMap, key => key, (key, $input) => {
-                const item = settingItemMap.get(key);
-                switch(item.type){
-                    case FormTypes.TEXT:
-                    case FormTypes.TEXT_ARRAY:
-                    case FormTypes.NUMBER:
-                        return $input.val();
-                    case FormTypes.CHECKBOX:
-                        return $input.prop("checked");
-                    case FormTypes.RADIOBUTTON:
-                        const $buttons = $ByName(HTML_ID_PREFIX + key);
-                        const $checkedButton = $buttons.filter((i, button) => button.checked === true);
-                        const id = $checkedButton.prop("id");
-                        return id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
-                }
-            });
+			const inputValueMap = inputMap.mapValue(($input, key) => {
+				const item = settingItemMap.get(key);
+				switch(item.type){
+					case FormTypes.TEXT:
+					case FormTypes.TEXT_ARRAY:
+					case FormTypes.NUMBER:
+						return $input.val();
+					case FormTypes.CHECKBOX:
+						return $input.prop("checked");
+					case FormTypes.RADIOBUTTON:
+						const $buttons = $ByName(HTML_ID_PREFIX + key);
+						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
+						const id = $checkedButton.prop("id");
+						return id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
+				}
+			});
 
-            const valuesIsAllMatch= Array.from(inputValueMap.entries()).every(entry => {
-                const key = entry[0];
-                const inputValue = entry[1];
-                const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
-                return inputValue == settingValue;
-            });
-            $changeButton.prop("disabled", valuesIsAllMatch);
-            $message.hide();
+			const valuesIsAllMatch= Array.from(inputValueMap.entries()).every(entry => {
+				const key = entry[0];
+				const inputValue = entry[1];
+				const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
+				return inputValue == settingValue;
+			});
+			$changeButton.prop("disabled", valuesIsAllMatch);
+			$message.hide();
 		};
 		inputMap.forEach(($input, key) => {
 			const item = settingItemMap.get(key);
@@ -660,13 +655,13 @@
 				case FormTypes.TEXT:
 				case FormTypes.TEXT_ARRAY:
 				case FormTypes.NUMBER:
-                    $input.on("input.direct_helper_appendSettingSection", onChangeValue);
+					$input.on("input.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.CHECKBOX:
-                    $input.on("click.direct_helper_appendSettingSection", onChangeValue);
+					$input.on("click.direct_helper_appendSettingSection", onChangeValue);
 					break;
 				case FormTypes.RADIOBUTTON:
-                    const $buttons = $ByName(HTML_ID_PREFIX + key);
+					const $buttons = $ByName(HTML_ID_PREFIX + key);
 					$buttons.each((i, button) => $(button).on("click.direct_helper_appendSettingSection", onChangeValue));
 					break;
 			}
@@ -686,44 +681,44 @@
 								$input.prop("disabled", parentIsUnchecked);
 								break;
 							case FormTypes.RADIOBUTTON:
-                                const $buttons = $input.find('input');
-                                $buttons.each((i, button) => $(button).prop("disabled", parentIsUnchecked));
+								const $buttons = $input.find('input');
+								$buttons.each((i, button) => $(button).prop("disabled", parentIsUnchecked));
 								break;
 						}
 					});
 				}
 			});
-        });
+		});
 
-        //変更ボタンクリック時に設定を更新
-        $changeButton.on("click.direct_helper_appendSettingSection", () => {
-            inputMap.forEach(($input, key) => {
-                const item = settingItemMap.get(key);
-                switch(item.type){
-                    case FormTypes.TEXT:
-                    case FormTypes.NUMBER:
-                        settings[key] = $input.val();
-                        break;
-                    case FormTypes.TEXT_ARRAY:
-                        settings[key] = stringToArray($input.val());
-                        break;
-                    case FormTypes.CHECKBOX:
-                        settings[key] = $input.prop("checked");
-                        break;
-                    case FormTypes.RADIOBUTTON:
-                        const $buttons = $input.find('input');
+		//変更ボタンクリック時に設定を更新
+		$changeButton.on("click.direct_helper_appendSettingSection", () => {
+			inputMap.forEach(($input, key) => {
+				const item = settingItemMap.get(key);
+				switch(item.type){
+					case FormTypes.TEXT:
+					case FormTypes.NUMBER:
+						settings[key] = $input.val();
+						break;
+					case FormTypes.TEXT_ARRAY:
+						settings[key] = stringToArray($input.val());
+						break;
+					case FormTypes.CHECKBOX:
+						settings[key] = $input.prop("checked");
+						break;
+					case FormTypes.RADIOBUTTON:
+						const $buttons = $input.find('input');
 						const $checkedButton = $buttons.filter((i, button) => button.checked === true);
-                        const id = $checkedButton.prop("id");
-                        settings[key] = id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
-                        break;
-                }
-            });
+						const id = $checkedButton.prop("id");
+						settings[key] = id.replace(HTML_ID_PREFIX, "").replace(key + "_", "");
+						break;
+				}
+			});
 
-            setSettings(settings);
-            $changeButton.prop("disabled", true);
-            $message.show();
-        });
-    }
+			setSettings(settings);
+			$changeButton.prop("disabled", true);
+			$message.show();
+		});
+	}
 
 	/**
     * 設定画面のフォームグループオブジェクトを作成します。
@@ -1136,7 +1131,8 @@
     */
 	function deepFreeze(object){
 		Object.freeze(object);
-		Iterator.of(object).forEach((key, value) => {
+		Object.keys(object).forEach(key => {
+			const value = object[key];
 			if(!object.hasOwnProperty(key) || typeof value != "object" || Object.isFrozen(value)){
 				return;
 			}

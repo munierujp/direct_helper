@@ -7,7 +7,6 @@
 // @match       https://*.direct4b.com/home*
 // @grant        none
 // @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
-// @require https://cdn.rawgit.com/munierujp/Iterator.js/f52c3213ea519c4b81f2a2d800916aeea6e21a3f/Iterator.min.js
 // @require https://cdn.rawgit.com/munierujp/Observer.js/d0401132a1276910692fc53ed4012ef5efad25f3/Observer.min.js
 // @require https://cdn.rawgit.com/munierujp/Replacer.js/dd9339ae54d7adfd6a65c54c299f5a485f327521/Replacer.min.js
 // ==/UserScript==
@@ -523,9 +522,10 @@
 	const settings = getSettings();
 
 	//各種機能の実行
-	Iterator.of(SETTINGS_KEY_ACTIONS)
+	Object.keys(SETTINGS_KEY_ACTIONS)
 		.filter(key => settings[key] === true)
-		.forEach((key, action) => action());
+		.map(key => SETTINGS_KEY_ACTIONS[key])
+		.forEach(action => action());
 
 	/**
     * 設定を初期化します。
@@ -1136,7 +1136,8 @@
     */
 	function deepFreeze(object){
 		Object.freeze(object);
-		Iterator.of(object).forEach((key, value) => {
+		Object.keys(object).forEach(key => {
+			const value = object[key];
 			if(!object.hasOwnProperty(key) || typeof value != "object" || Object.isFrozen(value)){
 				return;
 			}

@@ -78,24 +78,24 @@
 			return new this(talk);
 		}
 
-        /**
+		/**
         * メッセージをコンソールに出力します。
         * @param {Object} settings 設定
         */
-        log(settings){
-            const header = Replacer.of(
-                [/<talkId>/g, this.talk.id],
-                [/<time>/g, formatDate(this.time, settings.date_format)],
-                [/<talkName>/g, this.talk.name],
-                [/<userName>/g, this.userName]
-            ).exec(settings.custom_log_message_header);
+		log(settings){
+			const header = Replacer.of(
+				[/<talkId>/g, this.talk.id],
+				[/<time>/g, formatDate(this.time, settings.date_format)],
+				[/<talkName>/g, this.talk.name],
+				[/<userName>/g, this.userName]
+			).exec(settings.custom_log_message_header);
 
-            console.group(header);
-            Optional.ofAbsentable(this.stamp)
-                .ifPresent(stamp => console.log(settings.log_label, this.body, stamp))
-                .ifAbsent(() => console.log(settings.log_label, this.body));
-            console.groupEnd();
-        }
+			console.group(header);
+			Optional.ofAbsentable(this.stamp)
+				.ifPresent(stamp => console.log(settings.log_label, this.body, stamp))
+				.ifAbsent(() => console.log(settings.log_label, this.body));
+			console.groupEnd();
+		}
 	}
 
 	/** トークエリア */
@@ -123,10 +123,10 @@
         */
 		constructor(value){
 			this.value = value;
-            this.$messageArea = $(this.value);
-            this.$messageAreaFirstChild = this.$messageArea.find('div:first-child');
-            this.$messageBodyArea = this.$messageAreaFirstChild.find('.msg-body');
-            this.messageType = Object.values(MessageTypes).find(messageType => this.$messageBodyArea.hasClass(messageType.value));
+			this.$messageArea = $(this.value);
+			this.$messageAreaFirstChild = this.$messageArea.find('div:first-child');
+			this.$messageBodyArea = this.$messageAreaFirstChild.find('.msg-body');
+			this.messageType = Object.values(MessageTypes).find(messageType => this.$messageBodyArea.hasClass(messageType.value));
 		}
 
 		/**
@@ -138,72 +138,72 @@
 			return new this(value);
 		}
 
-        /**
+		/**
         * ユーザー名を取得します。
         * @param {Object} settings 設定
         * @return {String} ユーザー名
         */
-        getUserName(settings){
-            if(this.$messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
-                return settings.user_name_system;
-            }else if(this.$messageAreaFirstChild.hasClass(UserTypes.ME.value)){
-                return $('#current-username').text();
-            }else if(this.$messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
-                return this.$messageAreaFirstChild.find('.username').text();
-            }
-        }
+		getUserName(settings){
+			if(this.$messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
+				return settings.user_name_system;
+			}else if(this.$messageAreaFirstChild.hasClass(UserTypes.ME.value)){
+				return $('#current-username').text();
+			}else if(this.$messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
+				return this.$messageAreaFirstChild.find('.username').text();
+			}
+		}
 
-        /**
+		/**
         * 本文を取得します。
         * @param {Object} settings 設定
         * @return {String} 本文
         */
-        getMessageBody(settings){
-            const messageHasFile = this.messageType == MessageTypes.FILE || this.messageType == MessageTypes.FILE_AND_TEXT;
-            const messageHasStamp = this.messageType == MessageTypes.STAMP;
-            if(messageHasFile){
-                const fileType = Object.values(FileTypes).find(fileType => this.$messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
-                const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-                const messageHasText = this.messageType == MessageTypes.FILE_AND_TEXT && !(this.$messageBodyArea.hasClass("no-text"));
-                if(messageHasText){
-                    const text =this.$messageBodyArea.find('.msg-thumbs-text').text();
-                    return prefix + text;
-                }else{
-                    return prefix;
-                }
-            }else if(messageHasStamp){
-                const stampType = Object.values(StampTypes).find(stampType => this.$messageBodyArea.hasClass(stampType.value));
-                if(stampType == StampTypes.NO_TEXT){
-                    return settings.log_stamp;
-                }
-            }
+		getMessageBody(settings){
+			const messageHasFile = this.messageType == MessageTypes.FILE || this.messageType == MessageTypes.FILE_AND_TEXT;
+			const messageHasStamp = this.messageType == MessageTypes.STAMP;
+			if(messageHasFile){
+				const fileType = Object.values(FileTypes).find(fileType => this.$messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
+				const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
+				const messageHasText = this.messageType == MessageTypes.FILE_AND_TEXT && !(this.$messageBodyArea.hasClass("no-text"));
+				if(messageHasText){
+					const text =this.$messageBodyArea.find('.msg-thumbs-text').text();
+					return prefix + text;
+				}else{
+					return prefix;
+				}
+			}else if(messageHasStamp){
+				const stampType = Object.values(StampTypes).find(stampType => this.$messageBodyArea.hasClass(stampType.value));
+				if(stampType == StampTypes.NO_TEXT){
+					return settings.log_stamp;
+				}
+			}
 
-            //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
-            const $messageText = this.$messageBodyArea.find('.msg-text').clone();
-            const $messageMenu = $messageText.find('.msg-menu-container');
-            $messageMenu.remove();
-            return $messageText.text();
-        }
+			//本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
+			const $messageText = this.$messageBodyArea.find('.msg-text').clone();
+			const $messageMenu = $messageText.find('.msg-menu-container');
+			$messageMenu.remove();
+			return $messageText.text();
+		}
 
-        /**
+		/**
         * Messageオブジェクトを作成します。
         * @param {Object} settings 設定
         * @parm {Talk} talk Talkオブジェクト
         * @return {Message} Messageオブジェクト
         */
-        createMessage(settings, talk){
-            const message = Message.of(talk);
-            message.type = this.messageType;
-            message.time = new Date(Number(this.$messageArea.attr("data-created-at")));
-            message.userName = this.getUserName(settings);
-            message.body = this.getMessageBody(settings);
+		createMessage(settings, talk){
+			const message = Message.of(talk);
+			message.type = this.messageType;
+			message.time = new Date(Number(this.$messageArea.attr("data-created-at")));
+			message.userName = this.getUserName(settings);
+			message.body = this.getMessageBody(settings);
 
-            if(this.messageType == MessageTypes.STAMP){
-                message.stamp = this.$messageBodyArea.find('img').get(0);
-            }
+			if(this.messageType == MessageTypes.STAMP){
+				message.stamp = this.$messageBodyArea.find('img').get(0);
+			}
 
-            return message;
-        }
+			return message;
+		}
 	}
 
 	/** ファイル種別クラス */
@@ -367,17 +367,17 @@
 						name: "入力文字数の表示形式",
 						type: FormTypes.RADIOBUTTON,
 						default: "countdown",
-                        parentKey: "show_message_count",
-                        buttons: [
-                            {
-                                key: "countdown",
-                                name: "カウントダウン"
-                            },
-                            {
-                                key: "countup",
-                                name: "カウントアップ"
-                            }
-                        ]
+						parentKey: "show_message_count",
+						buttons: [
+							{
+								key: "countdown",
+								name: "カウントダウン"
+							},
+							{
+								key: "countup",
+								name: "カウントアップ"
+							}
+						]
 					}
 				]
 			},
@@ -463,7 +463,7 @@
 						type: FormTypes.TEXT,
 						default: "[画像]"
 					},
-                    {
+					{
 						key: "log_file",
 						name: "ファイルログ",
 						type: FormTypes.TEXT,
@@ -519,14 +519,8 @@
 	//設定画面の描画
 	drawSettingView();
 
-	//設定の取得
-	const settings = getSettings();
-
 	//各種機能の実行
-	Object.keys(SETTINGS_KEY_ACTIONS)
-		.filter(key => settings[key] === true)
-		.map(key => SETTINGS_KEY_ACTIONS[key])
-		.forEach(action => action());
+	doActions();
 
 	/**
     * 設定を初期化します。
@@ -536,7 +530,7 @@
 
 		//未設定項目にデフォルト値を設定
 		SETTING_DATA.sections.forEach(section => {
-            section.items.filter(item => settings[item.key] === undefined).forEach(item => settings[item.key] = item.default);
+			section.items.filter(item => settings[item.key] === undefined).forEach(item => settings[item.key] = item.default);
 		});
 
 		setSettings(settings);
@@ -547,7 +541,7 @@
     */
 	function drawSettingView(){
 		const $settingPage = $('#environment-page');
-        $settingPage.append(`<hr>`);
+		$settingPage.append(`<hr>`);
 		$settingPage.append(`<h3 class="page-title"><span class="page-title-glyphicon glyphicon glyphicon-cog"></span>  ${SETTING_DATA.name}</h3>`);
 		$settingPage.append(`<div>${SETTING_DATA.description}</div>`);
 		SETTING_DATA.sections.forEach(section => appendSettingSection($settingPage, section));
@@ -565,7 +559,6 @@
 			return map;
 		};
 
-		//設定の取得
 		const settings = getSettings();
 
 		//設定項目の作成
@@ -729,36 +722,36 @@
 		if(item.type == FormTypes.TEXT || item.type == FormTypes.TEXT_ARRAY){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
-            const id = HTML_ID_PREFIX + item.key;
+			const id = HTML_ID_PREFIX + item.key;
 			$formGroup.append(`<div class="controls"><input id="${id}" class="form-control" name="status"></div>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
 		}else if(item.type == FormTypes.NUMBER){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
-            const id = HTML_ID_PREFIX + item.key;
+			const id = HTML_ID_PREFIX + item.key;
 			$formGroup.append(`<div class="controls"><input type="number" id="${id}" class="form-control" name="status"></div>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			return $formGroup;
 		}else if(item.type == FormTypes.CHECKBOX){
 			const $formGroup = $(`<div class="form-group"></div>`);
 			const $checkboxArea = $(`<div class="checkbox"></div>`);
-            const id = HTML_ID_PREFIX + item.key;
+			const id = HTML_ID_PREFIX + item.key;
 			$checkboxArea.append(`<label><input id="${id}" type="checkbox">${item.name}</label>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $checkboxArea.append(`<div class="annotation">${description}</div>`));
 			$formGroup.append($checkboxArea);
 			return $formGroup;
 		}else if(item.type == FormTypes.RADIOBUTTON){
-            const id = HTML_ID_PREFIX + item.key;
+			const id = HTML_ID_PREFIX + item.key;
 			const $formGroup = $(`<div class="form-group" id="${id}"></div>`);
 			$formGroup.append(`<label class="control-label">${item.name}</label>`);
 			Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
 			item.buttons.forEach(button => {
-                const $radioButtonArea = $(`<div class="radio"></div>`);
-                const name = HTML_ID_PREFIX + item.key;
-                const id = HTML_ID_PREFIX + item.key + "_" + button.key;
+				const $radioButtonArea = $(`<div class="radio"></div>`);
+				const name = HTML_ID_PREFIX + item.key;
+				const id = HTML_ID_PREFIX + item.key + "_" + button.key;
 				$radioButtonArea.append(`<label><input type="radio" name="${name}" id="${id}">${button.name}</label>`);
-                Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
+				Optional.ofAbsentable(button.description).ifPresent(description => $radioButtonArea.append(`<div class="annotation">${description}</div>`));
 				$formGroup.append($radioButtonArea);
 			});
 			return $formGroup;
@@ -766,15 +759,29 @@
 	}
 
 	/**
+	* 各種機能を実行します。
+	*/
+	function doActions(){
+		const settings = getSettings();
+
+		Object.keys(SETTINGS_KEY_ACTIONS)
+			.filter(key => settings[key] === true)
+			.map(key => SETTINGS_KEY_ACTIONS[key])
+			.forEach(action => action());
+	}
+
+	/**
 	* サムネイル画像をぼかす機能を実行します。
 	*/
 	function doBlurThumbnail(){
+		const settings = getSettings();
+
 		//トークエリアの追加を監視
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				const messageType = MessageArea.of(messageArea).messageType;
-                const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+				const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
 					const $thumbnails = $thumbnailArea.find('img');
@@ -788,15 +795,17 @@
 	* サムネイルサイズの変更機能を実行します。
 	*/
 	function doChangeThumbnailSize(){
+		const settings = getSettings();
+
 		//トークエリアの追加を監視
 		observeAddingTalkArea(talkArea => {
 			//メッセージの追加を監視
 			TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
 				const messageType = MessageArea.of(messageArea).messageType;
-                const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
+				const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
 				if(messageHasFile){
 					const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
-                    $thumbnailArea.width(settings.thumbnail_size);
+					$thumbnailArea.width(settings.thumbnail_size);
 				}
 			});
 		});
@@ -806,7 +815,7 @@
     * 送信ボタンの確認機能を実行します。
     */
 	function doConfirmSendMessageButton(){
-        const CONFIRM_MESSAGE = "本当に送信しますか？";
+		const CONFIRM_MESSAGE = "本当に送信しますか？";
 
 		const $sendForms = $('.form-send');
 		$sendForms.each((i, sendForm) => {
@@ -823,24 +832,24 @@
 
 			//文字入力時にダミー送信ボタンをクリック可能化
 			const $textArea = $(sendForm).find('.form-send-text');
-            $textArea.on("input.direct_helper_doConfirmSendMessageButton", () => {
-                const textAreaIsEmpty = $textArea.val() === "";
-                $dummySendButton.prop("disabled", textAreaIsEmpty);
-            });
+			$textArea.on("input.direct_helper_doConfirmSendMessageButton", () => {
+				const textAreaIsEmpty = $textArea.val() === "";
+				$dummySendButton.prop("disabled", textAreaIsEmpty);
+			});
 
 			//添付ファイル追加時にダミー送信ボタンをクリック可能化
-            const $fileAreas = $(sendForm).find('.staged-files');
-            $fileAreas.each((i, fileArea) => {
-                Observer.of(fileArea).attributes("style").hasChanged(records => {
-                    records.forEach(record => {
-                        const fileAreaIsHidden= $(fileArea).is(':hidden');
-                        $dummySendButton.prop("disabled", fileAreaIsHidden);
-                    });
-                }).start();
-            });
+			const $fileAreas = $(sendForm).find('.staged-files');
+			$fileAreas.each((i, fileArea) => {
+				Observer.of(fileArea).attributes("style").hasChanged(records => {
+					records.forEach(record => {
+						const fileAreaIsHidden= $(fileArea).is(':hidden');
+						$dummySendButton.prop("disabled", fileAreaIsHidden);
+					});
+				}).start();
+			});
 
 			//ダミー送信ボタンクリック時に確認ダイアログを表示
-            $dummySendButton.on("click.direct_helper_doConfirmSendMessageButton", () => {
+			$dummySendButton.on("click.direct_helper_doConfirmSendMessageButton", () => {
 				if(window.confirm(CONFIRM_MESSAGE)){
 					$sendButton.click();
 				}else{
@@ -856,19 +865,19 @@
 	function doExpandUserIcon(){
 		const CUSTOM_MODAL_Z_INDEX = 9999;
 
-        const addEscapeKeyupListener = listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
-        const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup");
+		const addEscapeKeyupListener = listener => $(document).on("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup", listener);
+		const removeEscapeKeyupListener = () => $(document).off("keyup.direct_helper_doExpandUserIcon_onEscapeKeyup");
 
 		const $userDialog = $('#user-dialog-basic-profile');
 		const $icon = $userDialog.find('.prof-icon-large');
 
-        //アイコンのマウスカーソルを変更
+		//アイコンのマウスカーソルを変更
 		$icon.css("cursor", "zoom-in");
 
 		//アイコンクリック時に拡大画像を表示
-        $icon.on("click.direct_helper_doExpandUserIcon_onClickIcon",  () => {
+		$icon.on("click.direct_helper_doExpandUserIcon_onClickIcon",  () => {
 			const $image = $icon.find('img');
-            const backgroundImage = $image.css("background-image");
+			const backgroundImage = $image.css("background-image");
 			const url = backgroundImage.match(/url\("(.+)"\)/)[1];
 
 			//モーダルで背景を暗くする
@@ -877,24 +886,24 @@
 			$modal.css("z-index", CUSTOM_MODAL_Z_INDEX);
 
 			//拡大画像エリアを作成
-            const $expandedImageArea = $(`<div></div>`).css({
-                "position": "fixed",
-                "top": 0,
-                "left": 0,
-                "width": "100%",
-                "height": "100%",
-                "display": "flex",
-                "align-items": "center",
-                "justify-content": "center",
-                "z-index": CUSTOM_MODAL_Z_INDEX + 1,
-                "cursor": "zoom-out "
-            });
+			const $expandedImageArea = $(`<div></div>`).css({
+				"position": "fixed",
+				"top": 0,
+				"left": 0,
+				"width": "100%",
+				"height": "100%",
+				"display": "flex",
+				"align-items": "center",
+				"justify-content": "center",
+				"z-index": CUSTOM_MODAL_Z_INDEX + 1,
+				"cursor": "zoom-out "
+			});
 
 			//拡大画像を作成
-            const $expandedImage = $(`<img src="${url}">`).css({
-                "max-width": "100%",
-                "max-height": "100%"
-            });
+			const $expandedImage = $(`<img src="${url}">`).css({
+				"max-width": "100%",
+				"max-height": "100%"
+			});
 			$expandedImageArea.append($expandedImage);
 			$('body').append($expandedImageArea);
 
@@ -904,22 +913,22 @@
 			};
 
 			//Escapeキー押下時に拡大画像エリアを閉じる
-            addEscapeKeyupListener(event => {
+			addEscapeKeyupListener(event => {
 				if(event.key == KeyTypes.ESCAPE.key){
 					closeExpandedImage();
-                    removeEscapeKeyupListener();
+					removeEscapeKeyupListener();
 				}
 			});
 
 			//拡大画像エリアクリック時に拡大画像を閉じる
 			$expandedImageArea.on("click.direct_helper_doExpandUserIcon_onClickExpandedImageArea", () => {
 				closeExpandedImage();
-                removeEscapeKeyupListener();
+				removeEscapeKeyupListener();
 
 				//拡大画像エリアクリック後にEscapeキー押下時にユーザーダイアログを閉じる
-                addEscapeKeyupListener(event => {
+				addEscapeKeyupListener(event => {
 					if(event.key == KeyTypes.ESCAPE.key){
-                         const $userModal = $('#user-modal');
+						const $userModal = $('#user-modal');
 						$userModal.click();
 					}
 				});
@@ -931,11 +940,11 @@
     * マルチビューのレスポンシブ化機能を実行します。
     */
 	function doResponsiveMultiView(){
-        const $multiPaneArea = $('#talk-panes-multi');
+		const $multiPaneArea = $('#talk-panes-multi');
 		const $talkPanes = $multiPaneArea.find('.talk-pane');
-        const $firstTalkPane = $talkPanes.first();
-        const $firstTimelineHeader = $firstTalkPane.find('.timeline-header');
-        const firstTalkPaneColor = $firstTimelineHeader.css("background-color");
+		const $firstTalkPane = $talkPanes.first();
+		const $firstTimelineHeader = $firstTalkPane.find('.timeline-header');
+		const firstTalkPaneColor = $firstTimelineHeader.css("background-color");
 
 		$talkPanes.each((i, talkPane) => {
 			//トークペインのclass属性変更時、表示を切り替え
@@ -946,9 +955,9 @@
 
 					//アクティブペインを外側から表示
 					$activeTalkPanes.each((i, talkPane) => {
-                        $(talkPane).show();
+						$(talkPane).show();
 						const $timelinebody = $(talkPane).find('.timeline-body');
-                        $timelinebody.show();
+						$timelinebody.show();
 						const $timelineHeader = $(talkPane).find('.timeline-header');
 						const $timelineFotter = $(talkPane).find('.timeline-footer');
 						$timelinebody.height($(talkPane).prop("clientHeight") - $timelineHeader.prop("clientHeight") - $timelineFotter.prop("clientHeight"));
@@ -958,13 +967,13 @@
 					//非アクティブペインを内側から非表示
 					$inactiveTalkPanes.each((i, talkPane) => {
 						const $timelinebody = $(talkPane).find('.timeline-body');
-                        $timelinebody.hide();
-                        $(talkPane).hide();
+						$timelinebody.hide();
+						$(talkPane).hide();
 					});
 
 					//アクティブペインがない場合は1番目のペインの空ビューを表示
 					if($activeTalkPanes.length === 0){
-                        $firstTalkPane.show();
+						$firstTalkPane.show();
 						const $emptyView = $firstTalkPane.find('.empty-view-container-for-timeline');
 						$emptyView.removeClass("hide");
 						$firstTimelineHeader.css("background-color", "#ffffff");
@@ -981,7 +990,7 @@
     */
 	function doShowMessageCount(){
 		const settings = getSettings();
-        const countDown = settings.show_message_count_types== "countdown";
+		const countDown = settings.show_message_count_types== "countdown";
 
 		const sendForms = $('.form-send');
 		sendForms.each((i, sendForm) => {
@@ -989,17 +998,17 @@
 			const maxLength = $textArea.prop("maxLength");
 
 			//カウンターを作成
-            const count = countDown ? maxLength : 0;
+			const count = countDown ? maxLength : 0;
 			const $counter = $(`<label>${count}</label>`).css("margin-right", "8px");
-            const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
+			const $sendButtonGroup = $(sendForm).find('.form-send-button-group');
 			$sendButtonGroup.prepend($counter);
 
 			//文字入力時にカウンターの値を更新
-            $textArea.on("input.direct_helper_doShowMessageCount", () => {
-                const currentLength = $textArea.val().length;
-                const count = countDown ? maxLength - currentLength : currentLength;
-                $counter.text(count);
-            });
+			$textArea.on("input.direct_helper_doShowMessageCount", () => {
+				const currentLength = $textArea.val().length;
+				const count = countDown ? maxLength - currentLength : currentLength;
+				$counter.text(count);
+			});
 		});
 	}
 
@@ -1007,73 +1016,75 @@
     * メッセージの監視機能を実行します。
     */
 	function doWatchMessage(){
-        const talkIsRead = talkId => {
-            const $talk = $ById(talkId);
-            const $cornerBadge = $talk.find('.corner-badge');
-            return $cornerBadge.length === 0;
-        };
+		const settings = getSettings();
 
-        const talkMap = new Map();
-        const observingTalkIds = [];
+		const talkIsRead = talkId => {
+			const $talk = $ById(talkId);
+			const $cornerBadge = $talk.find('.corner-badge');
+			return $cornerBadge.length === 0;
+		};
 
-        //トーク一覧に子ノード追加時、トーク関連処理を実行
-        const $talkLists = $('#talks');
-        $talkLists.each((i, talkList) => {
-            Observer.of(talkList).childList().hasChanged(records => {
-                //デフォルト監視対象を監視対象に追加
-                if(settings.watch_default_observe_talk === true){
-                    const readTalkIds = settings.default_observe_talk_ids.filter(talkIsRead);
+		const talkMap = new Map();
+		const observingTalkIds = [];
 
-                    //既読デフォルト監視トークを監視対象に追加
-                    const talkIsNotObserving = talkId => !observingTalkIds.includes(talkId);
-                    readTalkIds.filter(talkIsNotObserving).forEach((talkId, index) => {
-                        const $talk = $ById(talkId);
-                        observingTalkIds.push(talkId);
+		//トーク一覧に子ノード追加時、トーク関連処理を実行
+		const $talkLists = $('#talks');
+		$talkLists.each((i, talkList) => {
+			Observer.of(talkList).childList().hasChanged(records => {
+				//デフォルト監視対象を監視対象に追加
+				if(settings.watch_default_observe_talk === true){
+					const readTalkIds = settings.default_observe_talk_ids.filter(talkIsRead);
 
-                        //監視対象に追加するためにクリック
-                        $talk.click();
+					//既読デフォルト監視トークを監視対象に追加
+					const talkIsNotObserving = talkId => !observingTalkIds.includes(talkId);
+					readTalkIds.filter(talkIsNotObserving).forEach((talkId, index) => {
+						const $talk = $ById(talkId);
+						observingTalkIds.push(talkId);
 
-                        //最後の場合はトークを閉じるために2回クリック
-                        const talkIsLast = index == readTalkIds.length -1;
-                        if(talkIsLast){
-                            $talk.click();
-                        }
-                    });
-                }
+						//監視対象に追加するためにクリック
+						$talk.click();
 
-                //トーク情報の更新
-                records.forEach(record => {
-                    const talkItems = record.addedNodes;
-                    talkItems.forEach(talkItem => {
-                        const talkId = talkItem.id;
-                        const talkName = $(talkItem).find('.talk-name-part').text();
-                        const talk = Talk.of(talkId, talkName);
-                        talk.isRead = talkIsRead(talkId);
-                        talkMap.set(talkId, talk);
-                    });
-                });
-            }).start();
-        });
+						//最後の場合はトークを閉じるために2回クリック
+						const talkIsLast = index == readTalkIds.length -1;
+						if(talkIsLast){
+							$talk.click();
+						}
+					});
+				}
+
+				//トーク情報の更新
+				records.forEach(record => {
+					const talkItems = record.addedNodes;
+					talkItems.forEach(talkItem => {
+						const talkId = talkItem.id;
+						const talkName = $(talkItem).find('.talk-name-part').text();
+						const talk = Talk.of(talkId, talkName);
+						talk.isRead = talkIsRead(talkId);
+						talkMap.set(talkId, talk);
+					});
+				});
+			}).start();
+		});
 
 		//メッセージ監視開始ログを表示
 		const observeStartMessage = Replacer.of(
-				[/<time>/g, formatDate(new Date(), settings.date_format)]
-			).exec(settings.custom_log_start_observe_messages);
+			[/<time>/g, formatDate(new Date(), settings.date_format)]
+		).exec(settings.custom_log_start_observe_messages);
 		console.info(settings.log_label, observeStartMessage);
 
 		//トークエリアの追加を監視
 		observeAddingTalkArea(talkArea => {
 			//トークを生成
 			const talkId = talkArea.id.replace(/(multi\d?-)?msgs/, "talk");
-            const talk = talkMap.get(talkId);
+			const talk = talkMap.get(talkId);
 
 			//トーク監視開始ログを表示
 			const observeStartDate = new Date();
 			const observeStartMessage = Replacer.of(
-					[/<talkId>/g, talk.id],
-					[/<time>/g, formatDate(observeStartDate, settings.date_format)],
-					[/<talkName>/g, talk.name]
-				).exec(settings.custom_log_start_observe_talk);
+				[/<talkId>/g, talk.id],
+				[/<time>/g, formatDate(observeStartDate, settings.date_format)],
+				[/<talkName>/g, talk.name]
+			).exec(settings.custom_log_start_observe_talk);
 			console.info(settings.log_label, observeStartMessage);
 
 			//メッセージの追加を監視
@@ -1082,7 +1093,7 @@
 				const message = MessageArea.of(messageArea).createMessage(settings, talk);
 
 				//メッセージをコンソールに出力
-                const messageIsNotPast = message.time > observeStartDate;
+				const messageIsNotPast = message.time > observeStartDate;
 				if(messageIsNotPast || settings.show_past_message === true){
 					message.log(settings);
 				}
@@ -1096,15 +1107,15 @@
     */
 	function observeAddingTalkArea(callback){
 		const $messagesAreas = $('#messages');
-        $messagesAreas.each((i, messagesArea) => {
-            //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
-            Observer.of(messagesArea).childList().hasChanged(records => {
-                records.forEach(record => {
-                    const talkAreas = record.addedNodes;
-                    talkAreas.forEach(talkArea => callback(talkArea));
-                });
-            }).start();
-        });
+		$messagesAreas.each((i, messagesArea) => {
+			//メッセージエリアに子ノード追加時、トークエリア関連処理を実行
+			Observer.of(messagesArea).childList().hasChanged(records => {
+				records.forEach(record => {
+					const talkAreas = record.addedNodes;
+					talkAreas.forEach(talkArea => callback(talkArea));
+				});
+			}).start();
+		});
 	}
 
 	/**
@@ -1112,18 +1123,18 @@
     * @param {String} id id属性
     * @return {jQuery} jQueryオブジェクト
     */
-    function $ById(id){
-        return $(document.getElementById(id));
-    }
+	function $ById(id){
+		return $(document.getElementById(id));
+	}
 
 	/**
     * name属性からjQueryオブジェクトを取得します。
     * @param {String} name name属性
     * @return {jQuery} jQueryオブジェクト
     */
-    function $ByName(name){
-        return $(document.getElementsByName(name));
-    }
+	function $ByName(name){
+		return $(document.getElementsByName(name));
+	}
 
 	/**
     * オブジェクトを深く凍結します。
@@ -1167,20 +1178,20 @@
 		const minutes = date.getMinutes();
 		const seconds = date.getSeconds();
 		return Replacer.of(
-				[/yyyy/g, year],
-				[/yy/g, year % 100],
-				[/MM/g, zeroPadding(month, 2)],
-				[/M/g, month],
-				[/dd/g, zeroPadding(dayOfMonth, 2)],
-				[/d/g, dayOfMonth],
-				[/e/g, dayOfWeekText],
-				[/HH/g, zeroPadding(hours, 2)],
-				[/H/g, hours],
-				[/mm/g, zeroPadding(minutes, 2)],
-				[/m/g, minutes],
-				[/ss/g, zeroPadding(seconds, 2)],
-				[/s/g, seconds]
-			).exec(pattern);
+			[/yyyy/g, year],
+			[/yy/g, year % 100],
+			[/MM/g, zeroPadding(month, 2)],
+			[/M/g, month],
+			[/dd/g, zeroPadding(dayOfMonth, 2)],
+			[/d/g, dayOfMonth],
+			[/e/g, dayOfWeekText],
+			[/HH/g, zeroPadding(hours, 2)],
+			[/H/g, hours],
+			[/mm/g, zeroPadding(minutes, 2)],
+			[/m/g, minutes],
+			[/ss/g, zeroPadding(seconds, 2)],
+			[/s/g, seconds]
+		).exec(pattern);
 	}
 
 	/**

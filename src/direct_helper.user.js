@@ -545,19 +545,20 @@
     */
     function drawSettingView(){
         const CLASS_ACTIVE_ITEM = "active";
-        const ID_SETTING_PAGE = `${HTML_ID_PREFIX}${SETTING_DATA.key}-page`;
 
         //右ナビゲーションバーに設定メニューを追加
         const $settingMenuItem = $(`<li></li>`).css("cursor", "pointer");
-        const $settingMenuLink = $(`<a id="navbar-menu-${HTML_ID_PREFIX}${SETTING_DATA.key}" class="navbar-menu" data-original-title="direct helper"></a>`);
-        $settingMenuLink.append(`<span><img src="${ICON_IMAFE_DATA}" style="height: 100%;"></span>`);
+		const settingLinkId = `navbar-menu-${HTML_ID_PREFIX}${SETTING_DATA.key}`;
+        const $settingMenuLink = $(`<a id="${settingLinkId}" class="navbar-menu" data-original-title="${SETTING_DATA.name}"></a>`);
+        $settingMenuLink.append(`<span><img src="${ICON_IMAFE_DATA}"></span>`);
         $settingMenuLink.append(`<span class="navbar-menu-text">${SETTING_DATA.name}</span>`);
         $settingMenuItem.append($settingMenuLink);
         $('.navbar-right').append($settingMenuItem);
 
         //設定ページを追加
         const $environmentPage = $('#environment-page');
-        const $settingPage = $(`<div class="page" id="${ID_SETTING_PAGE}"></div>`).css({
+		const settingPageId = `${HTML_ID_PREFIX}${SETTING_DATA.key}-page`;
+        const $settingPage = $(`<div class="page" id="${settingPageId}"></div>`).css({
             "max-width": $environmentPage.css("max-width"),
             "margin-left": $environmentPage.css("margin-left"),
             "margin-right": $environmentPage.css("margin-right"),
@@ -570,29 +571,46 @@
         $settingPage.hide();
         $settingPage.insertAfter($environmentPage);
 
+		const $menuItems = $('#navbar-menu li');
+		const $pages = $('#wrap .page');
+
         //設定メニュークリック時にページ表示を切り替え
         $settingMenuItem.on("click.direct_helper_drawSettingView", () => {
-            //すべてのページを非表示
-            $('#navbar-menu li').each((i, menuItem) => $(menuItem).removeClass(CLASS_ACTIVE_ITEM));
-            $('#wrap .page').each((i, page) => $(page).hide());
+            //表示中のページを非表示
+            $menuItems.filter((i, menuItem) => $(menuItem).hasClass(CLASS_ACTIVE_ITEM)).each((i, menuItem) => $(menuItem).removeClass(CLASS_ACTIVE_ITEM));
+            $pages.filter((i, page) => $(page).is(':visible')).each((i, page) => $(page).hide());
 
             //設定ページを表示
             $settingMenuItem.addClass(CLASS_ACTIVE_ITEM);
-            $settingPage.show();
+			$settingPage.show();
         });
 
         //左ナビゲーションバーのメニュークリック時にページ表示を切り替え
         $('.navbar-left li').on("click.direct_helper_drawSettingView", event => {
             //設定ページを非表示
-            $settingMenuItem.removeClass(CLASS_ACTIVE_ITEM);
-            $settingPage.hide();
+			$settingMenuItem.removeClass(CLASS_ACTIVE_ITEM);
+			$settingPage.hide();
 
             //クリックしたページを表示
-            const linkId = $(event.currentTarget).find('a').attr("id");
+			const $menuItem = $(event.currentTarget);
+            $menuItem.addClass(CLASS_ACTIVE_ITEM);
+            const linkId = $menuItem.find('a').attr("id");
             const pageId = linkId.replace(/navbar-menu-(.+)/, "$1-page");
             const page = $(`#${pageId}`);
             page.show();
         });
+
+		//他のページ表示時にページ表示を切り替え
+		$pages.filter((i, page) => $(page).attr("id") !== settingPageId).each((i, page) => {
+			Observer.of(page).attributes("style").hasChanged(records => {
+				const visiblePages = records.map(record => record.target).filter(page => $(page).is(':visible'));
+				if(visiblePages.length){
+					//設定ページを非表示
+					$settingMenuItem.removeClass(CLASS_ACTIVE_ITEM);
+					$settingPage.hide();
+				}
+			}).start();
+		});
     }
 
     /**

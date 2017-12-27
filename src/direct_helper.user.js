@@ -586,7 +586,7 @@
         });
 
         //左ナビゲーションバーのメニュークリック時にページ表示を切り替え
-        $('.navbar-left li').on("click.direct_helper_drawSettingView", event => {
+        $('.navbar-left > li').on("click.direct_helper_drawSettingView", event => {
             //設定ページを非表示
 			$settingMenuItem.removeClass(CLASS_ACTIVE_ITEM);
 			$settingPage.hide();

@@ -1,0 +1,47 @@
+{
+  "manifest_version": 2,
+  "name": "__MSG_appName__",
+  "description": "__MSG_appDescription__",
+  "homepage_url": "https://github.com/munierujp/direct_helper",
+  "version": "1.0.0",
+  "version_name": "1.0.0",
+  "default_locale": "ja",
+  "icons": {
+    "16": "images/icon_16.png",
+    "128": "images/icon_128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "web_accessible_resources": [
+    "images/icon_32.png"
+  ],
+  "background": {
+    "scripts": [
+      "scripts/chromereload.js",
+      "scripts/background.js"
+    ]
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://direct4b.com/home*"
+      ],
+      "js": [
+        "bower_components/jquery/dist/jquery.min.js",
+        "bower_components/Optional.js/Optional.min.js",
+        "bower_components/Observer.js/Observer.min.js",
+        "bower_components/Replacer.js/Replacer.min.js",
+        "bower_components/SuperMap.js/SuperMap.min.js",
+        "scripts/main.js"
+      ]
+    }
+  ],
+  "page_action": {
+    "default_icon": {
+      "19": "images/icon_19.png",
+      "38": "images/icon_38.png"
+    },
+    "default_popup": "popup.html"
+  }
+}

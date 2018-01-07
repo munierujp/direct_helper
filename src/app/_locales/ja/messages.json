@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "direct helper",
+    "description": "The name of the application"
+  },
+  "appDescription": {
+    "message": "ビジネス用チャットツールdirectに便利な機能を追加します。",
+    "description": "The description of the application"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "direct_helper",
+  "private": true,
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "^3.2.1",
+    "Optional.js": "git://github.com/munierujp/Optional.js.git",
+    "Observer.js": "git://github.com/munierujp/Observer.js.git",
+    "Replacer.js": "git://github.com/munierujp/Replacer.js.git",
+    "SuperMap.js": "git://github.com/munierujp/SuperMap.js.git"
+  }
+}

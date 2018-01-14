@@ -1,5 +1,5 @@
 ﻿# direct helper
-<img src="doc/icon.png" alt="アイコン" width="500">
+<img src="doc/icon_512.png" alt="アイコン" width="500">
 
 ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するChromeアドオン
 

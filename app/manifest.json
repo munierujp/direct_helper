@@ -5,8 +5,8 @@
   "manifest_version": 2,
   "description": "__MSG_appDescription__",
   "icons": {
-    "16": "images/icon-16.png",
-    "128": "images/icon-128.png"
+    "16": "images/icon_16.png",
+    "128": "images/icon_128.png"
   },
   "default_locale": "en",
   "background": {
@@ -35,8 +35,8 @@
   ],
   "page_action": {
     "default_icon": {
-      "19": "images/icon-19.png",
-      "38": "images/icon-38.png"
+      "19": "images/icon_19.png",
+      "38": "images/icon_38.png"
     },
     "default_title": "direct helper",
     "default_popup": "popup.html"

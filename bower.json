@@ -4,7 +4,8 @@
   "version": "0.0.0",
   "dependencies": {
     "jQuery": "^3.3.0",
-    "Optional.js": "git://github.com/munierujp/Optional.js"
+    "Optional.js": "git://github.com/munierujp/Optional.js",
+    "Observer.js": "git://github.com/munierujp/Observer.js"
   },
   "devDependencies": {
     "chai": "^4.1.2",

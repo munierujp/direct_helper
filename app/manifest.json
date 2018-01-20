@@ -16,24 +16,6 @@
       "scripts/background.js"
     ]
   },
-  "permissions": [
-    "tabs",
-    "http://*/*",
-    "https://*/*"
-  ],
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "scripts/contentscript.js"
-      ],
-      "run_at": "document_end",
-      "all_frames": false
-    }
-  ],
   "page_action": {
     "default_icon": {
       "19": "images/icon_19.png",

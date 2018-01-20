@@ -2,24 +2,44 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <!-- build:css styles/popup-vendor.css -->
-    <!-- bower:css -->
-    <!-- endbower -->
-    <!-- endbuild -->
-    <!-- build:css styles/main.css -->
-    <link href="styles/main.css" rel="stylesheet">
-    <!-- endbuild -->
+    <style>
+    body {
+      font-size: 15px;
+      margin: 0;
+      padding: 0;
+    }
+
+    #menu {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    #menu a {
+      color: #030303;
+      display: block;
+      font-weight: 400;
+      padding: 3px 20px;
+      text-decoration: none;
+    }
+
+    #menu a:hover {
+      background-color: #66d4dd;
+      color: #ffffff;
+    }
+    </style>
   </head>
   <body>
-    <h1>'Allo, 'Allo!</h1>
-
-    <!-- build:js scripts/popup-vendor.js -->
-    <!-- bower:js -->
-    <!-- endbower -->
-    <!-- endbuild -->
-
-    <!-- build:js scripts/popup.js -->
-    <script src="scripts/popup.js"></script>
-    <!-- endbuild -->
+    <ul id="menu">
+      <li>
+        <a href="https://direct4b.com" target="_blank" tabindex="-1">direct</a>
+      </li>
+      <li>
+        <a href="https://github.com/munierujp/direct_helper/blob/master/README.md" target="_blank" tabindex="-1">readme</a>
+      </li>
+      <li>
+        <a href="https://github.com/munierujp/direct_helper" target="_blank" tabindex="-1">GitHub</a>
+      </li>
+    </ul>
   </body>
 </html>

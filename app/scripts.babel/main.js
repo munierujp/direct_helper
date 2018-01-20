@@ -269,8 +269,8 @@
     /** id属性接頭辞 */
     const HTML_ID_PREFIX = 'direct_helper-';
 
-    /** ローカルストレージ設定キー */
-    const LOCAL_STORAGE_SETTINGS_KEY = 'direct_helper_settings';
+    /** 同期ストレージ設定キー */
+    const SYNC_STORAGE_SETTINGS_KEY = 'settings';
 
     /** 設定データ */
     const SETTING_DATA = {
@@ -501,19 +501,20 @@
     };
 
     //設定の初期化
-    initializeSettings();
+    initializeSettings()
+    .then(() => {
+        //設定画面の描画
+        drawSettingView();
 
-    //設定画面の描画
-    drawSettingView();
-
-    //各種機能の実行
-    doActions();
+        //各種機能の実行
+        doActions();
+    });
 
     /**
     * 設定を初期化します。
     */
-    function initializeSettings(){
-        const settings = getSettings();
+    async function initializeSettings(){
+        const settings = await fetchSettings();
 
         //未設定項目にデフォルト値を設定
         SETTING_DATA.sections.forEach(section => {
@@ -602,14 +603,12 @@
     * @param {jQuery} $settingPage 設定画面オブジェクト
     * @param {Object} section 設定セクション
     */
-    function appendSettingSection($settingPage, section){
+    async function appendSettingSection($settingPage, section){
         const arrayToMap = array => {
             const map = SuperMap.empty();
             array.forEach((element, index) => map.set(index, element));
             return map;
         };
-
-        const settings = getSettings();
 
         //設定項目の作成
         const $section = $(`<div id="${HTML_ID_PREFIX + section.key}" class="c-section"><div class="c-section__heading">${section.name}</div></div>`);
@@ -621,6 +620,7 @@
         $settingPage.append($section);
 
         //フォームの初期値を設定
+        const settings = await fetchSettings();
         const inputMap = formGroupMap.mapValue(($formGroup, key) => $settingPage.find(`#${HTML_ID_PREFIX}${key}`));
         inputMap.forEach(($input, key) => {
             const item = settingItemMap.get(key);
@@ -683,7 +683,7 @@
                 }
             });
 
-            const valuesIsAllMatch= Array.from(inputValueMap.entries()).every(entry => {
+            const valuesIsAllMatch = Array.from(inputValueMap.entries()).every(entry => {
                 const key = entry[0];
                 const inputValue = entry[1];
                 const settingValue = Array.isArray(settings[key]) ? arrayToString(settings[key]) : settings[key];
@@ -734,7 +734,8 @@
         });
 
         //変更ボタンクリック時に設定を更新
-        $changeButton.on('click.direct_helper_appendSettingSection', () => {
+        $changeButton.on('click.direct_helper_appendSettingSection', async() => {
+            const settings = await fetchSettings();
             inputMap.forEach(($input, key) => {
                 const item = settingItemMap.get(key);
                 switch(item.type){
@@ -811,8 +812,8 @@
     /**
 	* 各種機能を実行します。
 	*/
-    function doActions(){
-        const settings = getSettings();
+    async function doActions(){
+        const settings = await fetchSettings();
 
         Object.keys(SETTINGS_KEY_ACTIONS)
             .filter(key => settings[key] === true)
@@ -823,8 +824,8 @@
     /**
 	* サムネイル画像をぼかす機能を実行します。
 	*/
-    function doBlurThumbnail(){
-        const settings = getSettings();
+    async function doBlurThumbnail(){
+        const settings = await fetchSettings();
 
         //トークエリアの追加を監視
         observeAddingTalkArea(talkArea => {
@@ -844,8 +845,8 @@
     /**
 	* サムネイルサイズの変更機能を実行します。
 	*/
-    function doChangeThumbnailSize(){
-        const settings = getSettings();
+    async function doChangeThumbnailSize(){
+        const settings = await fetchSettings();
 
         //トークエリアの追加を監視
         observeAddingTalkArea(talkArea => {
@@ -1038,8 +1039,8 @@
     /**
     * 入力文字数の表示機能を実行します。
     */
-    function doShowMessageCount(){
-        const settings = getSettings();
+    async function doShowMessageCount(){
+        const settings = await fetchSettings();
         const countDown = settings.show_message_count_types== 'countdown';
 
         const sendForms = $('.form-send');
@@ -1065,8 +1066,8 @@
     /**
     * メッセージの監視機能を実行します。
     */
-    function doWatchMessage(){
-        const settings = getSettings();
+    async function doWatchMessage(){
+        const settings = await fetchSettings();
 
         const talkIsRead = talkId => {
             const $talk = $(`#${talkId}`);
@@ -1262,20 +1263,25 @@
     }
 
     /**
-    * ローカルストレージからJSON形式の設定を取得します。
-    * ローカルストレージ上に値が存在しない場合、空のオブジェクトを返します。
-    * @return {Object} 設定
+    * Chrome Sync Storageから設定をフェッチします。
+    * @return {Promise} 設定をフェッチするPromise(resolve:settings => {...})
     */
-    function getSettings(){
-        const settings = localStorage[LOCAL_STORAGE_SETTINGS_KEY];
-        return settings !== undefined ? JSON.parse(settings) : {};
+    function fetchSettings(){
+      return new Promise(resolve => {
+        chrome.storage.sync.get(SYNC_STORAGE_SETTINGS_KEY, items => {
+          const settings = Optional.ofAbsentable(items[SYNC_STORAGE_SETTINGS_KEY]).orElse({});
+          resolve(settings);
+        });
+      });
     }
 
     /**
-    * ローカルストレージにJSON形式で設定をセットします。
+    * Chrome Sync Storageに設定をセットします。
     * @param {Object} settings 設定
     */
     function setSettings(settings){
-        localStorage[LOCAL_STORAGE_SETTINGS_KEY] = JSON.stringify(settings);
+      chrome.storage.sync.set({
+        [SYNC_STORAGE_SETTINGS_KEY]: settings
+      });
     }
 })();

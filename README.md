@@ -1,7 +1,7 @@
 ﻿# direct helper
 <img src="doc/icon.png" alt="アイコン" width="500">
 
-ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
+ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
 
 ## サンプル
 ![サンプル画像](doc/sample.png)

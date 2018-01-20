@@ -1,17 +1,3 @@
-// ==UserScript==
-// @name         direct helper
-// @namespace    https://github.com/munierujp/direct_helper
-// @version      1.8
-// @description  directに便利な機能を追加します。
-// @author       @munieru_jp
-// @match       https://*.direct4b.com/home*
-// @grant        none
-// @require https://cdn.rawgit.com/munierujp/Optional.js/3fb1adf2825a9dad4499ecd906a4701921303ee2/Optional.min.js
-// @require https://cdn.rawgit.com/munierujp/Observer.js/d0401132a1276910692fc53ed4012ef5efad25f3/Observer.min.js
-// @require https://cdn.rawgit.com/munierujp/Replacer.js/dd9339ae54d7adfd6a65c54c299f5a485f327521/Replacer.min.js
-// @require https://cdn.rawgit.com/munierujp/SuperMap.js/71bda32a1df6f9f76d6b5823eaf2caab318baead/SuperMap.min.js
-// ==/UserScript==
-
 (function(){
     'use strict';
 

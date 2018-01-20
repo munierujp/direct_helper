@@ -43,6 +43,9 @@
         2,
         "single"
       ]
+    },
+    "parserOptions": {
+        "ecmaVersion": 2017
     }
   }
 }

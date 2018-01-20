@@ -6,7 +6,8 @@
     "jQuery": "^3.3.0",
     "Optional.js": "git://github.com/munierujp/Optional.js",
     "Observer.js": "git://github.com/munierujp/Observer.js",
-    "Replacer.js": "git://github.com/munierujp/Replacer.js"
+    "Replacer.js": "git://github.com/munierujp/Replacer.js",
+    "SuperMap.js": "git://github.com/munierujp/SuperMap.js"
   },
   "devDependencies": {
     "chai": "^4.1.2",

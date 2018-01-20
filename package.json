@@ -1,5 +1,11 @@
 {
   "name": "direct-helper",
+  "scripts": {
+    "start": "gulp watch",
+    "watch": "gulp watch",
+    "build": "gulp build",
+    "package": "gulp package"
+  },
   "private": true,
   "engines": {
     "node": ">=0.8.0"

@@ -16,6 +16,22 @@
       "scripts/background.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://direct4b.com/home*"
+      ],
+      "js": [
+        "bower_components/jquery/dist/jquery.min.js",
+        "bower_components/Optional.js/Optional.min.js",
+        "bower_components/Observer.js/Observer.min.js",
+        "bower_components/Replacer.js/Replacer.min.js",
+        "bower_components/SuperMap.js/SuperMap.min.js",
+        "scripts/main.js"
+      ],
+      "run_at": "document_end"
+    }
+  ],
   "page_action": {
     "default_icon": {
       "19": "images/icon_19.png",

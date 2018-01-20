@@ -10,6 +10,9 @@
     "128": "images/icon_128.png"
   },
   "default_locale": "en",
+  "web_accessible_resources":[
+    "images/icon_32.png"
+  ],
   "background": {
     "scripts": [
       "scripts/chromereload.js",

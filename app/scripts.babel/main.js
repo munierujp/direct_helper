@@ -756,7 +756,7 @@ import HasValue from './HasValue';
   * @return {jQuery} フォームグループオブジェクト
   */
   function createSettingFormGroup(item){
-    const addExperimentMessage = $formGroup => $formGroup.append('<div style="color:red"><span class="glyphicon glyphicon glyphicon-flash"></span>これは実験機能です。</div>');
+    const addExperimentMessage = $formGroup => $formGroup.append('<div style="color:red"><span class="glyphicon glyphicon-flash"></span>これは実験機能です。</div>');
 
     if(item.type == FormTypes.TEXT || item.type == FormTypes.TEXT_ARRAY){
       const $formGroup = $('<div class="form-group"></div>');

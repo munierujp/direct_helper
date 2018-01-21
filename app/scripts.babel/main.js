@@ -305,7 +305,8 @@ import 'babel-polyfill';
             name: 'サムネイルサイズの変更',
             description: '画像のサムネイルサイズを変更します。',
             type: FormTypes.CHECKBOX,
-            default: true
+            default: false,
+            experiment: true
           },
           {
             key: 'thumbnail_size',
@@ -380,7 +381,8 @@ import 'babel-polyfill';
             name: 'マルチビューのレスポンシブ化',
             description: '選択状態に応じてマルチビューのカラム数を動的に変更します。',
             type: FormTypes.CHECKBOX,
-            default: true
+            default: false,
+            experiment: true
           }
         ]
       },
@@ -772,8 +774,13 @@ import 'babel-polyfill';
   * @return {jQuery} フォームグループオブジェクト
   */
   function createSettingFormGroup(item){
+    const addExperimentMessage = $formGroup => $formGroup.append(`<div style="color:red"><span class="glyphicon glyphicon glyphicon-flash"></span>これは実験機能です。</div>`);
+
     if(item.type == FormTypes.TEXT || item.type == FormTypes.TEXT_ARRAY){
       const $formGroup = $('<div class="form-group"></div>');
+      if(item.experiment){
+        addExperimentMessage($formGroup);
+      }
       $formGroup.append(`<label class="control-label">${item.name}</label>`);
       const id = HTML_ID_PREFIX + item.key;
       $formGroup.append(`<div class="controls"><input id="${id}" class="form-control" name="status"></div>`);
@@ -781,6 +788,9 @@ import 'babel-polyfill';
       return $formGroup;
     }else if(item.type == FormTypes.NUMBER){
       const $formGroup = $('<div class="form-group"></div>');
+      if(item.experiment){
+        addExperimentMessage($formGroup);
+      }
       $formGroup.append(`<label class="control-label">${item.name}</label>`);
       const id = HTML_ID_PREFIX + item.key;
       $formGroup.append(`<div class="controls"><input type="number" id="${id}" class="form-control" name="status"></div>`);
@@ -788,6 +798,9 @@ import 'babel-polyfill';
       return $formGroup;
     }else if(item.type == FormTypes.CHECKBOX){
       const $formGroup = $('<div class="form-group"></div>');
+      if(item.experiment){
+        addExperimentMessage($formGroup);
+      }
       const $checkboxArea = $('<div class="checkbox"></div>');
       const id = HTML_ID_PREFIX + item.key;
       $checkboxArea.append(`<label><input id="${id}" type="checkbox">${item.name}</label>`);
@@ -797,6 +810,9 @@ import 'babel-polyfill';
     }else if(item.type == FormTypes.RADIOBUTTON){
       const id = HTML_ID_PREFIX + item.key;
       const $formGroup = $(`<div class="form-group" id="${id}"></div>`);
+      if(item.experiment){
+        addExperimentMessage($formGroup);
+      }
       $formGroup.append(`<label class="control-label">${item.name}</label>`);
       Optional.ofAbsentable(item.description).ifPresent(description => $formGroup.append(`<div class="annotation">${description}</div>`));
       item.buttons.forEach(button => {

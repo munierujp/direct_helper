@@ -86,7 +86,7 @@ gulp.task('chromeManifest', () => {
 gulp.task('babel', () => {
   return gulp.src(`${PATH_SCRIPTS_ORIGIN}/**/*.js`)
       .pipe($.babel({
-        presets: ['es2015']
+        presets: ['es2017']
       }))
       .pipe(gulp.dest(PATH_SCRIPTS_TRANSPILED));
 });

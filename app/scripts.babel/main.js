@@ -1,5 +1,5 @@
 import 'babel-polyfill';
-import HasValue from './HasValue';
+import HasValue from './class/HasValue';
 import Talk from './Talk';
 import Message from './Message';
 import TalkArea from './TalkArea';

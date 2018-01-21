@@ -1,30 +1,9 @@
 import 'babel-polyfill';
 import HasValue from './HasValue';
+import Talk from './Talk';
 
 (function(){
   'use strict';
-
-  /** トーク */
-  class Talk{
-    /**
-    * @param {String} id トークID
-    * @param {String} name トーク名
-    */
-    constructor(id, name){
-      this.id = id;
-      this.name = name;
-    }
-
-    /**
-    * Talkオブジェクトを生成します。
-    * @param {String} id トークID
-    * @param {String} name トーク名
-    * @return {Talk} Talkオブジェクト
-    */
-    static of(id, name){
-      return new this(id, name);
-    }
-  }
 
   /** メッセージ */
   class Message{

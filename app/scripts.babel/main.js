@@ -2,28 +2,11 @@ import 'babel-polyfill';
 import HasValue from './HasValue';
 import Talk from './Talk';
 import Message from './Message';
+import TalkArea from './TalkArea';
 import formatDate from './formatDate';
 
 (function(){
   'use strict';
-
-  /** トークエリア */
-  class TalkArea extends HasValue{
-    /**
-		* メッセージエリアの追加を監視します。
-		* @param {Function} callback : messageArea => {...}
-		*/
-    observeAddingMessageArea(callback){
-      const realMessageArea = this.value.querySelector('.real-msgs');
-      Observer.of(realMessageArea).childList().hasChanged(records => {
-        records.forEach(record => {
-          Array.from(record.addedNodes)
-            .filter(node => node.className == 'msg')
-            .forEach(messageArea => callback(messageArea));
-        });
-      }).start();
-    }
-  }
 
   /** メッセージエリア */
   class MessageArea{

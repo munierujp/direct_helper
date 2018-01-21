@@ -5,14 +5,20 @@ import del from 'del';
 import runSequence from 'run-sequence';
 import {stream as wiredep} from 'wiredep';
 import uglify from 'gulp-uglify-es';
+import webpack from 'webpack-stream';
 
 const $ = gulpLoadPlugins();
+
+const PATH_SCRIPTS_ORIGIN = 'app/scripts.babel';
+const PATH_SCRIPTS_TRANSPILED = 'app/scripts.module';
+const PATH_SCRIPTS_PACKED = 'app/scripts';
 
 gulp.task('extras', () => {
   return gulp.src([
     'app/*.*',
     'app/_locales/**',
-    '!app/scripts.babel',
+    `!${PATH_SCRIPTS_ORIGIN}`,
+    `!${PATH_SCRIPTS_TRANSPILED}`,
     '!app/*.json',
     '!app/*.html',
   ], {
@@ -22,7 +28,7 @@ gulp.task('extras', () => {
 });
 
 gulp.task('lint', () => {
-  return gulp.src('app/scripts.babel/**/*.js')
+  return gulp.src(`${PATH_SCRIPTS_ORIGIN}/**/*.js`)
     .pipe($.eslint())
     .pipe($.eslint.format());
 });
@@ -78,27 +84,38 @@ gulp.task('chromeManifest', () => {
 });
 
 gulp.task('babel', () => {
-  return gulp.src('app/scripts.babel/**/*.js')
+  return gulp.src(`${PATH_SCRIPTS_ORIGIN}/**/*.js`)
       .pipe($.babel({
         presets: ['es2015']
       }))
-      .pipe(gulp.dest('app/scripts'));
+      .pipe(gulp.dest(PATH_SCRIPTS_TRANSPILED));
+});
+
+gulp.task('webpack', () => {
+  const config = require('./webpack.config');
+  return gulp.src(`${PATH_SCRIPTS_TRANSPILED}/**/*.js`)
+    .pipe(webpack(config))
+    .pipe(gulp.dest(PATH_SCRIPTS_PACKED));
 });
 
 gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
 
-gulp.task('watch', ['lint', 'babel'], () => {
+gulp.task('lint-babel-webpack', cb => {
+  return runSequence('lint', 'babel', 'webpack', cb);
+});
+
+gulp.task('watch', ['lint-babel-webpack'], () => {
   $.livereload.listen();
 
   gulp.watch([
     'app/*.html',
-    'app/scripts/**/*.js',
+    `${PATH_SCRIPTS_PACKED}/**/*.js`,
     'app/images/**/*',
     'app/styles/**/*',
     'app/_locales/**/*.json'
   ]).on('change', $.livereload.reload);
 
-  gulp.watch('app/scripts.babel/**/*.js', ['lint', 'babel']);
+  gulp.watch(`${PATH_SCRIPTS_ORIGIN}/**/*.js`, ['lint-babel-webpack']);
   gulp.watch('bower.json', ['wiredep']);
 });
 
@@ -127,7 +144,7 @@ gulp.task('package', () => {
 
 gulp.task('build', cb => {
   runSequence(
-    'lint', 'babel', 'chromeManifest',
+    'lint-babel-webpack', 'chromeManifest',
     ['html', 'images', 'extras'],
     'size', cb);
 });

@@ -9,6 +9,7 @@ import FormTypes from './enums/FormTypes';
 import KeyTypes from './enums/KeyTypes';
 import MessageTypes from './enums/MessageTypes';
 import StampTypes from './enums/StampTypes';
+import UserTypes from './enums/UserTypes';
 
 (function(){
   'use strict';
@@ -102,15 +103,6 @@ import StampTypes from './enums/StampTypes';
       return message;
     }
   }
-
-  /** ユーザー種別クラス */
-  class UserType extends HasValue{}
-  /** ユーザー種別 */
-  const UserTypes = {
-    ME: new UserType('my-msg'),
-    OTHERS: new UserType('your-msg'),
-    SYSTEM: new UserType('system-msg')
-  };
 
   /** enumリスト */
   const ENUMS = [

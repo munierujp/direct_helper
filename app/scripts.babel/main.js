@@ -104,18 +104,6 @@ import UserTypes from './enums/UserTypes';
     }
   }
 
-  /** enumリスト */
-  const ENUMS = [
-    FileTypes,
-    FormTypes,
-    KeyTypes,
-    MessageTypes,
-    StampTypes,
-    UserTypes
-  ];
-  //enumを深く凍結
-  ENUMS.forEach(e => deepFreeze(e));
-
   /** id属性接頭辞 */
   const HTML_ID_PREFIX = 'direct_helper-';
 

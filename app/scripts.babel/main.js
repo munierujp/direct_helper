@@ -5,6 +5,7 @@ import Message from './classes/Message';
 import TalkArea from './classes/TalkArea';
 import formatDate from './functions/formatDate';
 import FileTypes from './enums/FileTypes';
+import FormTypes from './enums/FormTypes';
 
 (function(){
   'use strict';
@@ -98,17 +99,6 @@ import FileTypes from './enums/FileTypes';
       return message;
     }
   }
-
-  /** フォーム種別クラス */
-  class FormType{}
-  /** フォーム種別 */
-  const FormTypes = {
-    CHECKBOX: new FormType(),
-    NUMBER: new FormType(),
-    RADIOBUTTON: new FormType(),
-    TEXT: new FormType(),
-    TEXT_ARRAY: new FormType()
-  };
 
   /** キー種別クラス */
   class KeyType{

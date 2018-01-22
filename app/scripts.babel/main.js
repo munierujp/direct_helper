@@ -3,6 +3,7 @@ import HasValue from './classes/HasValue';
 import Talk from './classes/Talk';
 import TalkArea from './classes/TalkArea';
 import MessageArea from './classes/MessageArea';
+import arrayToString from './functions/arrayToString';
 import formatDate from './functions/formatDate';
 import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
@@ -713,16 +714,6 @@ import settingData from './constants/settingData';
         });
       }).start();
     });
-  }
-
-  /**
-  * 配列をカンマ区切りの文字列に変換します。
-  * 配列が空の場合は空文字を返します。
-  * @param {String[]} array
-  * @return {String} カンマ区切りの文字列
-  */
-  function arrayToString(array){
-    return array.join(',');
   }
 
   /**

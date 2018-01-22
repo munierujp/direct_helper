@@ -716,15 +716,6 @@ import settingData from './constants/settingData';
   }
 
   /**
-  * 文字列から空白文字を取り除きます。
-  * @param {String} source 文字列
-  * @return {String} 空白文字を取り除いた文字列
-  */
-  function removeBlank(source) {
-    return source.replace(/[\s　]/g, '');
-  }
-
-  /**
   * 配列をカンマ区切りの文字列に変換します。
   * 配列が空の場合は空文字を返します。
   * @param {String[]} array

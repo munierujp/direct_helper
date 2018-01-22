@@ -1,17 +1,22 @@
 import 'babel-polyfill';
+
 import HasValue from './classes/HasValue';
 import Talk from './classes/Talk';
 import TalkArea from './classes/TalkArea';
 import MessageArea from './classes/MessageArea';
+
+import fetchSettings from './functions/fetchSettings';
 import arrayToString from './functions/arrayToString';
 import stringToArray from './functions/stringToArray';
 import formatDate from './functions/formatDate';
+
 import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
 import KeyTypes from './enums/KeyTypes';
 import MessageTypes from './enums/MessageTypes';
 import StampTypes from './enums/StampTypes';
 import UserTypes from './enums/UserTypes';
+
 import settingData from './constants/settingData';
 
 (function(){
@@ -714,19 +719,6 @@ import settingData from './constants/settingData';
           talkAreas.forEach(talkArea => callback(talkArea));
         });
       }).start();
-    });
-  }
-
-  /**
-  * Chrome Sync Storageから設定をフェッチします。
-  * @return {Promise} 設定をフェッチするPromise(resolve:settings => {...})
-  */
-  function fetchSettings(){
-    return new Promise(resolve => {
-      chrome.storage.sync.get(SYNC_STORAGE_SETTINGS_KEY, items => {
-        const settings = Optional.ofAbsentable(items[SYNC_STORAGE_SETTINGS_KEY]).orElse({});
-        resolve(settings);
-      });
     });
   }
 

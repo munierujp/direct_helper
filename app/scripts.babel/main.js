@@ -4,35 +4,15 @@ import fetchSettings from '@functions/fetchSettings';
 import setSettings from '@functions/setSettings';
 import arrayToString from '@functions/arrayToString';
 import stringToArray from '@functions/stringToArray';
-
-import doBlurThumbnail from '@actions/doBlurThumbnail';
-import doChangeThumbnailSize from '@actions/doChangeThumbnailSize';
-import doConfirmSendMessageButton from '@actions/doConfirmSendMessageButton';
-import doExpandUserIcon from '@actions/doExpandUserIcon';
-import doResponsiveMultiView from '@actions/doResponsiveMultiView';
-import doShowMessageCount from '@actions/doShowMessageCount';
-import doWatchMessage from '@actions/doWatchMessage';
-
 import FormTypes from '@enums/FormTypes';
-
 import settingData from '@constants/settingData';
+import actions from '@constants/actions';
 
 (function(){
   'use strict';
 
   /** id属性接頭辞 */
   const HTML_ID_PREFIX = 'direct_helper-';
-
-  /** 機能リスト（実行順） */
-  const SETTINGS_KEY_ACTIONS = {
-    blur_thumbnail: doBlurThumbnail,
-    change_thumbnail_size: doChangeThumbnailSize,
-    confirm_send_message_button: doConfirmSendMessageButton,
-    expand_user_icon: doExpandUserIcon,
-    responsive_multi_view: doResponsiveMultiView,
-    show_message_count: doShowMessageCount,
-    watch_message: doWatchMessage
-  };
 
   //設定の初期化
   initializeSettings()
@@ -363,9 +343,9 @@ import settingData from '@constants/settingData';
   async function doActions(){
     const settings = await fetchSettings();
 
-    Object.keys(SETTINGS_KEY_ACTIONS)
+    Object.keys(actions)
       .filter(key => settings[key] === true)
-      .map(key => SETTINGS_KEY_ACTIONS[key])
+      .map(key => actions[key])
       .forEach(action => action());
   }
 })();

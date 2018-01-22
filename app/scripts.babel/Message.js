@@ -1,4 +1,4 @@
-import Talk from './Talk';
+import Talk from './class/Talk';
 import formatDate from './formatDate';
 
 /** メッセージ */

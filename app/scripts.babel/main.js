@@ -1,12 +1,12 @@
 import 'babel-polyfill';
 
+import doActions from '@functions/doActions';
 import fetchSettings from '@functions/fetchSettings';
 import setSettings from '@functions/setSettings';
 import arrayToString from '@functions/arrayToString';
 import stringToArray from '@functions/stringToArray';
 import FormTypes from '@enums/FormTypes';
 import settingData from '@constants/settingData';
-import actions from '@constants/actions';
 
 (function(){
   'use strict';
@@ -16,7 +16,7 @@ import actions from '@constants/actions';
 
   //設定の初期化
   initializeSettings()
-    .then(() => {
+  .then(() => {
     //設定画面の描画
     drawSettingView();
 
@@ -337,15 +337,5 @@ import actions from '@constants/actions';
     }
   }
 
-  /**
-	* 各種機能を実行します。
-	*/
-  async function doActions(){
-    const settings = await fetchSettings();
 
-    Object.keys(actions)
-      .filter(key => settings[key] === true)
-      .map(key => actions[key])
-      .forEach(action => action());
-  }
 })();

@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 import HasValue from './class/HasValue';
 import Talk from './class/Talk';
-import Message from './Message';
+import Message from './class/Message';
 import TalkArea from './TalkArea';
 import formatDate from './formatDate';
 

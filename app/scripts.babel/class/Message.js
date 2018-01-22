@@ -1,5 +1,5 @@
-import Talk from './class/Talk';
-import formatDate from './formatDate';
+import Talk from './Talk';
+import formatDate from '../formatDate';
 
 /** メッセージ */
 class Message{

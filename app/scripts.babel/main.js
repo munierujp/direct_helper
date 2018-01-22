@@ -8,6 +8,7 @@ import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
 import KeyTypes from './enums/KeyTypes';
 import MessageTypes from './enums/MessageTypes';
+import StampTypes from './enums/StampTypes';
 
 (function(){
   'use strict';
@@ -101,14 +102,6 @@ import MessageTypes from './enums/MessageTypes';
       return message;
     }
   }
-
-  /** スタンプ種別クラス */
-  class StampType extends HasValue{}
-  /** スタンプ種別 */
-  const StampTypes = {
-    NO_TEXT: new StampType('no-text'),
-    WITH_TEXT: new StampType('stamp-with-text-body')
-  };
 
   /** ユーザー種別クラス */
   class UserType extends HasValue{}

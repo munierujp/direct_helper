@@ -4,6 +4,7 @@ import Talk from './classes/Talk';
 import TalkArea from './classes/TalkArea';
 import MessageArea from './classes/MessageArea';
 import arrayToString from './functions/arrayToString';
+import stringToArray from './functions/stringToArray';
 import formatDate from './functions/formatDate';
 import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
@@ -714,16 +715,6 @@ import settingData from './constants/settingData';
         });
       }).start();
     });
-  }
-
-  /**
-  * カンマ区切りの文字列を配列に変換します。
-  * 空文字の場合は空の配列を返します。
-  * @param {String} string カンマ区切りの文字列
-  * @return {String[]} 配列
-  */
-  function stringToArray(string){
-    return string !== '' ? string.split(',') : [];
   }
 
   /**

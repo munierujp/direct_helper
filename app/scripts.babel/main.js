@@ -716,21 +716,6 @@ import settingData from './constants/settingData';
   }
 
   /**
-  * オブジェクトを深く凍結します。
-  * @param {Object} object オブジェクト
-  */
-  function deepFreeze(object){
-    Object.freeze(object);
-    Object.keys(object).forEach(key => {
-      const value = object[key];
-      if(!object.hasOwnProperty(key) || typeof value != 'object' || Object.isFrozen(value)){
-        return;
-      }
-      deepFreeze(value);
-    });
-  }
-
-  /**
   * 文字列から空白文字を取り除きます。
   * @param {String} source 文字列
   * @return {String} 空白文字を取り除いた文字列

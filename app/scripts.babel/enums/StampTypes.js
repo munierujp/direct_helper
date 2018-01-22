@@ -1,4 +1,4 @@
-import StampType from '../classes/StampType';
+import StampType from '@classes/StampType';
 
 /** スタンプ種別 */
 const StampTypes = {

@@ -1,4 +1,4 @@
-import UserType from '../classes/UserType';
+import UserType from '@classes/UserType';
 
 /** ユーザー種別 */
 const UserTypes = {

@@ -1,4 +1,4 @@
-import storageKeys from '../constants/storageKeys';
+import storageKeys from '@constants/storageKeys';
 
 const key = storageKeys.settings;
 

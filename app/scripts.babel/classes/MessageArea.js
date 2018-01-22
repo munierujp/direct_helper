@@ -1,8 +1,8 @@
-import Message from './Message';
-import MessageTypes from '../enums/MessageTypes';
-import UserTypes from '../enums/UserTypes';
-import FileTypes from '../enums/FileTypes';
-import StampTypes from '../enums/StampTypes';
+import Message from '@classes/Message';
+import MessageTypes from '@enums/MessageTypes';
+import UserTypes from '@enums/UserTypes';
+import FileTypes from '@enums/FileTypes';
+import StampTypes from '@enums/StampTypes';
 
 /** メッセージエリア */
 class MessageArea{

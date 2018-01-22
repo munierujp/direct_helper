@@ -1,4 +1,4 @@
-import FormType from '../classes/FormType';
+import FormType from '@classes/FormType';
 
 /** フォーム種別 */
 const FormTypes = {

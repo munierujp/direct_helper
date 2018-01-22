@@ -1,4 +1,4 @@
-import KeyType from '../classes/KeyType';
+import KeyType from '@classes/KeyType';
 
 /** キー種別 */
 const KeyTypes = {

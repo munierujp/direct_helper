@@ -1,4 +1,4 @@
-import MessageType from '../classes/MessageType';
+import MessageType from '@classes/MessageType';
 
 /** メッセージ種別 */
 const MessageTypes = {

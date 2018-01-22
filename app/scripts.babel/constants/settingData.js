@@ -1,4 +1,4 @@
-import FormTypes from '../enums/FormTypes';
+import FormTypes from '@enums/FormTypes';
 
 export default {
   key: 'setting',

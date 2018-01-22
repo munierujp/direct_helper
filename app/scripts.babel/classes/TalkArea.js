@@ -1,4 +1,4 @@
-import HasValue from './HasValue';
+import HasValue from '@classes/HasValue';
 
 /** トークエリア */
 class TalkArea extends HasValue{

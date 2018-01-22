@@ -1,4 +1,4 @@
-import FileType from '../classes/FileType';
+import FileType from '@classes/FileType';
 
 /** ファイル種別 */
 const FileTypes = {

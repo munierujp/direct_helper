@@ -1,5 +1,5 @@
 import Talk from './Talk';
-import formatDate from '../formatDate';
+import formatDate from '../functions/formatDate';
 
 /** メッセージ */
 class Message{

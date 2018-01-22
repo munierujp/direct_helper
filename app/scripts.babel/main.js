@@ -6,6 +6,7 @@ import TalkArea from './classes/TalkArea';
 import MessageArea from './classes/MessageArea';
 
 import fetchSettings from './functions/fetchSettings';
+import setSettings from './functions/setSettings';
 import arrayToString from './functions/arrayToString';
 import stringToArray from './functions/stringToArray';
 import formatDate from './functions/formatDate';
@@ -24,9 +25,6 @@ import settingData from './constants/settingData';
 
   /** id属性接頭辞 */
   const HTML_ID_PREFIX = 'direct_helper-';
-
-  /** 同期ストレージ設定キー */
-  const SYNC_STORAGE_SETTINGS_KEY = 'settings';
 
   /** 機能リスト（実行順） */
   const SETTINGS_KEY_ACTIONS = {
@@ -719,16 +717,6 @@ import settingData from './constants/settingData';
           talkAreas.forEach(talkArea => callback(talkArea));
         });
       }).start();
-    });
-  }
-
-  /**
-  * Chrome Sync Storageに設定をセットします。
-  * @param {Object} settings 設定
-  */
-  function setSettings(settings){
-    chrome.storage.sync.set({
-      [SYNC_STORAGE_SETTINGS_KEY]: settings
     });
   }
 })();

@@ -1,16 +1,9 @@
 import 'babel-polyfill';
 
-import HasValue from '@classes/HasValue';
-import Talk from '@classes/Talk';
-import TalkArea from '@classes/TalkArea';
-import MessageArea from '@classes/MessageArea';
-
 import fetchSettings from '@functions/fetchSettings';
 import setSettings from '@functions/setSettings';
 import arrayToString from '@functions/arrayToString';
 import stringToArray from '@functions/stringToArray';
-import formatDate from '@functions/formatDate';
-import observeAddingTalkArea from '@functions/observeAddingTalkArea';
 
 import doBlurThumbnail from '@actions/doBlurThumbnail';
 import doChangeThumbnailSize from '@actions/doChangeThumbnailSize';
@@ -20,12 +13,7 @@ import doResponsiveMultiView from '@actions/doResponsiveMultiView';
 import doShowMessageCount from '@actions/doShowMessageCount';
 import doWatchMessage from '@actions/doWatchMessage';
 
-import FileTypes from '@enums/FileTypes';
 import FormTypes from '@enums/FormTypes';
-import KeyTypes from '@enums/KeyTypes';
-import MessageTypes from '@enums/MessageTypes';
-import StampTypes from '@enums/StampTypes';
-import UserTypes from '@enums/UserTypes';
 
 import settingData from '@constants/settingData';
 

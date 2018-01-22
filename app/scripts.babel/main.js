@@ -13,6 +13,7 @@ import formatDate from '@functions/formatDate';
 import observeAddingTalkArea from '@functions/observeAddingTalkArea';
 
 import doBlurThumbnail from '@actions/doBlurThumbnail';
+import doChangeThumbnailSize from '@actions/doChangeThumbnailSize';
 
 import FileTypes from '@enums/FileTypes';
 import FormTypes from '@enums/FormTypes';
@@ -373,26 +374,6 @@ import settingData from '@constants/settingData';
       .filter(key => settings[key] === true)
       .map(key => SETTINGS_KEY_ACTIONS[key])
       .forEach(action => action());
-  }
-
-  /**
-	* サムネイルサイズの変更機能を実行します。
-	*/
-  async function doChangeThumbnailSize(){
-    const settings = await fetchSettings();
-
-    //トークエリアの追加を監視
-    observeAddingTalkArea(talkArea => {
-      //メッセージの追加を監視
-      TalkArea.of(talkArea).observeAddingMessageArea(messageArea => {
-        const messageType = MessageArea.of(messageArea).messageType;
-        const messageHasFile = messageType == MessageTypes.FILE || messageType == MessageTypes.FILE_AND_TEXT;
-        if(messageHasFile){
-          const $thumbnailArea = $(messageArea).find('.msg-text-contained-thumb');
-          $thumbnailArea.width(settings.thumbnail_size);
-        }
-      });
-    });
   }
 
   /**

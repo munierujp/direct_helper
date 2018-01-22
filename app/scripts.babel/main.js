@@ -6,6 +6,7 @@ import TalkArea from './classes/TalkArea';
 import formatDate from './functions/formatDate';
 import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
+import KeyTypes from './enums/KeyTypes';
 
 (function(){
   'use strict';
@@ -99,20 +100,6 @@ import FormTypes from './enums/FormTypes';
       return message;
     }
   }
-
-  /** キー種別クラス */
-  class KeyType{
-    /**
-    * @param {String} key キー
-    */
-    constructor(key){
-      this.key = key;
-    }
-  }
-  /** キー種別 */
-  const KeyTypes = {
-    ESCAPE: new KeyType('Escape')
-  };
 
   /** メッセージ種別クラス */
   class MessageType extends HasValue{}

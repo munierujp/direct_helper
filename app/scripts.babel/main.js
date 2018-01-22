@@ -2,7 +2,7 @@ import 'babel-polyfill';
 import HasValue from './class/HasValue';
 import Talk from './class/Talk';
 import Message from './class/Message';
-import TalkArea from './TalkArea';
+import TalkArea from './class/TalkArea';
 import formatDate from './formatDate';
 
 (function(){

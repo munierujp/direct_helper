@@ -10,6 +10,7 @@ import setSettings from './functions/setSettings';
 import arrayToString from './functions/arrayToString';
 import stringToArray from './functions/stringToArray';
 import formatDate from './functions/formatDate';
+import observeAddingTalkArea from './functions/observeAddingTalkArea';
 
 import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
@@ -700,23 +701,6 @@ import settingData from './constants/settingData';
           message.log(settings);
         }
       });
-    });
-  }
-
-  /**
-  * トークエリアの追加を監視します。
-  * @param {Function} callback : talkArea => {...}
-  */
-  function observeAddingTalkArea(callback){
-    const $messagesAreas = $('#messages');
-    $messagesAreas.each((i, messagesArea) => {
-      //メッセージエリアに子ノード追加時、トークエリア関連処理を実行
-      Observer.of(messagesArea).childList().hasChanged(records => {
-        records.forEach(record => {
-          const talkAreas = record.addedNodes;
-          talkAreas.forEach(talkArea => callback(talkArea));
-        });
-      }).start();
     });
   }
 })();

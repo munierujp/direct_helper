@@ -7,6 +7,7 @@ import formatDate from './functions/formatDate';
 import FileTypes from './enums/FileTypes';
 import FormTypes from './enums/FormTypes';
 import KeyTypes from './enums/KeyTypes';
+import MessageTypes from './enums/MessageTypes';
 
 (function(){
   'use strict';
@@ -100,18 +101,6 @@ import KeyTypes from './enums/KeyTypes';
       return message;
     }
   }
-
-  /** メッセージ種別クラス */
-  class MessageType extends HasValue{}
-  /** メッセージ種別 */
-  const MessageTypes = {
-    DELETED: new MessageType('msg-type-deleted'),
-    FILE: new MessageType('msg-type-file'),
-    FILE_AND_TEXT: new MessageType('msg-type-textMultipleFile'),
-    STAMP: new MessageType('msg-type-stamp'),
-    SYSTEM: new MessageType('msg-type-system'),
-    TEXT: new MessageType('msg-type-text')
-  };
 
   /** スタンプ種別クラス */
   class StampType extends HasValue{}

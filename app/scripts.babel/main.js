@@ -1,5 +1,6 @@
 import 'babel-polyfill';
 
+import initializeSettings from '@functions/initializeSettings';
 import doActions from '@functions/doActions';
 import fetchSettings from '@functions/fetchSettings';
 import setSettings from '@functions/setSettings';
@@ -23,20 +24,6 @@ import settingData from '@constants/settingData';
     //各種機能の実行
     doActions();
   });
-
-  /**
-  * 設定を初期化します。
-  */
-  async function initializeSettings(){
-    const settings = await fetchSettings();
-
-    //未設定項目にデフォルト値を設定
-    settingData.sections.forEach(section => {
-      section.items.filter(item => settings[item.key] === undefined).forEach(item => settings[item.key] = item.default);
-    });
-
-    setSettings(settings);
-  }
 
   /**
   * 設定画面を描画します。
@@ -336,6 +323,4 @@ import settingData from '@constants/settingData';
       return $formGroup;
     }
   }
-
-
 })();

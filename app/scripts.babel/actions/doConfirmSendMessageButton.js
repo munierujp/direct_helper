@@ -1,4 +1,3 @@
-
 const CONFIRM_MESSAGE = '本当に送信しますか？';
 
 /**

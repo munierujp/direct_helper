@@ -1,8 +1,8 @@
 import 'babel-polyfill';
-import HasValue from './class/HasValue';
-import Talk from './class/Talk';
-import Message from './class/Message';
-import TalkArea from './class/TalkArea';
+import HasValue from './classes/HasValue';
+import Talk from './classes/Talk';
+import Message from './classes/Message';
+import TalkArea from './classes/TalkArea';
 import formatDate from './function/formatDate';
 
 (function(){

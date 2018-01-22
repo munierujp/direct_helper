@@ -1,3 +1,5 @@
+import KeyTypes from '@enums/KeyTypes';
+
 const CUSTOM_MODAL_Z_INDEX = 9999;
 
 /**

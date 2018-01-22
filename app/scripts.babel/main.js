@@ -4,6 +4,7 @@ import Talk from './classes/Talk';
 import Message from './classes/Message';
 import TalkArea from './classes/TalkArea';
 import formatDate from './functions/formatDate';
+import FileTypes from './enums/FileTypes';
 
 (function(){
   'use strict';
@@ -97,14 +98,6 @@ import formatDate from './functions/formatDate';
       return message;
     }
   }
-
-  /** ファイル種別クラス */
-  class FileType extends HasValue{}
-  /** ファイル種別 */
-  const FileTypes = {
-    IMAGE: new FileType('msg-thumb-cover'),
-    OTHER: new FileType()
-  };
 
   /** フォーム種別クラス */
   class FormType{}

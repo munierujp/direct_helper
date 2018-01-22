@@ -17,7 +17,8 @@ module.exports = {
       '@classes': path.resolve(PATH_SCRIPTS, 'classes'),
       '@constants': path.resolve(PATH_SCRIPTS, 'constants'),
       '@enums': path.resolve(PATH_SCRIPTS, 'enums'),
-      '@functions': path.resolve(PATH_SCRIPTS, 'functions')
+      '@functions': path.resolve(PATH_SCRIPTS, 'functions'),
+      '@actions': path.resolve(PATH_SCRIPTS, 'actions')
     }
   }
 

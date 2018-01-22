@@ -12,7 +12,7 @@ import stringToArray from '@functions/stringToArray';
 import formatDate from '@functions/formatDate';
 import observeAddingTalkArea from '@functions/observeAddingTalkArea';
 
-import doBlurThumbnail from '@functions/actions/doBlurThumbnail';
+import doBlurThumbnail from '@actions/doBlurThumbnail';
 
 import FileTypes from '@enums/FileTypes';
 import FormTypes from '@enums/FormTypes';

@@ -3,7 +3,7 @@ import HasValue from './class/HasValue';
 import Talk from './class/Talk';
 import Message from './class/Message';
 import TalkArea from './class/TalkArea';
-import formatDate from './formatDate';
+import formatDate from './function/formatDate';
 
 (function(){
   'use strict';

@@ -1,4 +1,4 @@
-import zeroPadding from './function/zeroPadding';
+import zeroPadding from './zeroPadding';
 
 /**
 * Dateオブジェクトを指定したパターンでフォーマットします。

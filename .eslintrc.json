@@ -7,13 +7,6 @@
   "globals": {
     "chrome": true
   },
-  "rules": {
-    "eol-last": 0,
-    "quotes": [
-      2,
-      "single"
-    ]
-  },
   "parserOptions": {
       "ecmaVersion": 2017,
       "sourceType": "module"

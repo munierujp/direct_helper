@@ -1,7 +1,7 @@
 {
   "name": "direct-helper",
   "scripts": {
-    "start": "gulp watch",
+    "start": "npm run watch",
     "watch": "gulp watch",
     "build": "gulp build",
     "package": "gulp package"

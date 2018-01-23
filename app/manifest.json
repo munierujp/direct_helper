@@ -25,7 +25,7 @@
   "content_scripts": [
     {
       "matches": [
-        "*://direct4b.com/home*"
+        "*://*.direct4b.com/home*"
       ],
       "js": [
         "bower_components/jquery/dist/jquery.min.js",

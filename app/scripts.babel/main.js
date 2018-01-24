@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 
 import initializeSettings from '@functions/initializeSettings';
-import drawSettingView from '@functions/drawSettingView';
+import drawSettingView from '@views/setting/drawSettingView';
 import doActions from '@functions/doActions';
 
 (function(){
@@ -10,7 +10,6 @@ import doActions from '@functions/doActions';
   initializeSettings()
   .then(() => {
     drawSettingView();
-
     doActions();
   });
 })();

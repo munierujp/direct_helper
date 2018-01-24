@@ -1,8 +1,5 @@
 import KeyType from '@classes/KeyType';
 
-/** キー種別 */
-const KeyTypes = {
+export default {
   ESCAPE: new KeyType('Escape')
-};
-
-export default KeyTypes;
+}

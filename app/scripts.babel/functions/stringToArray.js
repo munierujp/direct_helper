@@ -4,8 +4,6 @@
 * @param {String} string カンマ区切りの文字列
 * @return {String[]} 配列
 */
-function stringToArray(string){
+export default function(string){
   return string !== '' ? string.split(',') : [];
 }
-
-export default stringToArray;

@@ -1,5 +1,5 @@
-/** キー種別クラス */
-class KeyType{
+/** キー種別 */
+export default class{
   /**
   * @param {String} key キー
   */
@@ -7,5 +7,3 @@ class KeyType{
     this.key = key;
   }
 }
-
-export default KeyType;

@@ -1,21 +1,24 @@
 import HasValue from '@classes/HasValue';
 
 /** トークエリア */
-class TalkArea extends HasValue{
+export default class extends HasValue{
   /**
   * メッセージエリアの追加を監視します。
   * @param {Function} callback : messageArea => {...}
   */
   observeAddingMessageArea(callback){
-    const realMessageArea = this.value.querySelector('.real-msgs');
-    Observer.of(realMessageArea).childList().hasChanged(records => {
-      records.forEach(record => {
-        Array.from(record.addedNodes)
-          .filter(node => node.className == 'msg')
-          .forEach(messageArea => callback(messageArea));
-      });
-    }).start();
+    const $realMessageAreas = $(this.value).find('.real-msgs');
+    $realMessageAreas.each((i, realMessageArea) => {
+      Observer.of(realMessageArea).childList().hasChanged(records => {
+        records
+          .map(record => record.addedNodes)
+          .map(nodeList => Array.from(nodeList))
+          .forEach(nodes => {
+            nodes
+              .filter(node => node.className == 'msg')
+              .forEach(callback);
+          });
+      }).start();
+    });
   }
 }
-
-export default TalkArea;

@@ -18,8 +18,8 @@ module.exports = {
       '@constants': path.resolve(PATH_SCRIPTS, 'constants'),
       '@enums': path.resolve(PATH_SCRIPTS, 'enums'),
       '@functions': path.resolve(PATH_SCRIPTS, 'functions'),
-      '@actions': path.resolve(PATH_SCRIPTS, 'actions')
+      '@actions': path.resolve(PATH_SCRIPTS, 'actions'),
+      '@views': path.resolve(PATH_SCRIPTS, 'views')
     }
   }
-
 };

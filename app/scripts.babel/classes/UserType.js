@@ -1,6 +1,4 @@
 import HasValue from '@classes/HasValue';
 
-/** ユーザー種別クラス */
-class UserType extends HasValue{}
-
-export default UserType;
+/** ユーザー種別 */
+export default class extends HasValue{}

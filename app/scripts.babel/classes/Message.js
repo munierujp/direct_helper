@@ -2,7 +2,7 @@ import Talk from '@classes//Talk';
 import formatDate from '@functions/formatDate';
 
 /** メッセージ */
-class Message{
+export default class{
   /**
   * @param {Talk} talk Talkオブジェクト
   * @throws {TypeError} talkの型がTalkではない場合
@@ -42,5 +42,3 @@ class Message{
     console.groupEnd();
   }
 }
-
-export default Message;

@@ -1,6 +1,4 @@
 import HasValue from '@classes/HasValue';
 
-/** ファイル種別クラス */
-class FileType extends HasValue{}
-
-export default FileType;
+/** ファイル種別 */
+export default class extends HasValue{}

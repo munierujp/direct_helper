@@ -1,6 +1,4 @@
 import HasValue from '@classes/HasValue';
 
-/** メッセージ種別クラス */
-class MessageType extends HasValue{}
-
-export default MessageType;
+/** メッセージ種別 */
+export default class extends HasValue{}

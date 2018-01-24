@@ -4,7 +4,7 @@ import actions from '@constants/actions';
 /**
 * 各種機能を実行します。
 */
-async function doActions(){
+export default async function(){
   const settings = await fetchSettings();
 
   Object.keys(actions)
@@ -12,5 +12,3 @@ async function doActions(){
     .map(key => actions[key])
     .forEach(action => action());
 }
-
-export default doActions;

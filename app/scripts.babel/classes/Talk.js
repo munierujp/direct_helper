@@ -1,5 +1,5 @@
 /** トーク */
-class Talk{
+export default class{
   /**
   * @param {String} id トークID
   * @param {String} name トーク名
@@ -19,5 +19,3 @@ class Talk{
     return new this(id, name);
   }
 }
-
-export default Talk;

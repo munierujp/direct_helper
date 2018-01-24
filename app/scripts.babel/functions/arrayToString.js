@@ -4,8 +4,6 @@
 * @param {String[]} array
 * @return {String} カンマ区切りの文字列
 */
-function arrayToString(array){
+export default function(array){
   return array.join(',');
 }
-
-export default arrayToString;

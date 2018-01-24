@@ -1,5 +1,4 @@
-/** 値保持クラス */
-class HasValue{
+export default class{
   /**
   * @param {Object} value 値
   */
@@ -16,5 +15,3 @@ class HasValue{
     return new this(value);
   }
 }
-
-export default HasValue;

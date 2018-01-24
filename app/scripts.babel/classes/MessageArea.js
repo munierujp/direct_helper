@@ -5,7 +5,7 @@ import FileTypes from '@enums/FileTypes';
 import StampTypes from '@enums/StampTypes';
 
 /** メッセージエリア */
-class MessageArea{
+export default class{
   /**
   * @param {Element} value メッセージエリア
   */
@@ -13,7 +13,11 @@ class MessageArea{
     this.value = value;
     this.$messageArea = $(this.value);
     this.$messageAreaFirstChild = this.$messageArea.find('div:first-child');
+    this.$userName = this.$messageAreaFirstChild.find('.username');
     this.$messageBodyArea = this.$messageAreaFirstChild.find('.msg-body');
+    this.$thumbnail = this.$messageBodyArea.find('.msg-thumb');
+    this.$thumbnailText = this.$messageBodyArea.find('.msg-thumbs-text');
+    this.$stamp = this.$messageBodyArea.find('img');
     this.messageType = Object.values(MessageTypes).find(messageType => this.$messageBodyArea.hasClass(messageType.value));
   }
 
@@ -35,9 +39,10 @@ class MessageArea{
     if(this.$messageAreaFirstChild.hasClass(UserTypes.SYSTEM.value)){
       return settings.user_name_system;
     }else if(this.$messageAreaFirstChild.hasClass(UserTypes.ME.value)){
-      return $('#current-username').text();
+      const $currentUserName = $('#current-username');
+      return $currentUserName.text();
     }else if(this.$messageAreaFirstChild.hasClass(UserTypes.OTHERS.value)){
-      return this.$messageAreaFirstChild.find('.username').text();
+      return this.$userName.text();
     }
   }
 
@@ -47,19 +52,11 @@ class MessageArea{
   * @return {String} 本文
   */
   getMessageBody(settings){
-    const messageHasFile = this.messageType == MessageTypes.FILE || this.messageType == MessageTypes.FILE_AND_TEXT;
-    const messageHasStamp = this.messageType == MessageTypes.STAMP;
-    if(messageHasFile){
-      const fileType = Object.values(FileTypes).find(fileType => this.$messageBodyArea.find('.msg-thumb').hasClass(fileType.value));
+    if(this.hasFile()){
+      const fileType = Object.values(FileTypes).find(fileType => this.$thumbnail.hasClass(fileType.value));
       const prefix = fileType == FileTypes.IMAGE ? settings.log_image : settings.log_file;
-      const messageHasText = this.messageType == MessageTypes.FILE_AND_TEXT && !(this.$messageBodyArea.hasClass('no-text'));
-      if(messageHasText){
-        const text =this.$messageBodyArea.find('.msg-thumbs-text').text();
-        return prefix + text;
-      }else{
-        return prefix;
-      }
-    }else if(messageHasStamp){
+      return this.$thumbnailText.length ? prefix + this.$thumbnailText.text() : prefix;
+    }else if(this.hasStamp()){
       const stampType = Object.values(StampTypes).find(stampType => this.$messageBodyArea.hasClass(stampType.value));
       if(stampType == StampTypes.NO_TEXT){
         return settings.log_stamp;
@@ -68,9 +65,24 @@ class MessageArea{
 
     //本文テキストのみを取得するために深く複製したノードからメッセージメニューを削除
     const $messageText = this.$messageBodyArea.find('.msg-text').clone();
-    const $messageMenu = $messageText.find('.msg-menu-container');
-    $messageMenu.remove();
+    $messageText.find('.msg-menu-container').remove();
     return $messageText.text();
+  }
+
+  /**
+  * ファイルを持っているかどうかを判定します。
+  * @return {Boolean} ファイルを持っているか
+  */
+  hasFile(){
+    return this.messageType == MessageTypes.FILE || this.messageType == MessageTypes.FILE_AND_TEXT;
+  }
+
+  /**
+  * スタンプを持っているかどうかを判定します。
+  * @return {Boolean} スタンプを持っているか
+  */
+  hasStamp(){
+    return this.messageType == MessageTypes.STAMP;
   }
 
   /**
@@ -86,12 +98,10 @@ class MessageArea{
     message.userName = this.getUserName(settings);
     message.body = this.getMessageBody(settings);
 
-    if(this.messageType == MessageTypes.STAMP){
-      message.stamp = this.$messageBodyArea.find('img').get(0);
+    if(this.hasStamp()){
+      message.stamp = this.$stamp.get(0);
     }
 
     return message;
   }
 }
-
-export default MessageArea;

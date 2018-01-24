@@ -1,14 +1,11 @@
 import fetchSettings from '@functions/fetchSettings';
 
-/**
-* 入力文字数の表示機能を実行します。
-*/
-async function doShowMessageCount(){
+export default async function(){
   const settings = await fetchSettings();
-  const countDown = settings.show_message_count_types== 'countdown';
+  const countDown = settings.show_message_count_types == 'countdown';
 
-  const sendForms = $('.form-send');
-  sendForms.each((i, sendForm) => {
+  const $sendForms = $('.form-send');
+  $sendForms.each((i, sendForm) => {
     const $textArea = $(sendForm).find('.form-send-text');
     const maxLength = $textArea.prop('maxLength');
 
@@ -19,12 +16,10 @@ async function doShowMessageCount(){
     $sendButtonGroup.prepend($counter);
 
     //文字入力時にカウンターの値を更新
-    $textArea.on('input.direct_helper_doShowMessageCount', () => {
+    $textArea.on('input', () => {
       const currentLength = $textArea.val().length;
       const count = countDown ? maxLength - currentLength : currentLength;
       $counter.text(count);
     });
   });
 }
-
-export default doShowMessageCount;

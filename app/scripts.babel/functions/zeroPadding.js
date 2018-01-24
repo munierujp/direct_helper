@@ -4,7 +4,7 @@
 * @param {Number} digits 桁数
 * @return {String} ゼロ埋めした文字列
 */
-function zeroPadding(num, digits){
+export default function(num, digits){
   const source = String(num);
   let zeros = '';
   for(let i = 0; i < digits - source.length; i++){
@@ -12,5 +12,3 @@ function zeroPadding(num, digits){
   }
   return zeros + source;
 }
-
-export default zeroPadding;

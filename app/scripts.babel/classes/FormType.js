@@ -1,4 +1,2 @@
-/** フォーム種別クラス */
-class FormType{}
-
-export default FormType;
+/** フォーム種別 */
+export default class{}

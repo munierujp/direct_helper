@@ -1,26 +1,10 @@
 ﻿# direct helper
-<img src="doc/icon.png" alt=*アイコン* width="500">
+<img src="doc/icon.png" alt="アイコン" width="500">
 
-ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
+ビジネス用チャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するChrome拡張
 
 ## サンプル
 ![サンプル画像](doc/sample.png)
-
-## インストール方法
-### ユーザースクリプトマネージャーをインストール
-ユーザースクリプトを実行するために、以下のいずれかのユーザースクリプトマネージャーをインストールしてください。  
-
-* [Greasemonkey](http://www.greasespot.net)
-* [Tampermonkey](https://tampermonkey.net/)
-* [Violentmonkey](https://violentmonkey.github.io)
-
-direct helperは、ChromeのTampermonkeyで動作確認をしています。
-
-### ユーザースクリプトをインストール
-* [direct_helper.user.js](https://github.com/munierujp/direct_helper/raw/master/src/direct_helper.user.js)
-
-上記ファイルをスクリプトマネージャーにインストールしてください。  
-Tampermonkeyの場合、リンクをクリックするとインストール画面が表示されます。
 
 ## 使用方法
 direct helperが有効なとき、directの右上にアイコンが表示されます。  

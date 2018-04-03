@@ -3,9 +3,6 @@
 
 ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するChrome拡張
 
-## サンプル
-![サンプル画像](doc/sample.png)
-
 ## 使用方法
 direct helperが有効なとき、directの画面右上にアイコンが表示されます。  
 アイコンをクリックすると、設定画面が表示されます。  

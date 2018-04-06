@@ -1,57 +1,52 @@
-﻿# direct helper
+# direct helper
 <img src="doc/icon.png" alt="アイコン" width="500">
 
-ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するユーザースクリプト
-
-## サンプル
-![サンプル画像](doc/sample.png)
-
-## インストール方法
-### ユーザースクリプトマネージャーをインストール
-ユーザースクリプトを実行するために、以下のいずれかのユーザースクリプトマネージャーをインストールしてください。  
-
-* [Greasemonkey](http://www.greasespot.net)
-* [Tampermonkey](https://tampermonkey.net/)
-* [Violentmonkey](https://violentmonkey.github.io)
-
-direct helperは、ChromeのTampermonkeyで動作確認をしています。
-
-### ユーザースクリプトをインストール
-* [direct_helper.user.js](https://github.com/munierujp/direct_helper/raw/master/src/direct_helper.user.js)
-
-上記ファイルをスクリプトマネージャーにインストールしてください。  
-Tampermonkeyの場合、リンクをクリックするとインストール画面が表示されます。
+ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するChrome拡張
 
 ## 使用方法
-direct helperが有効なとき、directの右上にアイコンが表示されます。  
-アイコンをクリックすると、設定画面が開きます。  
+direct helperが有効なとき、directの画面右上にアイコンが表示されます。  
+アイコンをクリックすると、設定画面が表示されます。  
 設定画面で使用したい機能をオンにすることで、その機能が有効になります。
 
 ## 機能
-### ユーザーダイアログ
-#### ユーザーアイコンの拡大
-ユーザーアイコンをクリックで拡大表示します。
+### ユーザーアイコンの拡大
+<img src="doc/expand_user_icon.png" alt="expand_user_icon" width="500">
 
-### 画像
-#### サムネイルサイズの変更
-画像のサムネイルサイズを変更します。
+ユーザーダイアログのアイコンをクリックすると、画像を拡大表示します。
 
-#### サムネイル画像をぼかす
-サムネイル画像にブラー効果をかけてぼかします。
+### サムネイルサイズの変更
+<img src="doc/change_thumbnail_size.png" alt="change_thumbnail_size" width="500">
 
-### メッセージ入力
-#### 送信ボタンの確認
-送信ボタンによるメッセージ送信前に確認します。
+サムネイル画像のサイズを変更します。  
+サイズは自由に指定できます。
 
-#### 入力文字数の表示
-入力文字数をカウントダウン形式またはカウントアップ形式で表示します。
+### サムネイル画像をぼかす
+<img src="doc/blur_thumbnail.png" alt="blur_thumbnail" width="500">
 
-### マルチビュー
-#### マルチビューのレスポンシブ化
-選択状態に応じてマルチビューのカラム数を動的に変更します。
+サムネイル画像にブラー効果をかけてぼかします。  
+ぼかし度は自由に指定できます。
 
-### メッセージ監視  
-メッセージを監視してコンソールに出力します。シングルビューでのみ動作します。
+### 送信ボタンの確認
+<img src="doc/confirm_send_message_button.png" alt="confirm_send_message_button" width="500">
+
+送信ボタンによるメッセージ送信前に、ダイアログで確認します。
+
+### 入力文字数の表示
+<img src="doc/show_message_count.png" alt="show_message_count" width="500">
+
+メッセージ入力欄に、入力文字数を表示します。  
+表示形式は、カウントダウン形式かカウントアップ形式を選べます。
+
+### マルチビューのレスポンシブ化
+<img src="doc/responsive_multi_view.png" alt="responsive_multi_view" width="500">
+
+デフォルトでは3カラム固定であるマルチビューのカラム数を、選択状態に応じて動的に変更します。
+
+### メッセージ監視
+<img src="doc/watch_message.png" alt="watch_message" width="500">
+
+メッセージを監視してコンソールに出力します。  
+複数のトークを行ったり来たりすることなく、メッセージを読むことができます。
 
 ## 設定
 directの環境設定画面から、各種設定を変更できます。

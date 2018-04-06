@@ -9,8 +9,14 @@
 上記リンクからChromeウェブストアを開き、インストールしてください。
 
 ## 使用方法
-direct helperが有効なとき、directの画面右上にアイコンが表示されます。  
-アイコンをクリックすると、設定画面が表示されます。  
+direct helperが有効なとき、directの画面右上にアイコンが表示されます。
+
+<img src="doc/setting_icon.png" alt="setting_icon" width="500">
+
+アイコンをクリックすると、設定画面が表示されます。
+
+<img src="doc/setting_view.png" alt="setting_view" width="500">
+
 設定画面で使用したい機能をオンにすることで、その機能が有効になります。
 
 ## 機能

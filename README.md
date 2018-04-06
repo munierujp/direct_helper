@@ -3,6 +3,11 @@
 
 ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するChrome拡張
 
+## インストール方法
+* [direct helper ](https://chrome.google.com/webstore/detail/fhbllgfoempopcijliicheinpdbohdic/publish-accepted)
+
+上記リンクからChromeウェブストアを開き、インストールしてください。
+
 ## 使用方法
 direct helperが有効なとき、directの画面右上にアイコンが表示されます。  
 アイコンをクリックすると、設定画面が表示されます。  

@@ -1,3 +1,6 @@
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/fhbllgfoempopcijliicheinpdbohdic.svg)](https://chrome.google.com/webstore/detail/direct-helper/fhbllgfoempopcijliicheinpdbohdic)
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/users/fhbllgfoempopcijliicheinpdbohdic.svg)](https://chrome.google.com/webstore/detail/direct-helper/fhbllgfoempopcijliicheinpdbohdic)
+
 # direct helper
 <img src="doc/direct_helper.png" alt="direct_helper" width="500">
 

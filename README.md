@@ -2,6 +2,8 @@
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/users/fhbllgfoempopcijliicheinpdbohdic.svg)](https://chrome.google.com/webstore/detail/direct-helper/fhbllgfoempopcijliicheinpdbohdic)
 
 # direct helper
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/munierujp/direct_helper.svg)](https://greenkeeper.io/)
 <img src="doc/direct_helper.png" alt="direct_helper" width="500">
 
 ビジネスチャットツール[direct](https://direct4b.com/ja/)に便利な機能を追加するChrome拡張

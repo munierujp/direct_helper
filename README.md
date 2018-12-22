@@ -108,7 +108,3 @@ directの環境設定画面から、各種設定を変更できます。
 
 ## 開発方法
 [CONTRIBUTING.md](.github/CONTRIBUTING.md)を参照してください。
-
-## コンタクト
-* [GitHub](https://github.com/munierujp/direct_helper)
-* [Twitter](http://twitter.com/munieru_jp)
